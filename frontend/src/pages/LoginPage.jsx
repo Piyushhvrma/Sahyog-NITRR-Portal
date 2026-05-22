@@ -1,99 +1,114 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../api.js'; // Ensure this path is correct
-import { AuthContext } from '../context/AuthContext.jsx'; // Ensure this path is correct
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../api.js";
+import { AuthContext } from "../context/AuthContext.jsx";
 
 const LoginPage = () => {
-  // State for form inputs
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  // State for loading indicator
   const [isLoading, setIsLoading] = useState(false);
-  // State for displaying errors
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  // Hook for navigation
   const navigate = useNavigate();
-  // Get login function from authentication context
   const { login } = useContext(AuthContext);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setIsLoading(true); // Start loading
-    setError(''); // Clear previous errors
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
-      // Send login request to the backend
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }), // Send credentials
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      // Parse the JSON response from the backend
       const data = await res.json();
 
-      // Check if the request was successful (status code 2xx)
       if (res.ok) {
-        // --- SUCCESS ---
-        login(data.token, data.user); // Save token and user data using context
-        navigate('/'); // Redirect to the home page
+        login(data.token, data.user);
+        navigate("/");
       } else {
-        // --- FAILURE ---
-        // If backend returned an error (e.g., invalid credentials)
-        setError(data.message || 'Login failed. Please check credentials.');
+        setError(data.message || "Login failed. Please check credentials.");
       }
-    } catch (err) { // Catch network errors or other issues during fetch
-      console.error('Login fetch error:', err);
-      // Provide user-friendly error messages
-      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
-        setError('Failed to connect to the server. Please check connection.');
-      } else {
-        setError('An unexpected error occurred during login.');
-      }
+    } catch (err) {
+      console.error("Login fetch error:", err);
+      setError("Failed to connect to the server. Please check connection.");
     } finally {
-      setIsLoading(false); // Stop loading, whether success or error
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Email Input */}
-        <label htmlFor="login-email">Email:</label>
-        <input
-          id="login-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          required
-          disabled={isLoading} // Disable input while loading
-        />
+    <div className="login-page">
+      <div className="login-shell">
+        <div className="login-info">
+          <span className="login-badge">SAHYOG Portal</span>
 
-        {/* Password Input */}
-        <label htmlFor="login-password">Password:</label>
-        <input
-          id="login-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
-          required
-          disabled={isLoading} // Disable input while loading
-        />
+          <h1>
+            Welcome Back,
+            <br />
+            NITRRian.
+          </h1>
 
-        {/* Display error message if login fails */}
-        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+          <p>
+            “A common space for NIT Raipur students to learn, connect, and support each other.”
+          </p>
 
-        {/* Submit Button */}
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Logging In...' : 'Login'}
-        </button>
-      </form>
+          <div className="login-points">
+            <div>📚 PYQs, notes and academic resources</div>
+            <div>🎓 Support for all NIT Raipur students</div>
+            <div>🩸 Emergency blood request assistance</div>
+          </div>
+        </div>
+
+        <div className="login-card">
+          <div className="login-card-header">
+            <h2>Login</h2>
+            <p>Access your SAHYOG dashboard</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="modern-login-form">
+            <div className="login-field">
+              <label htmlFor="login-email">Email Address</label>
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="login-field">
+              <label htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            {error && <div className="login-error">{error}</div>}
+
+            <button type="submit" className="login-submit-btn" disabled={isLoading}>
+              {isLoading ? "Logging In..." : "Login to Portal"}
+            </button>
+          </form>
+
+          <p className="login-footer-text">
+            New to SAHYOG? <Link to="/signup">Create account</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
