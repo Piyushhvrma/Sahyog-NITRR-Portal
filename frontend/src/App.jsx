@@ -1,5 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import ProfilePage from './pages/ProfilePage.jsx';
+import BloodRequestPage from './pages/BloodRequestPage.jsx';
+import EmergencyBloodRequestPage from './pages/EmergencyBloodRequestPage.jsx';
 
 // Layout Components
 // --- FIX: Added .jsx extensions ---
@@ -36,6 +39,10 @@ export default function App() {
             <Route path="/branch/:year" element={<BranchPage />} />
             <Route path="/semester/:year/:branch" element={<SemesterPage />} />
             <Route path="/viewer/:year/:branch/:semester" element={<Viewer />} />
+
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/blood-request" element={<BloodRequestPage />} />
+            <Route path="/blood-request/emergency" element={<EmergencyBloodRequestPage />} />
           </Route>
 
           {/* === PUBLIC-ONLY ROUTES (for logged-out users) === */}

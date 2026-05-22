@@ -23,7 +23,10 @@ const Navbar = () => {
             <span className="brand-subtitle">National Institute of Technology, Raipur</span>
           </div>
 
-          <span className="home-badge">⌂</span>
+          <div className="home-wrapper">
+            <span className="home-badge">⌂</span>
+           <span className="home-label">HOME</span>
+          </div>
         </Link>
       </div>
 
@@ -34,10 +37,13 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <span className="navbar-user">Welcome!</span>
-              <button onClick={handleLogout} className="navbar-button">
-                Logout
-              </button>
+             <Link to="/blood-request" className="navbar-link blood-link">
+              Blood Request
+             </Link>
+ 
+             <span className="navbar-user">
+              Welcome, {user?.name?.split(" ")[0]}
+             </span>
             </>
           ) : (
             <>
