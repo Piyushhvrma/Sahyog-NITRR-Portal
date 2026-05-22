@@ -4,28 +4,57 @@ const EmergencyBloodRequestPage = () => {
   return (
     <div className="emergency-page">
       <div className="emergency-card">
-        <h1>Emergency Blood Request</h1>
-        <p className="emergency-subtitle">
-          Fill valid patient and student details. Backend notification system will be added later.
-        </p>
+        <div className="emergency-top">
+          <div className="emergency-icon">🚨</div>
+          <h1>Emergency Blood Request</h1>
+          <p>
+            Fill correct patient and student details. This request will later be connected with backend notifications.
+          </p>
+        </div>
 
         <form className="emergency-form">
           <div className="form-grid">
-            <input type="text" placeholder="Student Name" />
-            <input type="text" placeholder="Branch" />
-            <input type="text" placeholder="Year" />
-            <input type="text" placeholder="Roll Number" />
-            <input type="tel" placeholder="Patient Family Contact Number" />
-            <input type="text" placeholder="Hospital Name" />
+            <div className="form-group">
+              <label>Student Name</label>
+              <input type="text" placeholder="Enter your full name" />
+            </div>
+
+            <div className="form-group">
+              <label>Branch</label>
+              <input type="text" placeholder="Information Technology" />
+            </div>
+
+            <div className="form-group">
+              <label>Year</label>
+              <input type="text" placeholder="3rd Year" />
+            </div>
+
+            <div className="form-group">
+              <label>Roll Number</label>
+              <input type="text" placeholder="Enter roll number" />
+            </div>
+
+            <div className="form-group">
+              <label>Patient Family Contact</label>
+              <input type="tel" placeholder="Enter contact number" />
+            </div>
+
+            <div className="form-group">
+              <label>Hospital Name</label>
+              <input type="text" placeholder="Enter hospital name" />
+            </div>
           </div>
 
-          <textarea
-            rows="5"
-            placeholder="Write illness/problem, required blood group, units needed, urgency, hospital address, and any extra details..."
-          ></textarea>
+          <div className="form-group">
+            <label>Request Details</label>
+            <textarea
+              rows="5"
+              placeholder="Mention illness, required blood group, units needed, urgency, hospital address, patient condition, and extra details..."
+            ></textarea>
+          </div>
 
           <label className="document-upload">
-            Upload Valid Document / Prescription Photo
+            <span>📄 Upload Valid Document / Prescription Photo</span>
             <input type="file" accept="image/*,.pdf" />
           </label>
 

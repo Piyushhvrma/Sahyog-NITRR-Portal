@@ -656,123 +656,206 @@ input:focus, select:focus, textarea:focus {
   background: #dc2626;
 }
 
-/* BLOOD REQUEST */
+/* BLOOD REQUEST CLEAN FINAL */
 
-.blood-subtitle {
-  color: rgba(255,255,255,0.76);
-  margin-top: -6px;
-}
-
-.blood-features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-  gap: 18px;
-  margin-top: 35px;
-}
-
-.blood-three {
-  grid-template-columns: repeat(3,1fr);
-}
-
-.blood-feature {
-  background: rgba(255,255,255,0.08);
-  padding: 24px;
-  border-radius: 18px;
-  font-weight: 600;
-  transition: 0.3s ease;
-}
-
-.blood-feature:hover {
-  transform: translateY(-5px);
-  background: rgba(255,255,255,0.14);
-}
-
-.blood-main-card {
-  text-decoration: none;
-  color: white;
-  background: linear-gradient(135deg, rgba(239,68,68,0.35), rgba(220,38,38,0.2));
-  border: 1px solid rgba(248,113,113,0.45);
-}
-
-.blood-coming-btn {
-  margin-top: 35px;
-  background: linear-gradient(135deg,#ef4444,#dc2626);
-  padding: 14px 28px;
-  border-radius: 14px;
-}
-
-/* EMERGENCY FORM */
-
+.blood-page,
 .emergency-page {
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 45px 20px;
+  align-items: flex-start;
+  padding: 70px 20px;
 }
 
+.blood-card,
 .emergency-card {
   width: 100%;
-  max-width: 950px;
+  max-width: 920px;
   background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 24px;
-  padding: 40px;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 26px;
+  padding: 45px;
   color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.28);
 }
 
-.emergency-card h1,
-.emergency-subtitle {
+.blood-card {
   text-align: center;
 }
 
-.emergency-subtitle {
+.blood-icon,
+.emergency-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.blood-top h1,
+.emergency-top h1 {
+  color: white;
+  font-size: 2.7rem;
+  margin: 0 0 12px;
+}
+
+.blood-quote {
+  color: #fecaca;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.blood-subtitle,
+.emergency-top p {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.05rem;
+}
+
+.blood-main-btn {
+  display: block;
+  margin: 35px auto 24px;
+  max-width: 560px;
+  padding: 26px 28px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ef4444, #991b1b);
+  color: white;
+  text-decoration: none;
+  font-size: 1.55rem;
+  font-weight: 800;
+  box-shadow: 0 14px 35px rgba(239,68,68,0.35);
+  transition: 0.25s ease;
+}
+
+.blood-main-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(239,68,68,0.45);
+}
+
+.blood-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.blood-secondary-card {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  padding: 25px;
+  transition: 0.25s ease;
+}
+
+.blood-secondary-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.16);
+}
+
+.blood-secondary-card span {
+  font-size: 2rem;
+}
+
+.blood-secondary-card h3 {
+  margin: 10px 0 6px;
+}
+
+.blood-secondary-card p {
   color: rgba(255,255,255,0.75);
-  margin-bottom: 30px;
+  margin: 0;
+}
+
+/* EMERGENCY FORM CLEAN */
+
+.emergency-top {
+  text-align: center;
+  margin-bottom: 35px;
 }
 
 .emergency-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 18px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.form-group label {
+  color: rgba(255,255,255,0.9);
+  font-weight: 700;
 }
 
 .emergency-form input,
 .emergency-form textarea {
-  border-radius: 12px;
-  border: none;
-  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.16);
+  padding: 15px 17px;
   font-size: 15px;
+  background: rgba(255,255,255,0.96);
+  color: #111827;
+}
+
+.emergency-form textarea {
+  min-height: 140px;
 }
 
 .document-upload {
-  background: rgba(255,255,255,0.1);
-  border: 1px dashed rgba(255,255,255,0.4);
-  border-radius: 14px;
-  padding: 18px;
-  color: rgba(255,255,255,0.9);
+  background: rgba(239,68,68,0.13);
+  border: 1px dashed rgba(248,113,113,0.65);
+  border-radius: 18px;
+  padding: 22px;
+  color: white;
   cursor: pointer;
 }
 
+.document-upload span {
+  font-weight: 700;
+}
+
 .document-upload input {
-  margin-top: 12px;
+  margin-top: 15px;
   color: white;
 }
 
 .submit-request-btn {
-  background: linear-gradient(135deg,#ef4444,#dc2626);
-  border-radius: 14px;
+  background: linear-gradient(135deg, #ef4444, #991b1b);
+  border-radius: 16px;
   margin: 10px auto 0;
-  padding: 14px 34px;
+  padding: 15px 38px;
+  font-size: 1.05rem;
 }
 
+.submit-request-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #7f1d1d);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .blood-card,
+  .emergency-card {
+    padding: 30px 20px;
+  }
+
+  .blood-secondary-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blood-top h1,
+  .emergency-top h1 {
+    font-size: 2rem;
+  }
+
+  .blood-main-btn {
+    font-size: 1.2rem;
+  }
+}
 /* CLEAN SLIM FOOTER */
 
 .footer {
