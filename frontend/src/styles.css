@@ -1238,3 +1238,109 @@ input:focus, select:focus, textarea:focus {
     padding: 30px 22px;
   }
 }
+
+
+/* THE COMING SOON PROFILE */
+.profile-menu-wrapper {
+  position: relative;
+}
+
+.profile-circle {
+  cursor: pointer;
+  border: 2px solid white;
+  background: #12344d;
+  color: white;
+  border-radius: 50%;
+  width: 62px;
+  height: 62px;
+  font-size: 25px;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 75px;
+  right: 0;
+  width: 230px;
+  background: #1f3447;
+  border-radius: 14px;
+  padding: 10px 0;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+  z-index: 9999;
+}
+
+.profile-dropdown a {
+  display: block;
+  padding: 14px 20px;
+  color: white;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.profile-dropdown a:hover {
+  background: #2d4f6b;
+  color: #ff6b6b;
+}
+
+.coming-soon-page {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.coming-soon-card {
+  width: 100%;
+  max-width: 720px;
+  text-align: center;
+  padding: 55px 40px;
+  border-radius: 28px;
+  background: rgba(24, 39, 55, 0.88);
+  color: white;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.coming-soon-icon {
+  font-size: 70px;
+  margin-bottom: 18px;
+}
+
+.coming-soon-card h1 {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.coming-soon-card h2 {
+  font-size: 30px;
+  color: #ff6b6b;
+  margin-bottom: 20px;
+}
+
+.coming-soon-card p {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #dce6ef;
+}
+
+.stay-tuned-text {
+  font-weight: 800;
+  color: #65f0a2 !important;
+  margin-top: 15px;
+}
+
+.coming-soon-btn {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 14px 28px;
+  background: #2699dd;
+  color: white;
+  text-decoration: none;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.coming-soon-btn:hover {
+  background: #187bbb;
+}

@@ -14,7 +14,7 @@ const AboutPage = () => {
       <header className="about-hero">
         <div className="about-hero-content">
           <h1>Our Story: The Heart of Mentorship</h1>
-          <p>Discover the journey and vision behind SAHYOG - The Mentorship Club.</p>
+          <p>Discover the journey and vision behind SAHYOG - The WellBeing Club.</p>
         </div>
       </header>
 
