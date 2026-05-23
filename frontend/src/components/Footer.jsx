@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-content">
         <span className="footer-text">
-          © {currentYear} SAHYOG Club | Designed by
+          © {currentYear} SAHYOG Club | Designed & Developed by 
         </span>
 
         <a
