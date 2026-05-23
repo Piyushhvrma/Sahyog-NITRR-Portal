@@ -1,7 +1,5 @@
 # SAHYOG - The WellBeing Club Portal (NIT Raipur)
 
-![SAHYOG Banner](./frontend/src/assets/sahyoggrouppic.jpeg)
-
 A modern full-stack MERN portal developed for **SAHYOG - The WellBeing Club, NIT Raipur**.  
 The platform provides academic resources, emergency blood request support, event management, secure authentication, and future student wellbeing services in a centralized ecosystem.
 
