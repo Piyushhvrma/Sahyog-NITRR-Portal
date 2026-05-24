@@ -1268,3 +1268,66 @@ input[type="file"]::file-selector-button {
   -webkit-text-fill-color: #ffffff !important;
   text-shadow: 0 3px 18px rgba(0, 0, 0, 0.55) !important;
 }
+/* FINAL CLEAN MOBILE NAVBAR */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .navbar-brand {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .navbar-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-title-box {
+    align-items: center;
+    max-width: 100%;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .brand-subtitle {
+    font-size: 0.58rem;
+    text-align: center;
+  }
+
+  .navbar-links {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 10px;
+    align-items: center;
+  }
+
+  .navbar-link,
+  .navbar-user {
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .profile-menu-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .profile-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .profile-dropdown {
+    top: 55px;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
