@@ -1011,377 +1011,118 @@ input[type="file"]::file-selector-button {
   }
 }
 
-/* ---------- 16. MOBILE ---------- */
+/* =========================
+   FINAL CLEAN MOBILE NAVBAR
+========================= */
 @media (max-width: 768px) {
-  body {
-    background-attachment: scroll;
-    background-position: center top;
-  }
 
-  main.page-container {
-    padding: 10px;
-  }
-
-  .container,
-  .login-info,
-  .login-card,
-  .profile-card,
-  .blood-card,
-  .emergency-card {
-    background: var(--glass-bg-mobile);
-    border-radius: 18px;
-  }
-
+  /* Navbar Layout */
   .navbar {
-    min-height: auto;
-    padding: 8px 10px;
+    padding: 10px 14px;
+    display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
   }
 
-  .navbar-left,
-  .navbar-right {
-    width: 100%;
-    justify-content: center;
-  }
-
+  /* Logo Area */
   .navbar-brand {
-    width: 100%;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    white-space: normal;
-    text-align: center;
-    gap: 8px;
+    gap: 10px;
+    width: 100%;
   }
 
   .navbar-logo {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
   }
 
   .brand-title-box {
-    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .brand-text {
-    font-size: 0.88rem;
+    font-size: 1.15rem;
+    font-weight: 800;
     line-height: 1.1;
   }
 
   .brand-subtitle {
-    font-size: 0.52rem;
+    font-size: 0.62rem;
+    opacity: 0.85;
   }
 
-  .home-wrapper {
-    display: none;
-  }
-
+  /* Nav Links */
   .navbar-links {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-  }
-
-  .navbar-link,
-  .navbar-user {
-    font-size: 0.72rem;
-    line-height: 1.2;
-  }
-
-  .navbar-link::after {
-    display: none;
-  }
-
-  .profile-circle {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-
-  .profile-dropdown {
-    top: 44px;
-    right: 0;
-    width: 190px;
-  }
-
-  .container {
-    width: 100%;
-    margin: 14px auto;
-    padding: 18px 12px;
-  }
-
-  .container > h1 {
-    font-size: 1.7rem;
-  }
-
-  .container > h2 {
-    font-size: 1.1rem;
-  }
-
-  .container > p,
-  .login-info p {
-    font-size: 0.95rem;
-  }
-
-  .options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .options button {
-    width: 100%;
-    min-width: 0;
-    margin: 0;
-    padding: 10px 8px;
-    font-size: 0.72rem;
-    line-height: 1.25;
-  }
-
-  .login-page,
-  .profile-page,
-  .blood-page,
-  .emergency-page {
-    padding: 24px 10px;
-  }
-
-  .login-shell {
-    gap: 18px;
-  }
-
-  .login-info,
-  .login-card,
-  .profile-card,
-  .blood-card,
-  .emergency-card {
-    padding: 24px 16px;
-  }
-
-  .login-info h1 {
-    font-size: 2rem;
-  }
-
-  .profile-info-row {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .profile-info-row strong {
-    text-align: center;
-  }
-
-  .blood-top h1,
-  .emergency-top h1 {
-    font-size: 1.8rem;
-  }
-
-  .blood-secondary-grid,
-  .form-grid,
-  .about-activities-grid,
-  .faculty-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .blood-main-btn {
-    width: 100%;
-    max-width: 100%;
-    margin: 24px auto 18px;
-    padding: 16px;
-    font-size: 1rem;
-  }
-
-  .blood-upload-box,
-  .document-upload {
-    padding: 16px;
-  }
-
-  .about-hero {
-    min-height: auto;
-    margin: 10px 0;
-    padding: 32px 14px;
-    border-radius: 18px;
-  }
-
-  .about-hero-content h1 {
-    font-size: 2rem;
-  }
-
-  .activities-section,
-  .faculty-section {
-    padding: 1.5rem;
-    border-radius: 18px;
-  }
-
-  .faculty-card img {
-    width: 130px;
-    height: 130px;
-  }
-
-  .coming-soon-card {
-    padding: 32px 18px;
-  }
-
-  .coming-soon-card h1 {
-    font-size: 2rem;
-  }
-
-  .footer-content {
-    font-size: 10px;
-    line-height: 1.4;
-    text-align: center;
-  }
-}
-
-/* ---------- 17. SMALL MOBILE ---------- */
-@media (max-width: 430px) {
-  .brand-title-box {
-    max-width: 220px;
-  }
-
-  .brand-text {
-    font-size: 0.76rem;
-  }
-
-  .brand-subtitle {
-    font-size: 0.45rem;
-  }
-
-  .navbar-link,
-  .navbar-user {
-    font-size: 0.64rem;
-  }
-
-  .options {
-    grid-template-columns: 1fr;
-  }
-
-  .options button {
-    font-size: 0.74rem;
-    padding: 10px;
-  }
-}
-/* FINAL HOME WELCOME TITLE FIX */
-.container > h1:first-child {
-  color: #ffffff !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: #ffffff !important;
-  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.55) !important;
-}
-/* FINAL CLEAN MOBILE NAVBAR */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 10px 12px;
-    gap: 10px;
-  }
-
-  .navbar-brand {
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .navbar-logo {
-    width: 42px;
-    height: 42px;
-  }
-
-  .brand-title-box {
-    align-items: center;
-    max-width: 100%;
-  }
-
-  .brand-text {
-    font-size: 1rem;
-    text-align: center;
-  }
-
-  .brand-subtitle {
-    font-size: 0.58rem;
-    text-align: center;
-  }
-
-  .navbar-links {
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    gap: 10px;
-    align-items: center;
-  }
-
-  .navbar-link,
-  .navbar-user {
-    font-size: 0.72rem;
-    white-space: nowrap;
-  }
-
-  .profile-menu-wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
-  }
-
-  .profile-circle {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
-  }
-
-  .profile-dropdown {
-    top: 55px;
-    right: 50%;
-    transform: translateX(50%);
-  }
-}
-/* BIGGER MOBILE NAVBAR BUTTONS + PROFILE FIX */
-@media (max-width: 768px) {
-
-  .navbar-links {
-    gap: 16px;
     flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 8px;
+    gap: 14px;
+    margin-top: 4px;
   }
 
   .navbar-link,
   .navbar-user {
     font-size: 0.95rem;
     font-weight: 700;
-    padding: 8px 10px;
-    border-radius: 10px;
+    padding: 6px 4px;
+    white-space: nowrap;
   }
 
-  .navbar-link:hover {
-    background: rgba(255,255,255,0.08);
-  }
-
+  /* Profile Icon */
   .profile-menu-wrapper {
-    position: fixed;
-    top: 18px;
-    right: 14px;
-    z-index: 1000;
+    position: absolute;
+    top: 14px;
+    right: 12px;
     width: auto;
   }
 
   .profile-circle {
-    width: 56px;
-    height: 56px;
-    font-size: 24px;
-    border-width: 3px;
+    width: 46px;
+    height: 46px;
+    font-size: 19px;
+    border: 2px solid white;
   }
 
+  /* Dropdown */
   .profile-dropdown {
-    width: 220px;
+    top: 58px;
     right: 0;
-    top: 70px;
-    transform: none;
-    padding: 12px;
-    border-radius: 16px;
+    width: 210px;
+    border-radius: 14px;
+    padding: 10px;
   }
 
   .profile-dropdown a,
   .profile-dropdown button {
-    font-size: 1rem;
-    padding: 12px 14px;
+    font-size: 0.95rem;
+    padding: 12px;
     border-radius: 10px;
-    margin-bottom: 8px;
+  }
+
+  /* Homepage Year Buttons */
+  .year-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: 100%;
+  }
+
+  .year-btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 14px 10px;
+  }
+
+  /* Main Heading */
+  .container > h1:first-child {
+    font-size: 2rem;
+    text-align: center;
+    line-height: 1.2;
   }
 }
