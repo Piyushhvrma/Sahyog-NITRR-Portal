@@ -95,7 +95,8 @@
 // frontend/src/api.js
 
 // 1. Define the API base URL using environment variables.
-export const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 /**
  * Fetches PYQ links based on filters.
