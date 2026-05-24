@@ -1331,3 +1331,57 @@ input[type="file"]::file-selector-button {
     transform: translateX(50%);
   }
 }
+/* BIGGER MOBILE NAVBAR BUTTONS + PROFILE FIX */
+@media (max-width: 768px) {
+
+  .navbar-links {
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .navbar-link,
+  .navbar-user {
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+
+  .navbar-link:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  .profile-menu-wrapper {
+    position: fixed;
+    top: 18px;
+    right: 14px;
+    z-index: 1000;
+    width: auto;
+  }
+
+  .profile-circle {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    border-width: 3px;
+  }
+
+  .profile-dropdown {
+    width: 220px;
+    right: 0;
+    top: 70px;
+    transform: none;
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .profile-dropdown a,
+  .profile-dropdown button {
+    font-size: 1rem;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+}
