@@ -82,12 +82,12 @@ router.post("/", upload.single("document"), async (req, res) => {
       success: true,
       message: "Blood request submitted successfully",
     });
-  } catch (error) {
+    } catch (error) {
     console.error("Blood request email error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to submit blood request",
+      message: error.message || "Failed to submit blood request",
     });
   }
 });
