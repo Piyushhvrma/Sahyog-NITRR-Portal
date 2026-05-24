@@ -17,10 +17,16 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-left">
         <Link to="/" className="navbar-brand">
-          <img src={sahyogLogo} alt="Sahyog Club Logo" className="navbar-logo" />
+          <img
+            src={sahyogLogo}
+            alt="Sahyog Club Logo"
+            className="navbar-logo"
+          />
 
           <div className="brand-title-box">
-            <span className="brand-text">SAHYOG - The WellBeing Club</span>
+            <span className="brand-text">
+              SAHYOG - The Student Wellbeing Club
+            </span>
             <span className="brand-subtitle">
               National Institute of Technology, Raipur
             </span>
@@ -41,21 +47,27 @@ const Navbar = () => {
 
           {user && (
             <>
-              <Link to="/events" className="navbar-link">Events</Link>
-              <Link to="/about" className="navbar-link">About Us</Link>
+              <Link to="/events" className="navbar-link">
+                Events
+              </Link>
+              <Link to="/about" className="navbar-link">
+                About Us
+              </Link>
 
               <span className="navbar-user">
                 Welcome, {user?.name?.split(" ")[0]}
               </span>
-
-              
             </>
           )}
 
           {!user && (
             <>
-              <Link to="/login" className="navbar-link">Login</Link>
-              <Link to="/register" className="navbar-link">Register</Link>
+              <Link to="/login" className="navbar-link">
+                Login
+              </Link>
+              <Link to="/register" className="navbar-link">
+                Register
+              </Link>
             </>
           )}
         </div>
@@ -77,15 +89,24 @@ const Navbar = () => {
                     Profile Info
                   </Link>
 
-                  <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/my-downloads"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     My Downloads
                   </Link>
 
-                  <Link to="/coming-soon/info-crs-contact" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/info-crs-contact"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Contact CRs
                   </Link>
 
-                  <Link to="/coming-soon/team-informations" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/team-informations"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Team Informations
                   </Link>
                 </>

@@ -13,13 +13,7 @@ const upload = multer({
 
 router.post("/", upload.single("document"), async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      bloodGroup,
-      requestDetails,
-    } = req.body;
+    const { name, email, phone, bloodGroup, requestDetails } = req.body;
 
     if (!name || !phone || !bloodGroup || !requestDetails) {
       return res.status(400).json({
@@ -28,7 +22,11 @@ router.post("/", upload.single("document"), async (req, res) => {
       });
     }
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.BLOOD_REQUEST_RECEIVER) {
+    if (
+      !process.env.EMAIL_USER ||
+      !process.env.EMAIL_PASS ||
+      !process.env.BLOOD_REQUEST_RECEIVER
+    ) {
       return res.status(500).json({
         success: false,
         message: "Email configuration missing in backend",
@@ -71,7 +69,7 @@ router.post("/", upload.single("document"), async (req, res) => {
 
           <hr />
           <p style="color: gray;">
-            Submitted through SAHYOG - The WellBeing Club Portal.
+            Submitted through SAHYOG - The Student Wellbeing Club Portal.
           </p>
         </div>
       `,
