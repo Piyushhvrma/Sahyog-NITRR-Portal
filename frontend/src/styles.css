@@ -1344,3 +1344,116 @@ input:focus, select:focus, textarea:focus {
 .coming-soon-btn:hover {
   background: #187bbb;
 }
+/* FINAL MOBILE RESPONSIVE FIX */
+
+@media (max-width: 600px) {
+  body {
+    background-attachment: scroll;
+    background-position: center top;
+  }
+
+  .navbar {
+    padding: 8px 10px;
+    min-height: auto;
+    gap: 8px;
+  }
+
+  .navbar-brand {
+    width: 100%;
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .navbar-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-text {
+    font-size: 0.82rem;
+    line-height: 1.1;
+  }
+
+  .brand-subtitle {
+    font-size: 0.5rem;
+  }
+
+  .home-wrapper {
+    display: none;
+  }
+
+  .navbar-right {
+    width: 100%;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .navbar-links {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-link,
+  .navbar-user {
+    font-size: 0.72rem;
+  }
+
+  .profile-circle {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  main.page-container {
+    padding: 10px;
+  }
+
+  .container {
+    width: calc(100% - 20px);
+    margin: 18px auto;
+    padding: 18px 12px;
+    border-radius: 14px;
+  }
+
+  .container h2 {
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .options button {
+    width: 100%;
+    margin: 0;
+    padding: 9px 8px;
+    font-size: 0.68rem;
+    line-height: 1.2;
+    white-space: normal;
+    border-radius: 7px;
+  }
+
+  .footer-content {
+    font-size: 10px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-text {
+    font-size: 0.78rem;
+  }
+
+  .navbar-link,
+  .navbar-user {
+    font-size: 0.68rem;
+  }
+}
