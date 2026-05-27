@@ -1,5 +1,5 @@
 const express = require("express");
-const https = require("https"); // ✅ Built-in core module. No installation required!
+const https = require("https"); 
 
 const router = express.Router();
 
@@ -44,6 +44,7 @@ Keep responses practical and supportive.
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
         "Content-Length": Buffer.byteLength(postData),
       },
     };
