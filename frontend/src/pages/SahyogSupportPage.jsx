@@ -21,7 +21,7 @@ const SahyogSupportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    isSubmitting(true);
+    setIsSubmitting(true); // ✅ FIXED: Using state setter function properly
     setStatus({ type: null, text: "" });
 
     // Validate fields before making the request
@@ -35,8 +35,12 @@ const SahyogSupportPage = () => {
     }
 
     try {
-      // 👇 FIXED: Added the explicit endpoint route path extension here 👇
-      const response = await axios.post("https://sahyog-backend-topb.onrender.com/api/support", formData);
+      // ✅ FIXED: Targeting the exact route path extension AND added cross-origin credentials matching your server
+      const response = await axios.post(
+        "https://sahyog-backend-topb.onrender.com/api/support", 
+        formData,
+        { withCredentials: true }
+      );
 
       if (response.data.success) {
         setStatus({
@@ -56,7 +60,7 @@ const SahyogSupportPage = () => {
       console.error("Submission operational fault:", error);
       setStatus({
         type: "error",
-        text: `Submission Failed: ${error.response?.data?.message || "Server offline or backend port 4000 blocked."}`,
+        text: `Submission Failed: ${error.response?.data?.message || "Server offline or backend port blocked."}`,
       });
     } finally {
       setIsSubmitting(false);

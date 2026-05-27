@@ -26,10 +26,12 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      // 👇 FIXED: Added the explicit AI endpoint route path extension here 👇
-      const res = await axios.post("https://sahyog-backend-topb.onrender.com/api/ai/chat", {
-        message: userMessage,
-      });
+      // ✅ FIXED: Appended the correct multi-layer endpoint path AND enabled explicit credentials flag
+      const res = await axios.post(
+        "https://sahyog-backend-topb.onrender.com/api/ai/chat", 
+        { message: userMessage },
+        { withCredentials: true }
+      );
 
       setChat((prev) => [
         ...prev,
@@ -39,7 +41,7 @@ const AIHelpPage = () => {
       console.error(error);
       setChat((prev) => [
         ...prev,
-        { sender: "ai", text: "⚠️ *System connection dropped. Please check connection routes.*" },
+        { sender: "ai", text: "⚠️ *System connection dropped. Please check deployment logs.*" },
       ]);
     } finally {
       setLoading(false);
@@ -83,7 +85,6 @@ const AIHelpPage = () => {
                 {msg.sender === "user" ? "👤" : "🤖"}
               </div>
               <div className="chat-bubble-content">
-                {/* ReactMarkdown solves the asterisk text styling error */}
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             </div>
