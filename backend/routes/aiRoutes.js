@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios"); // ✅ Swapped to stable Axios
 
 const router = express.Router();
 
@@ -13,23 +14,15 @@ router.post("/chat", async (req, res) => {
       });
     }
 
-    const response = await fetch(
+    // ✅ FIXED: Axios structure handles cross-origin cloud API handshakes perfectly on Render
+    const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        },
-
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-
-          messages: [
-            {
-              role: "system",
-              content: `
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: `
 You are SAHYOG AI Assistant for NIT Raipur students.
 
 Behave:
@@ -52,24 +45,26 @@ Help students with:
 
 Keep responses practical and supportive.
 `,
-            },
-
-            {
-              role: "user",
-              content: message,
-            },
-          ],
-
-          temperature: 0.7,
-          max_tokens: 800,
-        }),
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
       }
     );
 
-    const data = await response.json();
-
+    // ✅ FIXED: Axios data parsing layer reads headers automatically
     const reply =
-      data?.choices?.[0]?.message?.content ||
+      response.data?.choices?.[0]?.message?.content ||
       "Sorry, I could not respond.";
 
     res.status(200).json({
@@ -77,7 +72,8 @@ Keep responses practical and supportive.
       reply,
     });
   } catch (error) {
-    console.error("Groq AI Error:", error);
+    // This logs the full error trace to your Render panel console for absolute clarity
+    console.error("Groq AI Error Trace:", error.response?.data || error.message);
 
     res.status(500).json({
       success: false,
