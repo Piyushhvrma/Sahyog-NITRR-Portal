@@ -39,7 +39,7 @@ Keep responses practical and supportive.
     // Configure secure network parameters 
     const options = {
       hostname: "api.groq.com",
-      path: "/v1/chat/completions",
+      path: "/openai/v1/chat/completions", // ✅ FIXED: Added required /openai prefix segment
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +73,7 @@ Keep responses practical and supportive.
 
     const groqResponse = await apiRequest();
     
-    // 🔍 CHECK FOR API ERROR OBJECT (e.g., Key Invalid, Rate Limit, Model deprecated)
+    // CHECK FOR API ERROR OBJECT
     if (groqResponse?.error) {
       return res.status(200).json({
         success: true,
@@ -81,7 +81,7 @@ Keep responses practical and supportive.
       });
     }
 
-    // If choices are present, return the text, otherwise print out the full raw layout payload
+    // Process and return the message content payload cleanly
     const reply = groqResponse?.choices?.[0]?.message?.content;
 
     if (reply) {
