@@ -86,6 +86,18 @@ const Navbar = () => {
                 <Link to="/coming-soon/team-info" onClick={() => setShowProfileMenu(false)}>
                   Team Info
                 </Link>
+
+                {/* 👇 ADMIN SECURITY GUARD: Displays ONLY to your designated club email 👇 */}
+                {user && user.email === "sahyogbloodrequest@gmail.com" && (
+                  <a 
+                    href="http://localhost:4000/api/support/download-sheet" 
+                    download
+                    onClick={() => setShowProfileMenu(false)}
+                    style={{ color: "#6ee7ff" }} /* Subtle visual color pop for the admin link */
+                  >
+                    Export Responses 📊
+                  </a>
+                )}
               </div>
             )}
           </div>
