@@ -13,6 +13,8 @@ const usersRoute = require("./routes/users");
 const eventsRoute = require("./routes/events");
 const profileRoute = require("./routes/profile");
 const bloodRequestRoutes = require("./routes/bloodRequest");
+const supportRoutes = require("./routes/supportRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
@@ -22,7 +24,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+  app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
@@ -39,6 +41,8 @@ app.use("/api/users", usersRoute);
 app.use("/api/events", eventsRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/blood-request", bloodRequestRoutes);
+app.use("/api/support", supportRoutes);
+app.use("/api/ai", aiRoutes);
 
 const start = async () => {
   try {

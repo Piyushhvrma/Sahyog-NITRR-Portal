@@ -5,6 +5,9 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import BloodRequestPage from "./pages/BloodRequestPage.jsx";
 import EmergencyBloodRequestPage from "./pages/EmergencyBloodRequestPage.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
+import HelpPage from "./pages/HelpPage.jsx";
+import AIHelpPage from "./pages/AIHelpPage.jsx";
+import SahyogSupportPage from "./pages/SahyogSupportPage.jsx";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -39,6 +42,9 @@ export default function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="/help/ai" element={<AIHelpPage />} />
+          <Route path="/help/sahyog" element={<SahyogSupportPage />} />
 
           {/* PUBLIC ONLY ROUTES */}
           <Route element={<PublicOnlyRoute />}>
