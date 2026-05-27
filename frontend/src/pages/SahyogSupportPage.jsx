@@ -37,7 +37,7 @@ const SahyogSupportPage = () => {
     try {
       // Hardcoded local backend destination completely fixes environment connection issues
       // This sends data to the backend, which saves to MongoDB and triggers the Brevo Email automatically
-      const response = await axios.post("http://localhost:4000/api/support", formData);
+      const response = await axios.post("https://sahyog-backend-topb.onrender.com", formData);
 
       if (response.data.success) {
         setStatus({

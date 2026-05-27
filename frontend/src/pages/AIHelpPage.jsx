@@ -26,7 +26,7 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:4000/api/ai/chat", {
+      const res = await axios.post("https://sahyog-backend-topb.onrender.com", {
         message: userMessage,
       });
 
