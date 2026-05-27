@@ -55,7 +55,14 @@ Keep responses practical and supportive.
         const request = https.request(options, (response) => {
           let chunkData = "";
           response.on("data", (chunk) => { chunkData += chunk; });
-          response.on("end", () => { resolve(JSON.parse(chunkData)); });
+          response.on("end", () => { 
+            try {
+              const parsedData = JSON.parse(chunkData);
+              resolve(parsedData);
+            } catch (parseError) {
+              reject(new Error(`JSON Parse Failure: ${chunkData.substring(0, 100)}`));
+            }
+          });
         });
 
         request.on("error", (error) => { reject(error); });
@@ -66,20 +73,34 @@ Keep responses practical and supportive.
 
     const groqResponse = await apiRequest();
     
-    const reply =
-      groqResponse?.choices?.[0]?.message?.content ||
-      "Sorry, I could not process that response.";
+    // 🔍 CHECK FOR API ERROR OBJECT (e.g., Key Invalid, Rate Limit, Model deprecated)
+    if (groqResponse?.error) {
+      return res.status(200).json({
+        success: true,
+        reply: `❌ Groq API Rejection: [${groqResponse.error.code || "NO_CODE"}] -> ${groqResponse.error.message}`,
+      });
+    }
 
-    res.status(200).json({
-      success: true,
-      reply,
-    });
+    // If choices are present, return the text, otherwise print out the full raw layout payload
+    const reply = groqResponse?.choices?.[0]?.message?.content;
+
+    if (reply) {
+      return res.status(200).json({
+        success: true,
+        reply,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        reply: `⚠️ Unexpected Payload Structure: ${JSON.stringify(groqResponse)}`,
+      });
+    }
 
   } catch (error) {
     console.error("Groq Native Engine Error:", error.message);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "AI request failed",
+      reply: `🚨 Server Crash Trace: ${error.message}`,
     });
   }
 });
