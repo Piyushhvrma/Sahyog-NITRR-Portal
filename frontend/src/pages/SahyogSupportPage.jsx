@@ -21,7 +21,7 @@ const SahyogSupportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    isSubmitting(true);
     setStatus({ type: null, text: "" });
 
     // Validate fields before making the request
@@ -35,9 +35,8 @@ const SahyogSupportPage = () => {
     }
 
     try {
-      // Hardcoded local backend destination completely fixes environment connection issues
-      // This sends data to the backend, which saves to MongoDB and triggers the Brevo Email automatically
-      const response = await axios.post("https://sahyog-backend-topb.onrender.com", formData);
+      // 👇 FIXED: Added the explicit endpoint route path extension here 👇
+      const response = await axios.post("https://sahyog-backend-topb.onrender.com/api/support", formData);
 
       if (response.data.success) {
         setStatus({

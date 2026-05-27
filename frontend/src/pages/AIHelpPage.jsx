@@ -26,7 +26,8 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://sahyog-backend-topb.onrender.com", {
+      // 👇 FIXED: Added the explicit AI endpoint route path extension here 👇
+      const res = await axios.post("https://sahyog-backend-topb.onrender.com/api/ai/chat", {
         message: userMessage,
       });
 
@@ -38,7 +39,7 @@ const AIHelpPage = () => {
       console.error(error);
       setChat((prev) => [
         ...prev,
-        { sender: "ai", text: "⚠️ *System connection dropped. Please check local server ports.*" },
+        { sender: "ai", text: "⚠️ *System connection dropped. Please check connection routes.*" },
       ]);
     } finally {
       setLoading(false);
