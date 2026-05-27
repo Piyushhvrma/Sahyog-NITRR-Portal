@@ -19,8 +19,12 @@ const aiRoutes = require("./routes/aiRoutes");
 const app = express();
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "*",
+  origin: [
+    "http://localhost:5173",
+    "https://sahyog-nitrr-portal.vercel.app" 
+  ],
   optionsSuccessStatus: 200,
+  credentials: true
 };
 
 app.use(cors(corsOptions));
