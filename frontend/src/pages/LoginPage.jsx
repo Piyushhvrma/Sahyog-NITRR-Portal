@@ -54,20 +54,31 @@ const LoginPage = () => {
           </h1>
 
           <p>
-            “A common space for NIT Raipur students to learn, connect, and support each other.”
+            Access academic resources, mentorship support,
+            student welfare services, blood assistance,
+            and community initiatives through a single platform.
           </p>
 
-          <div className="login-points">
-            <div>📚 PYQs, notes and academic resources</div>
-            <div>🎓 Support for all NIT Raipur students</div>
-            <div>🩸 Emergency blood request assistance</div>
-          </div>
+          <div className="signup-features">
+  <div className="feature-item">
+    📚 Notes, PYQs & Resources
+  </div>
+
+  <div className="feature-item">
+    🤝 Mentorship & Student Support
+  </div>
+
+  <div className="feature-item">
+    🩸 Blood Assistance & Community Help
+  </div>
+</div>
         </div>
 
         <div className="login-card">
           <div className="login-card-header">
             <h2>Login</h2>
-            <p>Access your SAHYOG dashboard</p>
+            <p>Login to access notes, mentorship resources,
+               student support services and portal features.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="modern-login-form">

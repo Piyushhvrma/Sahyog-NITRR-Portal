@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 
@@ -16,6 +16,7 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
     setError("");
 
@@ -25,7 +26,11 @@ const SignupPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
@@ -37,61 +42,131 @@ const SignupPage = () => {
         setError(data.message || "Signup failed. Please try again.");
       }
     } catch (err) {
-      console.error("Signup fetch error:", err);
-      setError("Failed to connect to the server. Please check connection.");
+      console.error(err);
+      setError("Failed to connect to server.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <h2>Sign Up</h2>
+    <div className="signup-page">
+      <div className="signup-shell">
+        {/* LEFT PANEL */}
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="signup-name">Name:</label>
-        <input
-          id="signup-name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-          required
-          disabled={isLoading}
-        />
+        <div className="signup-info">
+          <span className="signup-badge">
+            SAHYOG Portal
+          </span>
 
-        <label htmlFor="signup-email">Email:</label>
-        <input
-          id="signup-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          required
-          disabled={isLoading}
-        />
+          <h1>
+            Join The
+            <br />
+            SAHYOG Community.
+          </h1>
 
-        <label htmlFor="signup-password">Password:</label>
-        <input
-          id="signup-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Create a password"
-          required
-          disabled={isLoading}
-        />
-
-        {error && (
-          <p style={{ color: "red", marginTop: "10px" }}>
-            {error}
+          <p>
+            Create your account to access academic resources,
+            mentorship support, student welfare services,
+            blood assistance initiatives and club activities.
           </p>
-        )}
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Signing Up..." : "Sign Up"}
-        </button>
-      </form>
+          <div className="signup-features">
+  <div className="feature-item">
+    📚 Notes, PYQs & Resources
+  </div>
+
+  <div className="feature-item">
+    🤝 Mentorship & Student Support
+  </div>
+
+  <div className="feature-item">
+    🩸 Blood Assistance & Community Help
+  </div>
+</div>
+        </div>
+
+        {/* RIGHT PANEL */}
+
+        <div className="signup-card">
+          <div className="signup-card-header">
+            <h2>Create Account</h2>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="modern-signup-form"
+          >
+            <div className="signup-field">
+              <label>Name</label>
+
+              <input
+                type="text"
+                value={name}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
+                placeholder="Enter your full name"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="signup-field">
+              <label>Email Address</label>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                placeholder="Enter your email"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="signup-field">
+              <label>Password</label>
+
+              <input
+                type="password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
+                placeholder="Create a password"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
+            {error && (
+              <div className="signup-error">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="signup-submit-btn"
+              disabled={isLoading}
+            >
+              {isLoading
+                ? "Creating Account..."
+                : "Create Account"}
+            </button>
+          </form>
+
+          <p className="signup-footer-text">
+            Already have an account?{" "}
+            <Link to="/login">
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
