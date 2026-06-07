@@ -2084,3 +2084,139 @@ input[type="file"]::file-selector-button {
     gap: 24px;
   }
 }
+
+/* ===================================
+   PORTAL INFORMATION
+=================================== */
+
+.portal-dev-section {
+  margin-top: 3rem;
+}
+
+.portal-dev-card {
+  max-width: 800px;
+  margin: 0 auto;
+
+  padding: 2.5rem;
+
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 20px;
+
+  transition: all 0.3s ease;
+}
+
+.portal-dev-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(110, 231, 255, 0.25);
+
+  box-shadow:
+    0 10px 30px rgba(110, 231, 255, 0.08);
+}
+
+.portal-dev-card h2 {
+  margin-bottom: 1rem;
+
+  font-size: 2rem;
+
+  font-weight: 700;
+}
+
+.portal-dev-description {
+  max-width: 650px;
+
+  margin: 0 auto 2rem;
+
+  line-height: 1.8;
+
+  opacity: 0.9;
+}
+
+/* Developer */
+
+.developer-profile {
+  margin-bottom: 2rem;
+}
+
+.developer-name-link {
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 1.35rem;
+
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+.developer-name-link:hover {
+  color: #6ee7ff;
+}
+
+.developer-role {
+  margin-top: 0.35rem;
+
+  color: #6ee7ff;
+
+  font-size: 0.95rem;
+
+  font-weight: 500;
+}
+
+/* Contact Grid */
+
+.developer-contact-grid {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 3rem;
+
+  flex-wrap: wrap;
+}
+
+.contact-item {
+  min-width: 250px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.35rem;
+}
+
+.contact-label {
+  font-size: 0.85rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+
+  color: #6ee7ff;
+}
+
+.contact-value {
+  font-size: 1rem;
+
+  opacity: 0.95;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .developer-contact-grid {
+    gap: 1.5rem;
+  }
+
+  .contact-item {
+    min-width: 100%;
+  }
+}

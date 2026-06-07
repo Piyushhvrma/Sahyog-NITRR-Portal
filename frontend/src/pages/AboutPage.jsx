@@ -144,6 +144,48 @@ const AboutPage = () => {
             move forward.
           </p>
         </section>
+<section className="about-section portal-dev-section">
+  <div className="portal-dev-card">
+    <h2>Portal Information</h2>
+
+    <p className="portal-dev-description">
+      The SAHYOG Portal was developed to support student welfare,
+      academic resource accessibility, blood assistance initiatives,
+      and community engagement within NIT Raipur.
+    </p>
+
+    <div className="developer-profile">
+      <a
+        href="https://www.linkedin.com/in/piyush-verma-25550728a/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="developer-name-link"
+      >
+        Piyush Kumar Verma
+      </a>
+
+      <p className="developer-role">
+        Lead Developer
+      </p>
+    </div>
+
+    <div className="developer-contact-grid">
+      <div className="contact-item">
+        <span className="contact-label">Email</span>
+        <span className="contact-value">
+          piyushverma6927@gmail.com
+        </span>
+      </div>
+
+      <div className="contact-item">
+        <span className="contact-label">Contact</span>
+        <span className="contact-value">
+          +91 62637 99143
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
       </main>
     </div>
   );
