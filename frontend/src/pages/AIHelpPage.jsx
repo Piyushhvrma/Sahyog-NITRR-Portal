@@ -3,12 +3,20 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
 const AIHelpPage = () => {
+  // CHANGED: initialize from localStorage instead of []
+  const [chat, setChat] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sahyog_ai_chat");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [message, setMessage] = useState("");
-  const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Auto-scrolls chat panel downward as messages arrive
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -16,6 +24,11 @@ const AIHelpPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [chat, loading]);
+
+  // NEW: persist chat to localStorage on every update
+  useEffect(() => {
+    localStorage.setItem("sahyog_ai_chat", JSON.stringify(chat));
+  }, [chat]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
@@ -26,9 +39,8 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      // ✅ FIXED: Appended the correct multi-layer endpoint path AND enabled explicit credentials flag
       const res = await axios.post(
-        "https://sahyog-backend-topb.onrender.com/api/ai/chat", 
+        "https://sahyog-backend-topb.onrender.com/api/ai/chat",
         { message: userMessage },
         { withCredentials: true }
       );
@@ -48,12 +60,17 @@ const AIHelpPage = () => {
     }
   };
 
-  // Allows pressing Enter to submit, Shift+Enter to break line
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  // NEW: clear chat handler
+  const handleClearChat = () => {
+    setChat([]);
+    localStorage.removeItem("sahyog_ai_chat");
   };
 
   return (
@@ -64,10 +81,20 @@ const AIHelpPage = () => {
           <span className="ai-avatar-badge">🤖</span>
           <div className="ai-meta-text">
             <h2>SAHYOG AI Buddy</h2>
-            <span className="ai-status-pulse"><span className="pulse-dot"></span> Online Guidance</span>
+            <span className="ai-status-pulse">
+              <span className="pulse-dot"></span> Online Guidance
+            </span>
           </div>
         </div>
-        <p className="ai-confidentiality-notice">🔒 Fully Encrypted & Confidential</p>
+        <div className="ai-header-right">
+          <p className="ai-confidentiality-notice">🔒 Fully Encrypted & Confidential</p>
+          {/* NEW: Clear chat button */}
+          {chat.length > 0 && (
+            <button className="clear-chat-btn" onClick={handleClearChat}>
+              🗑️ Clear Chat
+            </button>
+          )}
+        </div>
       </div>
 
       {/* CHAT DISPLAY HUB */}

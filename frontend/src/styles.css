@@ -2050,6 +2050,28 @@ input[type="file"]::file-selector-button {
 }
 
 /* SECONDARY COMPACT AI CARD SPECIFICS */
+.ai-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.clear-chat-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 100, 100, 0.4);
+  color: #ff6b6b;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-chat-btn:hover {
+  background: rgba(255, 100, 100, 0.15);
+  border-color: #ff6b6b;
+}
 .secondary-ai-card {
   padding: 20px 30px;
   background: rgba(15, 32, 55, 0.45);
