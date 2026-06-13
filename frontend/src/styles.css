@@ -479,7 +479,7 @@ input[type="file"]::file-selector-button {
 ========================= */
 
 .auth-left {
-  background: #0f141ec8;
+  background: #0d101594;
 
   border: 1px solid rgba(255,255,255,0.08);
 
@@ -579,7 +579,7 @@ input[type="file"]::file-selector-button {
 ========================= */
 
 .auth-card {
-  background: #0f141ec8;
+  background: #0d101594;
 
   border: 1px solid rgba(255,255,255,0.08);
 
@@ -1246,7 +1246,7 @@ input[type="file"]::file-selector-button {
   min-height: 38px;
   margin-top: auto;
   padding: 6px 12px;
-  background: linear-gradient(90deg, rgba(15, 31, 51, 0.98), rgba(30, 48, 66, 0.98));
+  background: linear-gradient(90deg, rgba(12, 23, 37, 0.98), rgba(30, 48, 66, 0.98));
   border-top: 1px solid rgba(56, 189, 248, 0.22);
   display: flex;
   justify-content: center;
