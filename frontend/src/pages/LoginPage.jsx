@@ -2,11 +2,11 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
+import { GoogleLogin } from "@react-oauth/google";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,14 +15,20 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
     setError("");
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
@@ -31,93 +37,139 @@ const LoginPage = () => {
         login(data.token, data.user);
         navigate("/");
       } else {
-        setError(data.message || "Login failed. Please check credentials.");
+        setError(data.message || "Login failed.");
       }
     } catch (err) {
-      console.error("Login fetch error:", err);
-      setError("Failed to connect to the server. Please check connection.");
+      console.error(err);
+      setError("Failed to connect to server.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      setError("");
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/auth/google-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential: credentialResponse.credential,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        login(data.token, data.user);
+        navigate("/");
+      } else {
+        setError(data.message || "Google Login Failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Google Login Failed");
+    }
+  };
+
   return (
-    <div className="login-page">
-      <div className="login-shell">
-        <div className="login-info">
-          <span className="login-badge">SAHYOG Portal</span>
+    <div className="auth-page">
+      <div className="auth-container">
+
+        <div className="auth-left">
+          <span className="auth-badge">
+             Sahyog Platform
+          </span>
 
           <h1>
-            Welcome Back,
-            <br />
-            NITRRian.
+              Everything You Need
+             <span> In One Place</span>
           </h1>
 
           <p>
-            Access academic resources, mentorship support,
-            student welfare services, blood assistance,
-            and community initiatives through a single platform.
-          </p>
+            Learn smarter, connect faster and access everything
+            you need for campus life — from academics to student support.
+         </p>
 
-          <div className="signup-features">
-  <div className="feature-item">
-    📚 Notes, PYQs & Resources
-  </div>
-
-  <div className="feature-item">
-    🤝 Mentorship & Student Support
-  </div>
-
-  <div className="feature-item">
-    🩸 Blood Assistance & Community Help
-  </div>
-</div>
+          <div className="auth-features">
+            <div className="feature-card">📚 Notes & Resources</div>
+            <div className="feature-card">📝 PYQ Collection</div>
+            <div className="feature-card">🎓 Student Support Desk</div>
+            <div className="feature-card">🩸 Blood Assistance</div>
+            <div className="feature-card">🎉 Events & Registration</div>
+            <div className="feature-card">📊 Smart Dashboard</div>
+          </div>
         </div>
 
-        <div className="login-card">
-          <div className="login-card-header">
-            <h2>Login</h2>
-            <p>Login to access notes, mentorship resources,
-               student support services and portal features.</p>
+        <div className="auth-card">
+
+          <div className="auth-header">
+            <h2>Sign In</h2>
+            <p>Continue to your account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="modern-login-form">
-            <div className="login-field">
-              <label htmlFor="login-email">Email Address</label>
-              <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                disabled={isLoading}
-              />
-            </div>
+          <div className="google-login-wrapper">
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setError("Google Login Failed")}
+              theme="outline"
+              size="large"
+              shape="pill"
+              width="100%"
+            />
+          </div>
 
-            <div className="login-field">
-              <label htmlFor="login-password">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-              />
-            </div>
+          <div className="divider">
+            <span>OR</span>
+          </div>
 
-            {error && <div className="login-error">{error}</div>}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-            <button type="submit" className="login-submit-btn" disabled={isLoading}>
-              {isLoading ? "Logging In..." : "Login to Portal"}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button
+              type="submit"
+              className="auth-submit-btn"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
           </form>
 
-          <p className="login-footer-text">
-            New to SAHYOG? <Link to="/signup">Create account</Link>
+          {error && (
+            <p
+              style={{
+                color: "#ff6b6b",
+                marginTop: "15px",
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          <p className="auth-footer">
+            Don't have an account?
+            <Link to="/signup"> Sign Up</Link>
           </p>
+
         </div>
       </div>
     </div>

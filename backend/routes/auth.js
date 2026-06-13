@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require("google-auth-library");
+
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 // --- THIS IS THE FIX ---
 // Import must match the file name exactly: 'User.js' (uppercase)
@@ -136,4 +141,63 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post("/google-login", async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        message: "Google credential missing",
+      });
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const email = payload.email;
+    const name = payload.name;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: "google-auth-user",
+      });
+    }
+
+    const jwtPayload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    const token = jwt.sign(
+      jwtPayload,
+      process.env.JWT_SECRET,
+      { expiresIn: "3h" }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+
+  } catch (error) {
+    console.error("Google Login Error:", error);
+
+    res.status(500).json({
+      message: "Google login failed",
+    });
+  }
+});
 module.exports = router;

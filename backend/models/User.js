@@ -11,9 +11,9 @@ const UserSchema = new mongoose.Schema({
     unique: true, // Each email must be unique
   },
   password: {
-    type: String,
-    required: true,
-  },
+  type: String,
+  default: ""
+},
   createdAt: {
     type: Date,
     default: Date.now,

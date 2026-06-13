@@ -73,33 +73,41 @@ const Navbar = () => {
             </div>
 
             {showProfileMenu && (
-              <div className="profile-dropdown">
-                <Link to="/profile" onClick={() => setShowProfileMenu(false)}>
-                  Profile
-                </Link>
-                <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
-                  My Downloads
-                </Link>
-                <Link to="/coming-soon/Contact-Crs" onClick={() => setShowProfileMenu(false)}>
-                  Contact CRs
-                </Link>
-                <Link to="/coming-soon/team-info" onClick={() => setShowProfileMenu(false)}>
-                  Team Info
-                </Link>
+  <div className="profile-dropdown">
+    <Link to="/profile" onClick={() => setShowProfileMenu(false)}>
+      My Profile
+    </Link>
+    <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+      My Downloads
+    </Link>
+    <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+      Notes 
+    </Link>
+    <Link to="/coming-soon/cr-contact" onClick={() => setShowProfileMenu(false)}>
+      Connect With CR
+    </Link>
+    <Link to="/coming-soon/team-sahyog" onClick={() => setShowProfileMenu(false)}>
+      Team Sahyog
+    </Link>
+    <Link to="/coming-soon/campus-view" onClick={() => setShowProfileMenu(false)}>
+      Campus View
+    </Link>
+    <Link to="/coming-soon/emergency-contacts" onClick={() => setShowProfileMenu(false)}>
+      Emergency Contacts
+    </Link>
 
-                {/* 👇 ADMIN SECURITY GUARD: Displays ONLY to your designated club email 👇 */}
-                {user && user.email === "sahyogbloodrequest@gmail.com" && (
-                  <a 
-                    href="https://sahyog-backend-topb.onrender.com/api/support/download-sheet" 
-                    download
-                    onClick={() => setShowProfileMenu(false)}
-                    style={{ color: "#6ee7ff" }} /* Subtle visual color pop for the admin link */
-                  >
-                    Export Responses 📊
-                  </a>
-                )}
-              </div>
-            )}
+    {user && user.email === "sahyogbloodrequest@gmail.com" && (
+      <a 
+        href="https://sahyog-backend-topb.onrender.com/api/support/download-sheet" 
+        download
+        onClick={() => setShowProfileMenu(false)}
+        style={{ color: "#6ee7ff" }}
+      >
+        Export Responses 📊
+      </a>
+    )}
+  </div>
+)}
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
+import { GoogleLogin } from "@react-oauth/google";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -39,7 +40,7 @@ const SignupPage = () => {
         login(data.token, data.user);
         navigate("/");
       } else {
-        setError(data.message || "Signup failed. Please try again.");
+        setError(data.message || "Signup Failed");
       }
     } catch (err) {
       console.error(err);
@@ -49,122 +50,138 @@ const SignupPage = () => {
     }
   };
 
-  return (
-    <div className="signup-page">
-      <div className="signup-shell">
-        {/* LEFT PANEL */}
+  const handleGoogleSignup = async (credentialResponse) => {
+    try {
+      setError("");
 
-        <div className="signup-info">
-          <span className="signup-badge">
-            SAHYOG Portal
+      const res = await fetch(
+        `${API_BASE_URL}/api/auth/google-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            credential: credentialResponse.credential,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        login(data.token, data.user);
+        navigate("/");
+      } else {
+        setError(data.message || "Google Signup Failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Google Signup Failed");
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+
+        <div className="auth-left">
+          <span className="auth-badge">
+             Join Sahyog Platform
           </span>
 
           <h1>
-            Join The
-            <br />
-            SAHYOG Community.
+            Start Your
+          <span> Campus Journey</span>
           </h1>
 
           <p>
-            Create your account to access academic resources,
-            mentorship support, student welfare services,
-            blood assistance initiatives and club activities.
-          </p>
+            Learn smarter, connect faster and access everything
+            you need for campus life — from academics to student support.
+         </p>
 
-          <div className="signup-features">
-  <div className="feature-item">
-    📚 Notes, PYQs & Resources
-  </div>
-
-  <div className="feature-item">
-    🤝 Mentorship & Student Support
-  </div>
-
-  <div className="feature-item">
-    🩸 Blood Assistance & Community Help
-  </div>
-</div>
+          <div className="auth-features">
+            <div className="feature-card">📚 Notes & Resources</div>
+            <div className="feature-card">📝 PYQ Collection</div>
+            <div className="feature-card">🎓 Student Support Desk</div>
+            <div className="feature-card">🩸 Blood Assistance</div>
+            <div className="feature-card">🎉 Events & Registration</div>
+            <div className="feature-card">📊 Smart Dashboard</div>
+          </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        <div className="auth-card">
 
-        <div className="signup-card">
-          <div className="signup-card-header">
-            <h2>Create Account</h2>
+          <div className="auth-header">
+            <h2>Sign Up</h2>
+            <p>Create your account</p>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="modern-signup-form"
-          >
-            <div className="signup-field">
-              <label>Name</label>
+          <div className="google-login-wrapper">
+            <GoogleLogin
+              onSuccess={handleGoogleSignup}
+              onError={() => setError("Google Signup Failed")}
+              theme="outline"
+              size="large"
+              shape="pill"
+              width="100%"
+            />
+          </div>
 
-              <input
-                type="text"
-                value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
-                placeholder="Enter your full name"
-                required
-                disabled={isLoading}
-              />
-            </div>
+          <div className="divider">
+            <span>OR</span>
+          </div>
 
-            <div className="signup-field">
-              <label>Email Address</label>
+          <form onSubmit={handleSubmit}>
 
-              <input
-                type="email"
-                value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
-                placeholder="Enter your email"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
-            <div className="signup-field">
-              <label>Password</label>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-              <input
-                type="password"
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                placeholder="Create a password"
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            {error && (
-              <div className="signup-error">
-                {error}
-              </div>
-            )}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
             <button
               type="submit"
-              className="signup-submit-btn"
+              className="auth-submit-btn"
               disabled={isLoading}
             >
-              {isLoading
-                ? "Creating Account..."
-                : "Create Account"}
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
+
           </form>
 
-          <p className="signup-footer-text">
-            Already have an account?{" "}
-            <Link to="/login">
-              Login
-            </Link>
+          {error && (
+            <p
+              style={{
+                color: "#ff6b6b",
+                marginTop: "15px",
+                textAlign: "center",
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          <p className="auth-footer">
+            Already have an account?
+            <Link to="/login"> Sign In</Link>
           </p>
+
         </div>
       </div>
     </div>

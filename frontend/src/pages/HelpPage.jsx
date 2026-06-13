@@ -5,74 +5,113 @@ const HelpPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="help-main-page">
-      {/* HERO SECTION */}
-      <div className="help-hero-section">
-        <div className="hero-text-section">
-          <span className="hero-badge">SAHYOG SUPPORT SYSTEM</span>
-          <h1>You Don’t Have To Handle Everything Alone.</h1>
+    <div className="help-page">
+
+      <div className="help-container">
+
+        <div className="help-hero">
+
+          <span className="help-badge">
+            SAHYOG STUDENT SUPPORT
+          </span>
+
+          <h1>
+            Support When You Need It Most
+          </h1>
+
           <p>
-            Whether it’s stress, academics, career confusion, emotional pressure,
-            loneliness, hostel issues, or anything else — SAHYOG is here to support you.
+            Helping students navigate academics,
+            wellbeing, career decisions and campus life
+            with confidence.
           </p>
-        </div>
-      </div>
 
-      {/* STACKED CONTENT CONTAINER */}
-      <div className="help-stack-container">
-        
-        {/* PRIMARY MAIN OPTION: HUMAN TEAM CONNECT */}
-        <div className="help-glass-card primary-team-card">
-          <div className="card-header-row">
-            <span className="card-icon">❤️</span>
+        </div>
+
+        {/* MAIN CARD */}
+
+        <div className="help-card-large">
+
+          <div className="help-card-header">
+            <div className="help-icon">
+              ❤️
+            </div>
+
             <div>
-              <h2>Reach SAHYOG Team</h2>
-              <p className="card-subtitle-tag">Official Student Support Group</p>
+              <h2>Connect With SAHYOG Team</h2>
+
+              <span>
+                Official Student Support Network
+              </span>
             </div>
           </div>
-          
-          <p className="card-desc">
-            Connect privately and securely with the SAHYOG team. Share your concerns, academic hurdles, 
-            or personal situations comfortably. Our team is here to listen and guide you through.
+
+          <p className="help-description">
+            Reach out to student volunteers for guidance,
+            support and assistance related to academics,
+            wellbeing and campus life.
           </p>
-          
-          <div className="support-points-grid">
-            <span className="point-item"><span className="check-mark">✓</span> Academic Support</span>
-            <span className="point-item"><span className="check-mark">✓</span> Mental Wellbeing</span>
-            <span className="point-item"><span className="check-mark">✓</span> Career Guidance</span>
-            <span className="point-item"><span className="check-mark">✓</span> Financial & Personal Concerns</span>
+
+          <div className="help-points">
+
+            <div>✓ Academic Support</div>
+
+            <div>✓ Career Guidance</div>
+
+            <div>✓ Student Welfare</div>
+
+            <div>✓ Campus Assistance</div>
+
           </div>
 
-          <p className="privacy-disclaimer">
-            You may use any name or contact details you feel comfortable sharing. Your privacy is protected.
+          <p className="privacy-note">
+            🔒 Feel free to use any name or contact details you are
+            comfortable sharing. Your privacy and confidentiality
+            are respected.
           </p>
 
-          <button className="help-action-btn reach-team-btn" onClick={() => navigate("/help/sahyog")}>
-            Connect with SAHYOG Team →
+          <button
+            className="help-btn"
+            onClick={() => navigate("/help/sahyog")}
+          >
+            Connect With Team →
           </button>
+
         </div>
 
-        {/* SECONDARY SHORT OPTION: AI HELP */}
-        <div className="help-glass-card secondary-ai-card">
-          <div className="ai-layout-split">
-            <div className="ai-text-block">
-              <div className="card-header-row small-gap">
-                <span className="card-icon-small">🤖</span>
-                <h3>Need Instant Guidance?</h3>
-                <span className="ai-mini-badge">Fast Response</span>
-              </div>
-              <p className="card-desc-small">
-                Get quick, anonymous AI-powered assistance for study planning, productivity tips, or coding support.
-              </p>
+        {/* AI CARD */}
+
+        <div className="help-card-small">
+
+          <div className="ai-left">
+
+            <div className="ai-icon">
+              🤖
             </div>
-            
-            <button className="help-action-btn open-ai-btn-small" onClick={() => navigate("/help/ai")}>
-              Open AI Help
-            </button>
+
+            <div>
+
+              <h3>AI Study Assistant</h3>
+
+              <p>
+                Get instant help with study planning,
+                coding questions and academic doubts.
+              </p>
+
+            </div>
+
           </div>
+
+          <button
+            className="help-btn secondary"
+            onClick={() => navigate("/help/ai")}
+          >
+            Launch AI →
+          </button>
+
         </div>
 
       </div>
+
     </div>
   );
 };
