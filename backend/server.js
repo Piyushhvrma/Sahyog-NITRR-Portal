@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 
-// Import routes
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
 const authRoute = require("./routes/auth");
@@ -18,17 +17,23 @@ const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
+// ✅ FIX: Add COOP header BEFORE cors — fixes Google OAuth popup postMessage error
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  next();
+});
+
 const corsOptions = {
   origin: [
     "http://localhost:5173",
-    "https://sahyog-nitrr-portal.vercel.app" 
+    "https://sahyog-nitrr-portal.vercel.app"
   ],
   optionsSuccessStatus: 200,
   credentials: true
 };
 
 app.use(cors(corsOptions));
-  app.use(express.json());
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
@@ -37,7 +42,6 @@ app.get("/", (req, res) => {
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// API Routes
 app.use("/api/links", linksRoute);
 app.use("/api/feedback", feedbackRoute);
 app.use("/api/auth", authRoute);

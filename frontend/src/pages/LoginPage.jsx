@@ -15,20 +15,14 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsLoading(true);
     setError("");
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -51,18 +45,11 @@ const LoginPage = () => {
     try {
       setError("");
 
-      const res = await fetch(
-        `${API_BASE_URL}/api/auth/google-login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            credential: credentialResponse.credential,
-          }),
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
 
       const data = await res.json();
 
@@ -83,19 +70,17 @@ const LoginPage = () => {
       <div className="auth-container">
 
         <div className="auth-left">
-          <span className="auth-badge">
-             Sahyog Platform
-          </span>
+          <span className="auth-badge">Sahyog Platform</span>
 
           <h1>
-              Everything You Need
-             <span> In One Place</span>
+            Everything You Need
+            <span> In One Place</span>
           </h1>
 
           <p>
             Learn smarter, connect faster and access everything
             you need for campus life — from academics to student support.
-         </p>
+          </p>
 
           <div className="auth-features">
             <div className="feature-card">📚 Notes & Resources</div>
@@ -108,12 +93,12 @@ const LoginPage = () => {
         </div>
 
         <div className="auth-card">
-
           <div className="auth-header">
             <h2>Sign In</h2>
             <p>Continue to your account</p>
           </div>
 
+          {/* ✅ CLEAN: Only @react-oauth/google, no window.google code */}
           <div className="google-login-wrapper">
             <GoogleLogin
               onSuccess={handleGoogleLogin}
@@ -121,7 +106,7 @@ const LoginPage = () => {
               theme="outline"
               size="large"
               shape="pill"
-              width="100%"
+              width="320"
             />
           </div>
 
@@ -135,15 +120,15 @@ const LoginPage = () => {
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
-
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
-
             <button
               type="submit"
               className="auth-submit-btn"
@@ -154,13 +139,7 @@ const LoginPage = () => {
           </form>
 
           {error && (
-            <p
-              style={{
-                color: "#ff6b6b",
-                marginTop: "15px",
-                textAlign: "center",
-              }}
-            >
+            <p style={{ color: "#ff6b6b", marginTop: "15px", textAlign: "center" }}>
               {error}
             </p>
           )}
@@ -169,7 +148,6 @@ const LoginPage = () => {
             Don't have an account?
             <Link to="/signup"> Sign Up</Link>
           </p>
-
         </div>
       </div>
     </div>
