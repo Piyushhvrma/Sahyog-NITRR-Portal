@@ -8,6 +8,7 @@ const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -16,53 +17,79 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
     setError("");
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
         login(data.token, data.user);
-        navigate("/");
-      } else {
-        setError(data.message || "Signup Failed");
+
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 500);
+
+        return;
       }
+
+      setError(data.message || "Signup Failed");
+      setIsLoading(false);
+
     } catch (err) {
       console.error(err);
       setError("Failed to connect to server.");
-    } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignup = async (credentialResponse) => {
     try {
+      setIsLoading(true);
       setError("");
 
       const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          credential: credentialResponse.credential,
+        }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
         login(data.token, data.user);
-        navigate("/");
-      } else {
-        setError(data.message || "Google Signup Failed");
+
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 800);
+
+        return;
       }
+
+      setError(data.message || "Google Signup Failed");
+      setIsLoading(false);
+
     } catch (err) {
       console.error(err);
       setError("Google Signup Failed");
+      setIsLoading(false);
     }
   };
 
@@ -71,16 +98,19 @@ const SignupPage = () => {
       <div className="auth-container">
 
         <div className="auth-left">
-          <span className="auth-badge">Join Sahyog Platform</span>
+          <span className="auth-badge">
+            Join Sahyog Platform
+          </span>
 
           <h1>
-            Start Your
+            Build Your
             <span> Campus Journey</span>
           </h1>
 
           <p>
-            Learn smarter, connect faster and access everything
-            you need for campus life — from academics to student support.
+            Access academic resources, student services,
+            campus opportunities and community support —
+            all from one platform.
           </p>
 
           <div className="auth-features">
@@ -94,21 +124,43 @@ const SignupPage = () => {
         </div>
 
         <div className="auth-card">
+
           <div className="auth-header">
-            <h2>Sign Up</h2>
-            <p>Create your account</p>
+            <h2>Create Account</h2>
+            <p>Start your Sahyog journey</p>
           </div>
 
-          {/* ✅ CLEAN: Only @react-oauth/google, no window.google code */}
+          {isLoading && (
+            <p
+              style={{
+                color: "#93c5fd",
+                textAlign: "center",
+                marginBottom: "12px",
+                fontWeight: "600",
+              }}
+            >
+              Creating your account, please wait...
+            </p>
+          )}
+
           <div className="google-login-wrapper">
-            <GoogleLogin
-              onSuccess={handleGoogleSignup}
-              onError={() => setError("Google Signup Failed")}
-              theme="outline"
-              size="large"
-              shape="pill"
-              width="320"
-            />
+
+            {isLoading ? (
+              <div className="google-loading">
+                <div className="loader"></div>
+                <span>Setting up your account...</span>
+              </div>
+            ) : (
+              <GoogleLogin
+                onSuccess={handleGoogleSignup}
+                onError={() => setError("Google Signup Failed")}
+                theme="outline"
+                size="large"
+                shape="pill"
+                width="320"
+              />
+            )}
+
           </div>
 
           <div className="divider">
@@ -116,6 +168,7 @@ const SignupPage = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
+
             <input
               type="text"
               placeholder="Full Name"
@@ -123,6 +176,7 @@ const SignupPage = () => {
               onChange={(e) => setName(e.target.value)}
               required
             />
+
             <input
               type="email"
               placeholder="Email Address"
@@ -130,6 +184,7 @@ const SignupPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+
             <input
               type="password"
               placeholder="Password"
@@ -137,17 +192,27 @@ const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
             <button
               type="submit"
               className="auth-submit-btn"
               disabled={isLoading}
             >
-              {isLoading ? "Creating Account..." : "Create Account"}
+              {isLoading
+                ? "Creating Account..."
+                : "Create Account"}
             </button>
+
           </form>
 
           {error && (
-            <p style={{ color: "#ff6b6b", marginTop: "15px", textAlign: "center" }}>
+            <p
+              style={{
+                color: "#ff6b6b",
+                marginTop: "15px",
+                textAlign: "center",
+              }}
+            >
               {error}
             </p>
           )}
@@ -156,7 +221,9 @@ const SignupPage = () => {
             Already have an account?
             <Link to="/login"> Sign In</Link>
           </p>
+
         </div>
+
       </div>
     </div>
   );

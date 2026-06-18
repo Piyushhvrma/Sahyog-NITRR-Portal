@@ -3091,3 +3091,49 @@ input[type="file"]::file-selector-button {
     padding: 14px 16px;
   }
 }
+
+.google-login-wrapper{
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
+}
+
+.google-loading{
+  width:320px;
+  height:48px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
+  border-radius:999px;
+
+  background:rgba(255,255,255,.08);
+
+  border:1px solid rgba(255,255,255,.12);
+
+  color:white;
+  font-weight:600;
+}
+
+.loader{
+  width:18px;
+  height:18px;
+
+  border:2px solid rgba(255,255,255,.3);
+  border-top:2px solid #fff;
+
+  border-radius:50%;
+
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  from{
+    transform:rotate(0deg);
+  }
+  to{
+    transform:rotate(360deg);
+  }
+}

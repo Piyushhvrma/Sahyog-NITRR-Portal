@@ -28,9 +28,14 @@ const LoginPage = () => {
       const data = await res.json();
 
       if (res.ok) {
-        login(data.token, data.user);
-        navigate("/");
-      } else {
+  login(data.token, data.user);
+
+  setTimeout(() => {
+    navigate("/");
+  }, 500);
+
+  return;
+} else {
         setError(data.message || "Login failed.");
       }
     } catch (err) {
@@ -42,28 +47,41 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = async (credentialResponse) => {
-    try {
-      setError("");
+  try {
+    setIsLoading(true);
+    setError("");
 
-      const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
-      });
+    const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        credential: credentialResponse.credential,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        login(data.token, data.user);
+    if (res.ok) {
+      login(data.token, data.user);
+
+      setTimeout(() => {
         navigate("/");
-      } else {
-        setError(data.message || "Google Login Failed");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Google Login Failed");
+      }, 800);
+
+      return;
     }
-  };
+
+    setError(data.message || "Google Login Failed");
+    setIsLoading(false);
+
+  } catch (err) {
+    console.error(err);
+    setError("Google Login Failed");
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="auth-page">
@@ -98,17 +116,40 @@ const LoginPage = () => {
             <p>Continue to your account</p>
           </div>
 
-          {/* ✅ CLEAN: Only @react-oauth/google, no window.google code */}
-          <div className="google-login-wrapper">
-            <GoogleLogin
-              onSuccess={handleGoogleLogin}
-              onError={() => setError("Google Login Failed")}
-              theme="outline"
-              size="large"
-              shape="pill"
-              width="320"
-            />
-          </div>
+  
+
+{isLoading && (
+  <p
+    style={{
+      color: "#93c5fd",
+      textAlign: "center",
+      marginBottom: "12px",
+      fontWeight: "600",
+    }}
+  >
+    Signing you in, please wait...
+  </p>
+)}
+
+<div className="google-login-wrapper">
+
+  {isLoading ? (
+    <div className="google-loading">
+      <div className="loader"></div>
+      <span>Authenticating...</span>
+    </div>
+  ) : (
+    <GoogleLogin
+      onSuccess={handleGoogleLogin}
+      onError={() => setError("Google Login Failed")}
+      theme="outline"
+      size="large"
+      shape="pill"
+      width="320"
+    />
+  )}
+
+</div>
 
           <div className="divider">
             <span>OR</span>
@@ -151,6 +192,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 
