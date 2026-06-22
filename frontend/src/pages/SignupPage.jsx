@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
+import sahyogLogo from "../assets/sahyog-logo.png";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -48,7 +49,6 @@ const SignupPage = () => {
 
       setError(data.message || "Signup Failed");
       setIsLoading(false);
-
     } catch (err) {
       console.error(err);
       setError("Failed to connect to server.");
@@ -85,7 +85,6 @@ const SignupPage = () => {
 
       setError(data.message || "Google Signup Failed");
       setIsLoading(false);
-
     } catch (err) {
       console.error(err);
       setError("Google Signup Failed");
@@ -94,136 +93,90 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
+    <div className="auth-page-v2">
+      <div className="auth-card-v2">
+        <div className="auth-logo-v2"><img
+    src={sahyogLogo}
+    alt="SAHYOG"
+    className="auth-logo-img"
+  /></div>
 
-        <div className="auth-left">
-          <span className="auth-badge">
-            Join Sahyog Platform
-          </span>
+        <h1>Create Account</h1>
 
-          <h1>
-            Build Your
-            <span> Campus Journey</span>
-          </h1>
+        <p>
+  Create your SAHYOG account to explore academic resources,
+  receive important updates, connect with support services, and
+  stay involved with student wellbeing initiatives.
+</p>
 
-          <p>
-            Access academic resources, student services,
-            campus opportunities and community support —
-            all from one platform.
-          </p>
-
-          <div className="auth-features">
-            <div className="feature-card">📚 Notes & Resources</div>
-            <div className="feature-card">📝 PYQ Collection</div>
-            <div className="feature-card">🎓 Student Support Desk</div>
-            <div className="feature-card">🩸 Blood Assistance</div>
-            <div className="feature-card">🎉 Events & Registration</div>
-            <div className="feature-card">📊 Smart Dashboard</div>
+        {isLoading && (
+          <div className="auth-loading-v2">
+            Creating your account, please wait...
           </div>
+        )}
+
+        <div className="auth-google-box">
+          {isLoading ? (
+            <div className="google-loading">
+              <div className="loader"></div>
+              <span>Setting up your account...</span>
+            </div>
+          ) : (
+            <GoogleLogin
+              onSuccess={handleGoogleSignup}
+              onError={() => setError("Google Signup Failed")}
+              theme="outline"
+              size="large"
+              shape="pill"
+              width="320"
+            />
+          )}
         </div>
 
-        <div className="auth-card">
-
-          <div className="auth-header">
-            <h2>Create Account</h2>
-            <p>Start your Sahyog journey</p>
-          </div>
-
-          {isLoading && (
-            <p
-              style={{
-                color: "#93c5fd",
-                textAlign: "center",
-                marginBottom: "12px",
-                fontWeight: "600",
-              }}
-            >
-              Creating your account, please wait...
-            </p>
-          )}
-
-          <div className="google-login-wrapper">
-
-            {isLoading ? (
-              <div className="google-loading">
-                <div className="loader"></div>
-                <span>Setting up your account...</span>
-              </div>
-            ) : (
-              <GoogleLogin
-                onSuccess={handleGoogleSignup}
-                onError={() => setError("Google Signup Failed")}
-                theme="outline"
-                size="large"
-                shape="pill"
-                width="320"
-              />
-            )}
-
-          </div>
-
-          <div className="divider">
-            <span>OR</span>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-
-            <input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            <button
-              type="submit"
-              className="auth-submit-btn"
-              disabled={isLoading}
-            >
-              {isLoading
-                ? "Creating Account..."
-                : "Create Account"}
-            </button>
-
-          </form>
-
-          {error && (
-            <p
-              style={{
-                color: "#ff6b6b",
-                marginTop: "15px",
-                textAlign: "center",
-              }}
-            >
-              {error}
-            </p>
-          )}
-
-          <p className="auth-footer">
-            Already have an account?
-            <Link to="/login"> Sign In</Link>
-          </p>
-
+        <div className="auth-divider-v2">
+          <span>OR</span>
         </div>
 
+        <form className="auth-form-v2" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <input
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            className="auth-submit-v2"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Create Account"}
+          </button>
+        </form>
+
+        {error && <div className="auth-error-v2">{error}</div>}
+
+        <p className="auth-switch-v2">
+          Already have an account?
+          <Link to="/login"> Sign In</Link>
+        </p>
       </div>
     </div>
   );

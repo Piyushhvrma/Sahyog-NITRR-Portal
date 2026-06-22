@@ -1,0 +1,265 @@
+/* =========================================================
+   SAHYOG Blood Request Pages
+   ---------------------------------------------------------
+   Includes:
+   1. Blood Request landing page
+   2. Emergency Blood Request page
+   3. Mobile compact cards fix
+   ========================================================= */
+
+/* ---------- BLOOD / EMERGENCY PAGE WRAPPER ---------- */
+.blood-page,
+.emergency-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
+}
+
+/* ---------- MAIN GLASS CARDS ---------- */
+.blood-card,
+.emergency-card {
+  width: 100%;
+  max-width: 920px;
+  padding: 45px;
+  text-align: center;
+
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+/* ---------- BLOOD PAGE HERO ---------- */
+.blood-top {
+  text-align: center;
+}
+
+.blood-icon,
+.emergency-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.blood-top h1,
+.emergency-top h1 {
+  color: #ffffff;
+  opacity: 1;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.45);
+}
+
+.blood-quote {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 14px auto 8px;
+}
+
+.blood-subtitle,
+.emergency-top p {
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ---------- EMERGENCY CTA BUTTON ---------- */
+.blood-main-btn {
+  display: block;
+  width: 100%;
+  max-width: 650px;
+  margin: 35px auto;
+  padding: 28px 32px;
+
+  border-radius: 22px;
+
+  font-size: 1.5rem;
+  font-weight: 800;
+
+  text-align: center;
+  text-decoration: none;
+  color: white;
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+
+  box-shadow: 0 15px 35px rgba(220, 38, 38, 0.35);
+  transition: all 0.3s ease;
+}
+
+.blood-main-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px rgba(220, 38, 38, 0.45);
+}
+
+/* ---------- SMALL INFO CARDS ---------- */
+.blood-secondary-grid {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.blood-secondary-card {
+  width: 240px;
+  padding: 18px;
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  transition: all 0.3s ease;
+}
+
+.blood-secondary-card span {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.blood-secondary-card h3 {
+  font-size: 1rem;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.blood-secondary-card p {
+  font-size: 0.85rem;
+  opacity: 0.82;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.blood-secondary-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- EMERGENCY FORM ---------- */
+.emergency-top {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.emergency-form,
+.blood-form {
+  gap: 22px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.blood-upload-box,
+.document-upload {
+  background: rgba(239, 68, 68, 0.13);
+  border: 1px dashed rgba(248, 113, 113, 0.65);
+  border-radius: 18px;
+  padding: 22px;
+  color: white;
+  text-align: left;
+}
+
+.blood-upload-box input,
+.document-upload input {
+  margin-top: 15px;
+  color: var(--text-dark) !important;
+}
+
+.submit-request-btn {
+  background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+  box-shadow: 0 14px 34px rgba(239, 68, 68, 0.35);
+}
+
+.submit-request-btn:hover {
+  background: linear-gradient(135deg, #fb7185, #7f1d1d);
+}
+
+/* ---------- MOBILE FIX ---------- */
+@media (max-width: 768px) {
+  .blood-page,
+  .emergency-page {
+    padding: 24px 10px;
+  }
+
+  .blood-card,
+  .emergency-card {
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+
+  .blood-top h1,
+  .emergency-top h1 {
+    font-size: 1.8rem;
+  }
+
+  .blood-icon,
+  .emergency-icon {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+  }
+
+  .blood-quote {
+    font-size: 0.95rem;
+    margin-top: 10px;
+  }
+
+  .blood-subtitle {
+    font-size: 0.92rem;
+  }
+
+  .blood-main-btn {
+    width: 100%;
+    max-width: 100%;
+    margin: 24px auto;
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: 16px;
+  }
+
+  .blood-secondary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+  }
+
+  .blood-secondary-card {
+    width: 100%;
+    padding: 13px 10px;
+    border-radius: 14px;
+  }
+
+  .blood-secondary-card span {
+    font-size: 1.35rem;
+    margin-bottom: 6px;
+  }
+
+  .blood-secondary-card h3 {
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+  }
+
+  .blood-secondary-card p {
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+/* ---------- EXTRA SMALL MOBILE ---------- */
+@media (max-width: 420px) {
+  .blood-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blood-secondary-card {
+    max-width: 230px;
+    margin: 0 auto;
+  }
+}

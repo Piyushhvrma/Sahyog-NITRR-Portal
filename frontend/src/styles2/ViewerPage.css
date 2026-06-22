@@ -1,0 +1,95 @@
+/* ==================================
+   SAHYOG Viewer Page
+================================== */
+
+.pyq-section-card {
+  margin-top: 2rem;
+  padding: 2rem;
+  border-radius: 24px;
+
+  background: rgba(15, 32, 55, 0.48);
+
+  border: 1px solid rgba(
+    148,
+    163,
+    184,
+    0.25
+  );
+}
+
+.pyq-section-card h2 {
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.pyq-link-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.pyq-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  text-decoration: none;
+
+  padding: 16px 18px;
+
+  border-radius: 16px;
+
+  background: rgba(
+    56,
+    189,
+    248,
+    0.12
+  );
+
+  border: 1px solid rgba(
+    56,
+    189,
+    248,
+    0.32
+  );
+
+  color: #e0f7ff !important;
+
+  font-weight: 700;
+
+  transition: all 0.25s ease;
+}
+
+.pyq-link-card:hover {
+  transform: translateY(-4px);
+
+  background: rgba(
+    56,
+    189,
+    248,
+    0.2
+  );
+
+  color: white !important;
+}
+
+.pyq-link-icon {
+  font-size: 1.2rem;
+}
+
+.no-links-text {
+  color: rgba(
+    226,
+    232,
+    240,
+    0.8
+  );
+}

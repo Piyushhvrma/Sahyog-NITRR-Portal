@@ -1,59 +1,151 @@
-import React, { useState } from 'react';
-import AdminUpload from '../components/AdminUpload.jsx';
-import AdminEventUpload from '../components/AdminEventUpload.jsx';
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext.jsx";
 
-// This is your chosen admin password
-const ADMIN_PASSWORD = "rahul@2K2";
+import AdminUpload from "../components/AdminUpload.jsx";
+import AdminEventUpload from "../components/AdminEventUpload.jsx";
+import AdminAnnouncementUpload from "../components/AdminAnnouncementUpload.jsx";
+import AdminAnnouncementList from "../components/AdminAnnouncementList.jsx";
+import AdminEventList from "../components/AdminEventList.jsx";
+import AdminLinksList from "../components/AdminLinksList.jsx";
+
+const ADMIN_PASSWORD = "piyushss";
+const ADMIN_EMAIL = "sahyogbloodrequest@gmail.com";
 
 const AdminPage = () => {
-  const [password, setPassword] = useState('');
+  const { user } = useContext(AuthContext);
+
+  const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  // ===========================
+  // EMAIL RESTRICTION
+  // ===========================
+
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return (
+      <div
+        className="container"
+        style={{
+          textAlign: "center",
+          paddingTop: "80px",
+        }}
+      >
+        <h2>🚫 Access Denied</h2>
+
+        <p>
+          You are not authorized to access the
+          admin panel.
+        </p>
+      </div>
+    );
+  }
+
+  // ===========================
+  // PASSWORD LOGIN
+  // ===========================
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setError(''); // Clear previous error
 
-    // --- THIS IS THE FIX ---
-    // Check if the entered password matches your secret password
+    setError("");
+
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
     } else {
-      setError('Incorrect admin password. Please try again.');
+      setError(
+        "Incorrect admin password. Please try again."
+      );
     }
   };
 
-  // If not "authenticated", show the login form
+  // ===========================
+  // ADMIN LOGIN SCREEN
+  // ===========================
+
   if (!isAuthenticated) {
     return (
       <div className="container">
         <h2>Admin Login</h2>
+
         <form onSubmit={handleLogin}>
           <label>Admin Password:</label>
+
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
             placeholder="Enter admin password"
-            style={{ marginBottom: '1rem' }}
+            style={{
+              marginBottom: "1rem",
+            }}
           />
-          {/* Show error message if login fails */}
-          {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-          
-          <button type="submit">Login</button>
+
+          {error && (
+            <p
+              style={{
+                color: "red",
+                marginTop: "10px",
+              }}
+            >
+              {error}
+            </p>
+          )}
+
+          <button type="submit">
+            Login
+          </button>
         </form>
       </div>
     );
   }
 
-  // If "authenticated", show the upload components
-  // and pass the password down as a prop
+  // ===========================
+  // ADMIN DASHBOARD
+  // ===========================
+
   return (
-    <div className="admin-container" style={{ maxWidth: '900px', margin: '2rem auto' }}>
+    <div
+      className="admin-container"
+      style={{
+        maxWidth: "900px",
+        margin: "2rem auto",
+      }}
+    >
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "30px",
+        }}
+      >
+        SAHYOG Admin Dashboard
+      </h1>
+
       <AdminUpload adminPassword={password} />
-      <hr style={{ margin: '2rem 0' }} />
-      <AdminEventUpload adminPassword={password} />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminLinksList adminPassword={password} />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminEventUpload adminPassword={password} />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminEventList adminPassword={password} />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminAnnouncementUpload adminPassword={password} />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminAnnouncementList adminPassword={password} />
     </div>
+    
   );
 };
 

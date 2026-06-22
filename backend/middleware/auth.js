@@ -3,16 +3,25 @@ const jwt = require('jsonwebtoken');
 // --- Middleware 1: Admin Password Check ---
 // This checks for the 'x-admin-password' header
 const adminAuth = (req, res, next) => {
-  const password = req.header('x-admin-password');
+  const password = req.header("x-admin-password");
+
+  console.log("HEADER PASSWORD =", password);
+  console.log("ENV PASSWORD =", process.env.ADMIN_PASSWORD);
 
   if (!password) {
-    return res.status(401).json({ message: 'Access Denied: No admin password provided.' });
+    return res.status(401).json({
+      message: "Access Denied: No admin password provided.",
+    });
   }
 
   if (password === process.env.ADMIN_PASSWORD) {
-    next(); // Password is correct, proceed
+    console.log("ADMIN LOGIN SUCCESS");
+    next();
   } else {
-    return res.status(403).json({ message: 'Access Denied: Invalid admin password.' });
+    console.log("ADMIN LOGIN FAILED");
+    return res.status(403).json({
+      message: "Access Denied: Invalid admin password.",
+    });
   }
 };
 

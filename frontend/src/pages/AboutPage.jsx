@@ -161,7 +161,7 @@ const AboutPage = () => {
         rel="noopener noreferrer"
         className="developer-name-link"
       >
-        Piyush Kumar Verma
+        Piyush Verma
       </a>
 
       <p className="developer-role">

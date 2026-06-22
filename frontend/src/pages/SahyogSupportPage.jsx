@@ -21,23 +21,21 @@ const SahyogSupportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // ✅ FIXED: Using state setter function properly
+    setIsSubmitting(true);
     setStatus({ type: null, text: "" });
 
-    // Validate fields before making the request
     if (!formData.category || !formData.message) {
       setStatus({
         type: "error",
-        text: "Please select a classification category and write down your concern description.",
+        text: "Please select a category and describe your concern.",
       });
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // ✅ FIXED: Targeting the exact route path extension AND added cross-origin credentials matching your server
       const response = await axios.post(
-        "https://sahyog-backend-topb.onrender.com/api/support", 
+        "https://sahyog-backend-topb.onrender.com/api/support",
         formData,
         { withCredentials: true }
       );
@@ -45,10 +43,9 @@ const SahyogSupportPage = () => {
       if (response.data.success) {
         setStatus({
           type: "success",
-          text: "Your support request has been delivered privately. The SAHYOG team is on it! ❤️",
+          text: "Your request has been sent privately to the SAHYOG team.",
         });
 
-        // Reset form inputs upon successful delivery
         setFormData({
           name: "",
           contact: "",
@@ -57,10 +54,11 @@ const SahyogSupportPage = () => {
         });
       }
     } catch (error) {
-      console.error("Submission operational fault:", error);
       setStatus({
         type: "error",
-        text: `Submission Failed: ${error.response?.data?.message || "Server offline or backend port blocked."}`,
+        text: `Submission failed: ${
+          error.response?.data?.message || "Please try again later."
+        }`,
       });
     } finally {
       setIsSubmitting(false);
@@ -68,100 +66,87 @@ const SahyogSupportPage = () => {
   };
 
   return (
-    <div className="premium-support-page">
-      <div className="support-glass-card">
-        
-        {/* HEADER CONSOLE */}
-        <div className="support-header-section">
-          <div className="support-badge-icon">❤️</div>
+    <div className="help-clean-page">
+      <div className="help-clean-card">
+        <div className="help-clean-header">
+          <div className="help-clean-icon">❤️</div>
           <h1>Connect With SAHYOG Team</h1>
-          <p className="support-desc-p">
-            Share your academic concerns, personal hurdles, or situations. 
-            You may use an alias name or any contact detail you are fully comfortable sharing. 
-            Your confidentiality is strictly protected.
+          <p>
+            Share your concern with the student support team. You may use your
+            name or stay anonymous. Only add contact details if you want a
+            follow-up.
           </p>
         </div>
 
-        {/* NOTIFICATION LAYER */}
         {status.text && (
-          <div className={`status-banner-notice ${status.type}`}>
+          <div className={`help-status ${status.type}`}>
             {status.text}
           </div>
         )}
 
-        {/* INPUT FORM BLOCK */}
-        <form className="interactive-support-form" onSubmit={handleSubmit}>
-          
-          <div className="form-input-row-split">
-            <div className="input-group-cell">
-              <label htmlFor="name">Identification</label>
+        <form className="help-clean-form" onSubmit={handleSubmit}>
+          <div className="help-form-row">
+            <div className="help-field">
+              <label>Name / Alias</label>
               <input
-                id="name"
                 type="text"
                 name="name"
-                placeholder="Name or Alias (e.g., Anonymous Student)"
+                placeholder="Optional"
                 value={formData.name}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="input-group-cell">
-              <label htmlFor="contact">Secure Contact Endpoint</label>
+            <div className="help-field">
+              <label>Contact</label>
               <input
-                id="contact"
                 type="text"
                 name="contact"
-                placeholder="Email, Phone, Instagram, or 'None'"
+                placeholder="Email, phone, Instagram, or leave blank"
                 value={formData.contact}
                 onChange={handleChange}
               />
             </div>
           </div>
 
-          <div className="input-group-cell">
-            <label htmlFor="category">Problem Space Classification</label>
-            <div className="custom-select-wrapper">
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              >
-                <option value="">-- Please select an appropriate category --</option>
-                <option value="Academic Stress">Academic Stress</option>
-                <option value="Mental Health">Mental Health</option>
-                <option value="Career Guidance">Career Guidance</option>
-                <option value="Hostel Problem">Hostel Problem</option>
-                <option value="Relationship Problem">Relationship Problem</option>
-                <option value="Financial Problem">Financial Problem</option>
-                <option value="Other">Other Issues</option>
-              </select>
-            </div>
+          <div className="help-field">
+            <label>Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a category</option>
+              <option value="Academic Stress">Academic Stress</option>
+              <option value="Mental Health">Mental Health</option>
+              <option value="Career Guidance">Career Guidance</option>
+              <option value="Hostel Problem">Hostel Problem</option>
+              <option value="Relationship Problem">Relationship Problem</option>
+              <option value="Financial Problem">Financial Problem</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
-          <div className="input-group-cell">
-            <label htmlFor="message">Elaborate Your Situation</label>
+          <div className="help-field">
+            <label>Your Concern</label>
             <textarea
-              id="message"
               name="message"
-              placeholder="Describe what you are facing right now..."
+              placeholder="Write what you are facing. Keep it simple and honest."
               value={formData.message}
               onChange={handleChange}
               required
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="support-dispatch-btn" 
+          <button
+            type="submit"
+            className="help-submit-btn"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Dispatching Message..." : "Submit Secure Request →"}
+            {isSubmitting ? "Sending..." : "Submit Request"}
           </button>
-
         </form>
-
       </div>
     </div>
   );

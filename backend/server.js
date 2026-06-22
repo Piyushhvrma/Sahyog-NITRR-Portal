@@ -14,6 +14,8 @@ const profileRoute = require("./routes/profile");
 const bloodRequestRoutes = require("./routes/bloodRequest");
 const supportRoutes = require("./routes/supportRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -51,6 +53,8 @@ app.use("/api/profile", profileRoute);
 app.use("/api/blood-request", bloodRequestRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/announcements", announcementRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const start = async () => {
   try {

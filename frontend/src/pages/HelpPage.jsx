@@ -5,113 +5,63 @@ const HelpPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="help-page">
+    <div className="help-clean-home">
+      <section className="help-home-hero">
+        <span className="help-home-badge">SAHYOG STUDENT SUPPORT</span>
 
-      <div className="help-container">
+        <h1>Get the right help, at the right time</h1>
 
-        <div className="help-hero">
+        <p>
+          Choose student support for personal guidance, or use the AI assistant
+          for quick academic and study-related help.
+        </p>
+      </section>
 
-          <span className="help-badge">
-            SAHYOG STUDENT SUPPORT
-          </span>
+      <section className="help-option-grid">
+        <div className="help-option-card primary">
+          <div className="help-option-icon">❤️</div>
 
-          <h1>
-            Support When You Need It Most
-          </h1>
+          <h2>Connect With SAHYOG Team</h2>
 
           <p>
-            Helping students navigate academics,
-            wellbeing, career decisions and campus life
-            with confidence.
+            Share your concern with trusted student volunteers. You may stay
+            anonymous and share contact details only if you want a follow-up.
           </p>
 
-        </div>
-
-        {/* MAIN CARD */}
-
-        <div className="help-card-large">
-
-          <div className="help-card-header">
-            <div className="help-icon">
-              ❤️
-            </div>
-
-            <div>
-              <h2>Connect With SAHYOG Team</h2>
-
-              <span>
-                Official Student Support Network
-              </span>
-            </div>
+          <div className="help-option-points">
+            <span>Academic stress</span>
+            <span>Career guidance</span>
+            <span>Campus support</span>
+            <span>Personal concerns</span>
           </div>
 
-          <p className="help-description">
-            Reach out to student volunteers for guidance,
-            support and assistance related to academics,
-            wellbeing and campus life.
-          </p>
-
-          <div className="help-points">
-
-            <div>✓ Academic Support</div>
-
-            <div>✓ Career Guidance</div>
-
-            <div>✓ Student Welfare</div>
-
-            <div>✓ Campus Assistance</div>
-
-          </div>
-
-          <p className="privacy-note">
-            🔒 Feel free to use any name or contact details you are
-            comfortable sharing. Your privacy and confidentiality
-            are respected.
-          </p>
-
-          <button
-            className="help-btn"
-            onClick={() => navigate("/help/sahyog")}
-          >
-            Connect With Team →
+          <button onClick={() => navigate("/help/sahyog")}>
+            Contact Team
           </button>
-
         </div>
 
-        {/* AI CARD */}
+        <div className="help-option-card">
+          <div className="help-option-icon">🤖</div>
 
-        <div className="help-card-small">
+          <h2>AI Study Assistant</h2>
 
-          <div className="ai-left">
+          <p>
+            Ask for study planning, coding doubts, revision strategy, or quick
+            academic guidance anytime.
+          </p>
 
-            <div className="ai-icon">
-              🤖
-            </div>
-
-            <div>
-
-              <h3>AI Study Assistant</h3>
-
-              <p>
-                Get instant help with study planning,
-                coding questions and academic doubts.
-              </p>
-
-            </div>
-
+          <div className="help-option-points">
+            <span>Study plans</span>
+            <span>Coding help</span>
+            <span>Revision support</span>
+            <span>Quick doubts</span>
           </div>
 
-          <button
-            className="help-btn secondary"
-            onClick={() => navigate("/help/ai")}
-          >
-            Launch AI →
+          <button onClick={() => navigate("/help/ai")}>
+            Open AI Assistant
           </button>
-
         </div>
-
-      </div>
-
+      </section>
     </div>
   );
 };

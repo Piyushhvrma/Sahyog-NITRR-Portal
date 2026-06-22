@@ -1,0 +1,303 @@
+/* ===============================
+   SAHYOG Notification Page
+   Old Light Glass Theme
+================================ */
+
+.notify-page {
+  width: min(1100px, calc(100% - 32px));
+  margin: 2rem auto 4rem;
+}
+
+/* ---------- Hero ---------- */
+
+.notify-hero {
+  background: rgba(30, 41, 59, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 28px;
+  padding: 42px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px) saturate(130%);
+  margin-bottom: 28px;
+}
+
+.notify-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  color: #8eeaff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.6px;
+}
+
+.notify-hero h1 {
+  color: #ffffff;
+  font-size: 3rem;
+  margin: 18px 0 10px;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.45);
+}
+
+.notify-hero p {
+  color: rgba(226, 232, 240, 0.86);
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+/* ---------- Stats ---------- */
+
+.notify-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.notify-stats div {
+  min-width: 130px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.notify-stats strong {
+  display: block;
+  font-size: 1.8rem;
+  color: #ffffff;
+}
+
+.notify-stats span {
+  color: rgba(226, 232, 240, 0.78);
+  font-weight: 700;
+}
+
+/* ---------- List ---------- */
+
+.notify-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.notify-card {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 24px;
+
+  background: rgba(30, 41, 59, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px) saturate(130%);
+
+  transition: 0.25s ease;
+}
+
+.notify-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.38);
+}
+
+.notify-card.unread {
+  border-left: 5px solid #facc15;
+}
+
+.notify-card.read {
+  opacity: 0.86;
+}
+
+.notify-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+}
+
+.notify-top-row,
+.notify-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.notify-type {
+  color: #8eeaff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.notify-new-dot {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.38);
+}
+
+.notify-content h2 {
+  color: #ffffff;
+  font-size: 1.35rem;
+  margin: 14px 0 10px;
+}
+
+.notify-content p {
+  color: rgba(226, 232, 240, 0.84);
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+
+.notify-bottom-row span {
+  color: rgba(226, 232, 240, 0.68);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.notify-read-btn {
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
+}
+
+.notify-read-label {
+  color: #86efac !important;
+}
+
+/* ---------- Empty ---------- */
+
+.notify-empty {
+  text-align: center;
+  padding: 70px 20px;
+  border-radius: 26px;
+  background: rgba(30, 41, 59, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+.notify-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 14px;
+}
+
+.notify-empty h2 {
+  color: white;
+}
+
+.notify-empty p {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 700px) {
+  .notify-page {
+    width: calc(100% - 20px);
+    margin: 1rem auto 3rem;
+  }
+
+  .notify-hero {
+    padding: 26px 18px;
+    border-radius: 22px;
+  }
+
+  .notify-hero h1 {
+    font-size: 2rem;
+  }
+
+  .notify-hero p {
+    font-size: 0.95rem;
+  }
+
+  .notify-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .notify-stats div {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .notify-card {
+    grid-template-columns: 1fr;
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .notify-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .notify-content h2 {
+    font-size: 1.15rem;
+  }
+
+  .notify-read-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+/* ==================================
+   Notification Mobile Overflow Fix
+================================== */
+
+.notify-page,
+.notify-hero,
+.notify-card,
+.notify-content {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.notify-content h2,
+.notify-content p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.notify-card {
+  min-width: 0;
+}
+
+.notify-content {
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .notify-page {
+    width: calc(100% - 24px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .notify-card {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .notify-content h2 {
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+}

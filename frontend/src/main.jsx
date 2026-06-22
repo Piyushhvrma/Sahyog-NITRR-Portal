@@ -5,6 +5,15 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App';
 import { AuthProvider } from './context/AuthContext.jsx';
 import './styles.css';
+import "./styles2/NotificationPage.css";
+import "./styles2/AdminAnnouncement.css";
+import "./styles2/ViewerPage.css";
+import "./styles2/NavbarNotification.css";
+import "./styles2/HelpPages.css";
+import "./styles2/BloodRequestPage.css";
+import "./styles2/AuthPages.css";
+import "./styles2/AboutPage.css";
+
 
 const root = createRoot(document.getElementById('root'));
 

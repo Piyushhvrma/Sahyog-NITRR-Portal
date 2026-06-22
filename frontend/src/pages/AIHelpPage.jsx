@@ -3,7 +3,6 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
 const AIHelpPage = () => {
-  // CHANGED: initialize from localStorage instead of []
   const [chat, setChat] = useState(() => {
     try {
       const saved = localStorage.getItem("sahyog_ai_chat");
@@ -17,15 +16,10 @@ const AIHelpPage = () => {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, loading]);
 
-  // NEW: persist chat to localStorage on every update
   useEffect(() => {
     localStorage.setItem("sahyog_ai_chat", JSON.stringify(chat));
   }, [chat]);
@@ -34,6 +28,7 @@ const AIHelpPage = () => {
     if (!message.trim()) return;
 
     const userMessage = message;
+
     setChat((prev) => [...prev, { sender: "user", text: userMessage }]);
     setMessage("");
     setLoading(true);
@@ -45,15 +40,14 @@ const AIHelpPage = () => {
         { withCredentials: true }
       );
 
-      setChat((prev) => [
-        ...prev,
-        { sender: "ai", text: res.data.reply },
-      ]);
+      setChat((prev) => [...prev, { sender: "ai", text: res.data.reply }]);
     } catch (error) {
-      console.error(error);
       setChat((prev) => [
         ...prev,
-        { sender: "ai", text: "⚠️ *System connection dropped. Please check deployment logs.*" },
+        {
+          sender: "ai",
+          text: "⚠️ I could not connect right now. Please try again later.",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -67,51 +61,46 @@ const AIHelpPage = () => {
     }
   };
 
-  // NEW: clear chat handler
   const handleClearChat = () => {
     setChat([]);
     localStorage.removeItem("sahyog_ai_chat");
   };
 
   return (
-    <div className="premium-ai-container">
-      {/* HEADER CONSOLE */}
-      <div className="ai-console-header">
-        <div className="ai-identity">
-          <span className="ai-avatar-badge">🤖</span>
-          <div className="ai-meta-text">
+    <div className="ai-clean-container">
+      <div className="ai-clean-header">
+        <div className="ai-clean-left">
+          <div className="ai-clean-icon">🤖</div>
+          <div>
             <h2>SAHYOG AI Buddy</h2>
-            <span className="ai-status-pulse">
-              <span className="pulse-dot"></span> Online Guidance
-            </span>
+            <span>Online Guidance</span>
           </div>
         </div>
-        <div className="ai-header-right">
-          <p className="ai-confidentiality-notice">🔒 Fully Encrypted & Confidential</p>
-          {/* NEW: Clear chat button */}
-          {chat.length > 0 && (
-            <button className="clear-chat-btn" onClick={handleClearChat}>
-              🗑️ Clear Chat
-            </button>
-          )}
-        </div>
+
+        {chat.length > 0 && (
+          <button className="ai-clear-btn" onClick={handleClearChat}>
+            Clear Chat
+          </button>
+        )}
       </div>
 
-      {/* CHAT DISPLAY HUB */}
-      <div className="ai-chat-window">
+      <div className="ai-clean-window">
         {chat.length === 0 ? (
-          <div className="chat-empty-placeholder">
-            <span className="placeholder-art">✨</span>
-            <h3>Welcome to Anonymous AI Support</h3>
-            <p>Type anything below to start a conversation regarding academic load, scheduling, or coping mechanics.</p>
+          <div className="ai-empty">
+            <h3>How can I help?</h3>
+            <p>
+              Ask about study planning, academic stress, hostel adjustment, or
+              general college guidance.
+            </p>
           </div>
         ) : (
           chat.map((msg, index) => (
-            <div key={index} className={`chat-bubble-row ${msg.sender}-row`}>
-              <div className="chat-avatar-frame">
+            <div key={index} className={`ai-msg-row ${msg.sender}`}>
+              <div className="ai-msg-avatar">
                 {msg.sender === "user" ? "👤" : "🤖"}
               </div>
-              <div className="chat-bubble-content">
+
+              <div className="ai-msg-bubble">
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             </div>
@@ -119,29 +108,26 @@ const AIHelpPage = () => {
         )}
 
         {loading && (
-          <div className="chat-bubble-row ai-row">
-            <div className="chat-avatar-frame">🤖</div>
-            <div className="chat-bubble-content loading-bubble">
-              <div className="typing-pulse">
-                <span></span><span></span><span></span>
-              </div>
-            </div>
+          <div className="ai-msg-row ai">
+            <div className="ai-msg-avatar">🤖</div>
+            <div className="ai-msg-bubble">Typing...</div>
           </div>
         )}
+
         <div ref={chatEndRef} />
       </div>
 
-      {/* CONTROL CONSOLE INPUT */}
-      <div className="ai-input-console">
+      <div className="ai-input-bar">
         <textarea
-          placeholder="Type your concern here... (Press Enter to send)"
+          placeholder="Type your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           rows="1"
         />
-        <button className="ai-send-action-btn" onClick={sendMessage}>
-          Send ⚡
+
+        <button className="ai-send-btn" onClick={sendMessage}>
+          Send
         </button>
       </div>
     </div>

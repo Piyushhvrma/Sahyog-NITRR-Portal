@@ -8,6 +8,7 @@ import ComingSoon from "./pages/ComingSoon.jsx";
 import HelpPage from "./pages/HelpPage.jsx";
 import AIHelpPage from "./pages/AIHelpPage.jsx";
 import SahyogSupportPage from "./pages/SahyogSupportPage.jsx";
+import NotificationsPage from "./pages/NotificationsPage.jsx";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/branch/:year" element={<BranchPage />} />
             <Route path="/semester/:year/:branch" element={<SemesterPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route
               path="/viewer/:year/:branch/:semester"
               element={<Viewer />}

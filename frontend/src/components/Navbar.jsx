@@ -2,10 +2,41 @@ import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import sahyogLogo from "../assets/sahyog-logo.png";
+import { API_BASE_URL } from "../api";
+import { useEffect } from "react";
+
 
 const Navbar = () => {
   const { user } = useContext(AuthContext);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => {
+  if (user) {
+    fetchUnreadCount();
+  }
+}, [user]);
+
+const fetchUnreadCount = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_BASE_URL}/api/notifications/count`,
+      {
+        headers: {
+          "x-auth-token": token,
+        },
+      }
+    );
+
+    const data = await res.json();
+    console.log("Notification Count Response:", data);
+    setUnreadCount(data.count || 0);
+  } catch (err) {
+    console.log(err);
+  }
+};
+  
 
   return (
     <nav className="navbar">
@@ -59,7 +90,21 @@ const Navbar = () => {
         )}
 
         {user && (
-          <div className="profile-section-wrapper">
+  <>
+    <Link
+      to="/notifications"
+      className="notification-bell"
+    >
+      🔔
+
+      {unreadCount > 0 && (
+        <span className="notification-count">
+          {unreadCount}
+        </span>
+      )}
+    </Link>
+
+    <div className="profile-section-wrapper">
             <div 
               className="profile-trigger-zone"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -106,9 +151,11 @@ const Navbar = () => {
         Export Responses 📊
       </a>
     )}
-  </div>
+      </div>
+  
 )}
           </div>
+          </>
         )}
       </div>
     </nav>

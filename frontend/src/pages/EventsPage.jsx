@@ -62,11 +62,19 @@ const EventCard = ({ event, user, onLike }) => {
             {isExpanded ? 'Show Less' : 'Read More'}
           </button>
           <div className="like-section">
-            <button onClick={handleLikeClick} className={`like-btn ${isLikedByCurrentUser ? 'liked' : ''}`}>
-              <HeartIcon />
-            </button>
-            <span>{event.likes.length}</span>
-          </div>
+
+  <button
+    onClick={handleLikeClick}
+    className={`event-like-btn ${
+      isLikedByCurrentUser
+        ? "liked"
+        : ""
+    }`}
+  >
+    ❤️ {event.likes.length} Likes
+  </button>
+
+</div>
         </div>
         <small>Posted on: {new Date(event.createdAt).toLocaleDateString()}</small>
       </div>

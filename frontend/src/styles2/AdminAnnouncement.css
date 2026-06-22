@@ -1,0 +1,56 @@
+.announcement-admin-card {
+  background: rgba(18, 24, 38, 0.95);
+  border: 1px solid rgba(0, 191, 255, 0.2);
+  border-radius: 18px;
+  padding: 25px;
+  margin-top: 20px;
+}
+
+.announcement-admin-card h2 {
+  color: #6ee7ff;
+  margin-bottom: 20px;
+}
+
+.announcement-admin-card input,
+.announcement-admin-card textarea,
+.announcement-admin-card select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+
+  background: #1f2937;
+  color: white;
+
+  border: 1px solid #374151;
+  border-radius: 10px;
+
+  font-size: 15px;
+}
+
+.announcement-admin-card textarea {
+  resize: vertical;
+}
+
+.announcement-admin-card button {
+  background: #00bfff;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  padding: 12px 22px;
+
+  cursor: pointer;
+  font-weight: 600;
+
+  transition: 0.3s;
+}
+
+.announcement-admin-card button:hover {
+  transform: translateY(-2px);
+}
+
+.announcement-admin-card button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

@@ -36,4 +36,25 @@ router.post('/upload', adminAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/links/:id - Admin deletes a PYQ/Note link
+router.delete("/:id", adminAuth, async (req, res) => {
+  try {
+    const link = await Link.findById(req.params.id);
+
+    if (!link) {
+      return res.status(404).json({ message: "Link not found" });
+    }
+
+    await Link.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Link deleted successfully",
+    });
+  } catch (error) {
+    console.error("Link Delete Error:", error);
+    res.status(500).json({ message: "Server Error while deleting link" });
+  }
+});
+
 module.exports = router;

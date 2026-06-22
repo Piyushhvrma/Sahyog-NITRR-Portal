@@ -85,4 +85,25 @@ router.put('/like/:id', jwtAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/events/:id - Admin deletes an event
+router.delete("/:id", adminAuth, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    await Event.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Event deleted successfully",
+    });
+  } catch (error) {
+    console.error("Event Delete Error:", error);
+    res.status(500).json({ message: "Server Error while deleting event" });
+  }
+});
+
 module.exports = router;
