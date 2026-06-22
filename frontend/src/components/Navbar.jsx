@@ -95,10 +95,6 @@ const Navbar = () => {
                     My Downloads
                   </Link>
 
-                  <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
-                    Notes
-                  </Link>
-
                   <Link to="/coming-soon/cr-contact" onClick={() => setShowProfileMenu(false)}>
                     Connect With CR
                   </Link>
