@@ -2,71 +2,110 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const https = require("https");
 const { OAuth2Client } = require("google-auth-library");
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID
-);
-
-// --- THIS IS THE FIX ---
-// Import must match the file name exactly: 'User.js' (uppercase)
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const User = require('../models/User');
-// --- END FIX ---
 
-// Check if JWT_SECRET is defined
 if (!process.env.JWT_SECRET) {
   console.error("\n*** FATAL ERROR: JWT_SECRET environment variable is not defined! ***\n");
 }
 
-// --- Registration Route ---
+const sendOtpEmail = async (email, otp) => {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      sender: {
+        name: "SAHYOG NIT Raipur",
+        email: process.env.EMAIL_FROM,
+      },
+      to: [{ email }],
+      subject: "SAHYOG Password Reset OTP",
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>SAHYOG Password Reset</h2>
+          <p>Your OTP for password reset is:</p>
+          <h1>${otp}</h1>
+          <p>This OTP is valid for 10 minutes.</p>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+      `,
+    });
+
+    const options = {
+      hostname: "api.brevo.com",
+      path: "/v3/smtp/email",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "Content-Length": Buffer.byteLength(data),
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let body = "";
+
+      res.on("data", (chunk) => {
+        body += chunk;
+      });
+
+      res.on("end", () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(body);
+        } else {
+          reject(new Error(body));
+        }
+      });
+    });
+
+    req.on("error", reject);
+    req.write(data);
+    req.end();
+  });
+};
+
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
-  // 1. Basic Input Validation
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Please provide name, email, and password.' });
   }
 
   try {
-    // 2. Check if user already exists
     let user = await User.findOne({ email });
+
     if (user) {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    // 3. Create new user instance
     user = new User({
       name,
       email,
       password
     });
 
-    // 4. Hash password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
-    // 5. Save user to database
     await user.save();
 
-    // 6. Create JWT Payload
     const payload = {
       user: {
         id: user.id
       }
     };
 
-    // 7. Sign JWT Token
     if (!process.env.JWT_SECRET) {
-        console.error('JWT_SECRET not set!');
-        return res.status(500).json({ message: 'Server configuration error.' });
+      return res.status(500).json({ message: 'Server configuration error.' });
     }
+
     const token = jwt.sign(
       payload,
       process.env.JWT_SECRET,
       { expiresIn: '3h' }
     );
 
-    // 8. Send Success Response
     res.status(201).json({
       token,
       user: {
@@ -78,53 +117,47 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
-    // 9. Handle Errors
     console.error('Registration Server Error:', error.message);
     res.status(500).json({ message: 'Server error during registration. Please try again later.' });
   }
 });
 
-// --- Login Route ---
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Basic Input Validation
   if (!email || !password) {
     return res.status(400).json({ message: 'Please provide both email and password.' });
   }
 
   try {
-    // 2. Find user by email
     let user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    // 3. Compare password
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    // 4. Create JWT Payload
     const payload = {
       user: {
         id: user.id
       }
     };
 
-    // 5. Sign JWT Token
     if (!process.env.JWT_SECRET) {
-        console.error('JWT_SECRET not set!');
-        return res.status(500).json({ message: 'Server configuration error.' });
+      return res.status(500).json({ message: 'Server configuration error.' });
     }
+
     const token = jwt.sign(
       payload,
       process.env.JWT_SECRET,
       { expiresIn: '3h' }
     );
 
-    // 6. Send Success Response
     res.json({
       token,
       user: {
@@ -135,9 +168,87 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    // 7. Handle Errors
     console.error('Login Server Error:', error.message);
     res.status(500).json({ message: 'Server error during login. Please try again later.' });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Please enter your email." });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "No account found with this email." });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetOtp = otp;
+    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    await sendOtpEmail(email, otp);
+
+    res.json({
+      message: "OTP sent to your email."
+    });
+
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    res.status(500).json({
+      message: "Failed to send OTP. Please try again."
+    });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      message: "Email, OTP and new password are required."
+    });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid request." });
+    }
+
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP." });
+    }
+
+    if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
+      return res.status(400).json({ message: "OTP expired. Please request again." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    user.resetOtp = "";
+    user.resetOtpExpiry = null;
+
+    await user.save();
+
+    res.json({
+      message: "Password reset successful. Please login."
+    });
+
+  } catch (error) {
+    console.error("Reset Password Error:", error);
+    res.status(500).json({
+      message: "Failed to reset password. Please try again."
+    });
   }
 });
 
@@ -164,10 +275,13 @@ router.post("/google-login", async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash("google-auth-user", salt);
+
       user = await User.create({
         name,
         email,
-        password: "google-auth-user",
+        password: hashedPassword,
       });
     }
 
@@ -200,4 +314,5 @@ router.post("/google-login", async (req, res) => {
     });
   }
 });
+
 module.exports = router;

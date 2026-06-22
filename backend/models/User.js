@@ -8,12 +8,20 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true, // Each email must be unique
+    unique: true,
   },
   password: {
-  type: String,
-  default: ""
-},
+    type: String,
+    default: ""
+  },
+  resetOtp: {
+    type: String,
+    default: ""
+  },
+  resetOtpExpiry: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now,

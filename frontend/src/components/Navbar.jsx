@@ -1,46 +1,41 @@
-import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import sahyogLogo from "../assets/sahyog-logo.png";
 import { API_BASE_URL } from "../api";
-import { useEffect } from "react";
 
+const ADMIN_EMAIL = "sahyogbloodrequest@gmail.com";
 
 const Navbar = () => {
   const { user } = useContext(AuthContext);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
   useEffect(() => {
-  if (user) {
-    fetchUnreadCount();
-  }
-}, [user]);
+    if (user) {
+      fetchUnreadCount();
+    }
+  }, [user]);
 
-const fetchUnreadCount = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(
-      `${API_BASE_URL}/api/notifications/count`,
-      {
+      const res = await fetch(`${API_BASE_URL}/api/notifications/count`, {
         headers: {
           "x-auth-token": token,
         },
-      }
-    );
+      });
 
-    const data = await res.json();
-    console.log("Notification Count Response:", data);
-    setUnreadCount(data.count || 0);
-  } catch (err) {
-    console.log(err);
-  }
-};
-  
+      const data = await res.json();
+      setUnreadCount(data.count || 0);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <nav className="navbar">
-      {/* LEFT SECTION: Branding */}
       <div className="navbar-left">
         <Link to="/" className="navbar-brand">
           <img src={sahyogLogo} alt="Sahyog Logo" className="navbar-logo" />
@@ -51,110 +46,98 @@ const fetchUnreadCount = async () => {
         </Link>
       </div>
 
-      {/* CENTER SECTION: Navigation Links */}
       <div className="navbar-center">
-        <Link to="/" className="navbar-link">
-          Home
-        </Link>
-        <Link to="/blood-request" className="navbar-link blood-link">
-          Blood Request
-        </Link>
+        <Link to="/" className="navbar-link">Home</Link>
+        <Link to="/blood-request" className="navbar-link blood-link">Blood Request</Link>
 
-        {/* These options only show when a user is logged in */}
         {user && (
           <>
-            <Link to="/help" className="navbar-link help-link">
-              Sahyog Help
-            </Link>
-            <Link to="/events" className="navbar-link">
-              Events
-            </Link>
-            <Link to="/about" className="navbar-link">
-              About Us
-            </Link>
+            <Link to="/help" className="navbar-link help-link">Sahyog Help</Link>
+            <Link to="/events" className="navbar-link">Events</Link>
+            <Link to="/about" className="navbar-link">About Us</Link>
           </>
         )}
       </div>
 
-      {/* RIGHT SECTION: Profile & User Actions */}
       <div className="navbar-right">
         {!user && (
           <div className="auth-links">
-            <Link to="/login" className="navbar-link">
-              Login
-            </Link>
-            <Link to="/signup" className="navbar-link">
-              Register
-            </Link>
+            <Link to="/login" className="navbar-link">Login</Link>
+            <Link to="/signup" className="navbar-link">Register</Link>
           </div>
         )}
 
         {user && (
-  <>
-    <Link
-      to="/notifications"
-      className="notification-bell"
-    >
-      🔔
+          <>
+            <Link to="/notifications" className="notification-bell">
+              🔔
+              {unreadCount > 0 && (
+                <span className="notification-count">{unreadCount}</span>
+              )}
+            </Link>
 
-      {unreadCount > 0 && (
-        <span className="notification-count">
-          {unreadCount}
-        </span>
-      )}
-    </Link>
+            <div className="profile-section-wrapper">
+              <div
+                className="profile-trigger-zone"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+              >
+                <button className="profile-circle">👤</button>
+                <span className="navbar-user">{user?.name?.split(" ")[0]}</span>
+              </div>
 
-    <div className="profile-section-wrapper">
-            <div 
-              className="profile-trigger-zone"
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
-            >
-              <button className="profile-circle">
-                👤
-              </button>
-              <span className="navbar-user">
-                {user?.name?.split(" ")[0]}
-              </span>
+              {showProfileMenu && (
+                <div className="profile-dropdown">
+                  <Link to="/profile" onClick={() => setShowProfileMenu(false)}>
+                    My Profile
+                  </Link>
+
+                  <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+                    My Downloads
+                  </Link>
+
+                  <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+                    Notes
+                  </Link>
+
+                  <Link to="/coming-soon/cr-contact" onClick={() => setShowProfileMenu(false)}>
+                    Connect With CR
+                  </Link>
+
+                  <Link to="/coming-soon/team-sahyog" onClick={() => setShowProfileMenu(false)}>
+                    Team Sahyog
+                  </Link>
+
+                  <Link to="/coming-soon/campus-view" onClick={() => setShowProfileMenu(false)}>
+                    Campus View
+                  </Link>
+
+                  <Link to="/coming-soon/emergency-contacts" onClick={() => setShowProfileMenu(false)}>
+                    Emergency Contacts
+                  </Link>
+
+                  {user.email === ADMIN_EMAIL && (
+                    <>
+                      <Link
+                        to="/admin"
+                        onClick={() => setShowProfileMenu(false)}
+                        style={{ color: "#6ee7ff" }}
+                      >
+                        Admin Panel
+                      </Link>
+
+                      <a
+                        href="https://sahyog-backend-topb.onrender.com/api/support/download-sheet"
+                        download
+                        onClick={() => setShowProfileMenu(false)}
+                        style={{ color: "#6ee7ff" }}
+                      >
+                        Export Responses 📊
+                      </a>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-
-            {showProfileMenu && (
-  <div className="profile-dropdown">
-    <Link to="/profile" onClick={() => setShowProfileMenu(false)}>
-      My Profile
-    </Link>
-    <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
-      My Downloads
-    </Link>
-    <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
-      Notes 
-    </Link>
-    <Link to="/coming-soon/cr-contact" onClick={() => setShowProfileMenu(false)}>
-      Connect With CR
-    </Link>
-    <Link to="/coming-soon/team-sahyog" onClick={() => setShowProfileMenu(false)}>
-      Team Sahyog
-    </Link>
-    <Link to="/coming-soon/campus-view" onClick={() => setShowProfileMenu(false)}>
-      Campus View
-    </Link>
-    <Link to="/coming-soon/emergency-contacts" onClick={() => setShowProfileMenu(false)}>
-      Emergency Contacts
-    </Link>
-
-    {user && user.email === "sahyogbloodrequest@gmail.com" && (
-      <a 
-        href="https://sahyog-backend-topb.onrender.com/api/support/download-sheet" 
-        download
-        onClick={() => setShowProfileMenu(false)}
-        style={{ color: "#6ee7ff" }}
-      >
-        Export Responses 📊
-      </a>
-    )}
-      </div>
-  
-)}
-          </div>
           </>
         )}
       </div>
