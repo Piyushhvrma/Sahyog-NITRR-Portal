@@ -32,6 +32,18 @@ SAHYOG is the official digital portal of **SAHYOG — The Student Wellbeing Club
 
 ---
 
+## Key Highlights
+
+- Full Stack MERN Architecture
+- Google OAuth + JWT Authentication
+- AI-Powered Student Assistant (Groq LLaMA 3.3 70B)
+- Emergency Blood Assistance Workflow
+- Student Support & Wellbeing Platform
+- Announcement & Notification Center
+- Cloudinary Media Management
+- Brevo Email Automation
+- MongoDB Atlas + Vercel + Render Deployment
+
 ## Features
 
 ### Authentication & Security
@@ -41,6 +53,20 @@ SAHYOG is the official digital portal of **SAHYOG — The Student Wellbeing Club
 - Password hashing with bcrypt.js
 - Protected & public route architecture
 - Environment variable protection
+- Announcement creation protected via admin middleware
+- Announcement deletion protected via admin middleware
+- Notification APIs protected via JWT authentication
+
+### Announcement & Notification System
+
+- Admin announcement publishing dashboard
+- Announcement deletion system
+- Automatic notification generation
+- Notification bell with unread count
+- Dedicated notification center
+- Read / unread notification tracking
+- User-specific notifications
+- Admin broadcast communication system
 
 ### Academic Resources
 
@@ -63,17 +89,35 @@ SAHYOG is the official digital portal of **SAHYOG — The Student Wellbeing Club
 - Automated email alerts to SAHYOG team
 - Multi-recipient notification system
 
-### Community & Events
+### Community, Events & Engagement
 
 - Events gallery with image upload (Cloudinary)
-- Like/unlike interactions (JWT-protected)
-- Admin event management panel
+- Like / Unlike interactions (JWT protected)
+- Admin event publishing & deletion
+- Announcement publishing & deletion
+- Notification broadcasting system
+- Community engagement feed
 
 ### Profile & Navigation
 
 - User profile dashboard with avatar generation
 - Dropdown: My Profile, My Downloads, CR Contact, Team Sahyog, Campus View, Emergency Contacts
 - Admin-only export panel (CSV download of support responses)
+
+## Admin Management System
+
+The portal includes a dedicated administrator dashboard for managing academic resources, events, announcements, and student communication.
+
+### Admin Features
+
+- Upload PYQs and academic resources
+- Publish events with image hosting
+- Delete events
+- Create announcements
+- Delete announcements
+- Broadcast notifications
+- Export support requests (CSV)
+- Password-protected administrator access
 
 ---
 
@@ -125,43 +169,59 @@ sahyog-portal/
 ├── frontend/
 │   ├── public/
 │   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── AdminUpload.jsx
-│   │   │   ├── AdminEventUpload.jsx
-│   │   │   ├── FeedbackForm.jsx
-│   │   │   ├── LinkList.jsx
-│   │   │   └── UserCount.jsx
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx
-│   │   ├── pages/
-│   │   │   ├── LoginPage.jsx
-│   │   │   ├── SignupPage.jsx
-│   │   │   ├── Home.jsx
-│   │   │   ├── AIHelpPage.jsx
-│   │   │   ├── HelpPage.jsx
-│   │   │   ├── SahyogSupportPage.jsx
-│   │   │   ├── EventsPage.jsx
-│   │   │   ├── BloodRequestPage.jsx
-│   │   │   ├── EmergencyBloodRequestPage.jsx
-│   │   │   ├── ProfilePage.jsx
-│   │   │   ├── AboutPage.jsx
-│   │   │   ├── AdminPage.jsx
-│   │   │   ├── BranchPage.jsx
-│   │   │   ├── SemesterPage.jsx
-│   │   │   ├── Viewer.jsx
-│   │   │   ├── ComingSoon.jsx
-│   │   │   ├── ProtectedRoute.jsx
-│   │   │   └── PublicOnlyRoute.jsx
-│   │   ├── api.js
-│   │   ├── constant.js
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── styles.css
-│   ├── index.html
-│   └── package.json
+│   │
+│   ├── assets/
+│   │
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── Footer.jsx
+│   │   ├── AdminUpload.jsx
+│   │   ├── AdminEventUpload.jsx
+│   │   ├── AdminAnnouncementUpload.jsx
+│   │   ├── AdminAnnouncementList.jsx
+│   │   ├── NotificationBell.jsx
+│   │   ├── FeedbackForm.jsx
+│   │   ├── LinkList.jsx
+│   │   └── UserCount.jsx
+│   │
+│   ├── context/
+│   │   └── AuthContext.jsx
+│   │
+│   ├── pages/
+│   │   ├── LoginPage.jsx
+│   │   ├── SignupPage.jsx
+│   │   ├── Home.jsx
+│   │   ├── AIHelpPage.jsx
+│   │   ├── HelpPage.jsx
+│   │   ├── SahyogSupportPage.jsx
+│   │   ├── EventsPage.jsx
+│   │   ├── NotificationsPage.jsx
+│   │   ├── BloodRequestPage.jsx
+│   │   ├── EmergencyBloodRequestPage.jsx
+│   │   ├── ProfilePage.jsx
+│   │   ├── AboutPage.jsx
+│   │   ├── AdminPage.jsx
+│   │   ├── BranchPage.jsx
+│   │   ├── SemesterPage.jsx
+│   │   ├── Viewer.jsx
+│   │   ├── ComingSoon.jsx
+│   │   ├── ProtectedRoute.jsx
+│   │   └── PublicOnlyRoute.jsx
+│   │
+│   ├── styles2/
+│   │   ├── AuthPages.css
+│   │   ├── BloodRequestPage.css
+│   │   ├── HelpPages.css
+│   │   ├── ViewerPage.css
+│   │   ├── NotificationPage.css
+│   │   ├── NavbarNotification.css
+│   │   └── AdminAnnouncement.css
+│   │
+│   ├── api.js
+│   ├── constant.js
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── styles.css
 │
 ├── backend/
 │   ├── models/
@@ -169,26 +229,49 @@ sahyog-portal/
 │   │   ├── Event.js
 │   │   ├── Link.js
 │   │   ├── Feedback.js
-│   │   └── SupportRequest.js
+│   │   ├── SupportRequest.js
+│   │   ├── Announcement.js
+│   │   └── Notification.js
+│   │
 │   ├── routes/
 │   │   ├── auth.js
 │   │   ├── aiRoutes.js
 │   │   ├── events.js
 │   │   ├── links.js
+│   │   ├── announcements.js
+│   │   ├── notifications.js
 │   │   ├── bloodRequest.js
 │   │   ├── feedback.js
 │   │   ├── supportRoutes.js
 │   │   ├── profile.js
 │   │   └── users.js
+│   │
 │   ├── middleware/
-│   │   ├── auth.js
-│   │   └── jwtAuth.js
+│   │   └── auth.js
+│   │
+│   ├── server.js
 │   └── package.json
 │
 └── README.md
 ```
 
 ---
+
+## Announcement & Notification Workflow
+
+Admin publishes announcement
+↓
+Announcement stored in MongoDB
+↓
+Notifications generated
+↓
+Unread count updated
+↓
+Navbar bell updated
+↓
+User opens notification center
+↓
+Notification marked as read
 
 ## Blood Request Workflow
 
@@ -294,6 +377,14 @@ VITE_GOOGLE_CLIENT_ID=
 
 ![Profile Dashboard](./frontend/src/assets/profilepage.png)
 
+### Notification Center
+
+![Notification Center](./frontend/src/assets/notification-center.png)
+
+### Admin Announcement Dashboard
+
+![Admin Dashboard](./frontend/src/assets/admin-announcement-dashboard.png)
+
 ### About Us
 
 ![About Us](./frontend/src/assets/aboutus.png)
@@ -328,12 +419,16 @@ _Designed & Developed for_
 - [x] Events Module with Like System
 - [x] Anonymous Support Form
 - [x] Admin Panel with CSV Export
+- [x] Notification Center
+- [x] Announcement Management System
+- [x] Admin Announcement Dashboard
+- [x] Notification Bell with Unread Count
+- [x] Read / Unread Notification Tracking
 - [ ] Chat History Persistence
 - [ ] CR Contact System
 - [ ] Team Sahyog Directory
 - [ ] Campus View
 - [ ] Emergency Contacts Page
-- [ ] Real-Time Notifications
 - [ ] Volunteer Management System
 - [ ] Admin Analytics Dashboard
 - [ ] Mobile App (React Native)
