@@ -5,7 +5,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const adminRoutes = require("./routes/adminRoutes");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const hpp = require("hpp");
 
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
@@ -18,14 +20,26 @@ const supportRoutes = require("./routes/supportRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
+
+app.set("trust proxy", 1);
 
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   next();
 });
+
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: false,
+  })
+);
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -40,9 +54,11 @@ app.use(
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
+app.use(mongoSanitize());
+app.use(hpp());
 
 app.get("/", (req, res) => {
   res.send("SAHYOG Backend is running");
@@ -62,6 +78,8 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+
+app.use(errorHandler);
 
 const start = async () => {
   try {

@@ -4,9 +4,21 @@ const router = express.Router();
 const Link = require("../models/Link");
 const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
+const validateRequest = require("../middleware/validateRequest");
+const asyncHandler = require("../middleware/asyncHandler");
+const { adminLimiter } = require("../middleware/rateLimiters");
 
-router.get("/", async (req, res) => {
-  try {
+const {
+  uploadLinkValidator,
+  getLinksValidator,
+  mongoIdParamValidator,
+} = require("../validators/linkValidators");
+
+router.get(
+  "/",
+  getLinksValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
     const { year, branch, semester } = req.query;
 
     const filter = {};
@@ -17,70 +29,48 @@ router.get("/", async (req, res) => {
     const links = await Link.find(filter).sort({ uploadedAt: -1 });
 
     res.json({ links });
-  } catch (error) {
-    console.error("Fetch links error:", error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
+  })
+);
 
 router.post(
   "/upload",
   jwtAuth,
   requireRole("admin", "superadmin"),
-  async (req, res) => {
-    try {
-      const { title, branch, year, semester, url } = req.body;
+  adminLimiter,
+  uploadLinkValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const link = await Link.create(req.body);
 
-      if (!title || !branch || !year || !semester || !url) {
-        return res.status(400).json({
-          message: "All fields are required.",
-        });
-      }
-
-      const newLink = new Link({
-        title,
-        branch,
-        year,
-        semester,
-        url,
-      });
-
-      await newLink.save();
-
-      res.status(201).json({
-        message: "Link uploaded successfully!",
-        link: newLink,
-      });
-    } catch (error) {
-      console.error("Upload link error:", error);
-      res.status(500).json({ message: "Server Error" });
-    }
-  }
+    res.status(201).json({
+      success: true,
+      message: "Link uploaded successfully.",
+      link,
+    });
+  })
 );
 
 router.delete(
   "/:id",
   jwtAuth,
   requireRole("admin", "superadmin"),
-  async (req, res) => {
-    try {
-      const link = await Link.findById(req.params.id);
+  adminLimiter,
+  mongoIdParamValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const link = await Link.findById(req.params.id);
 
-      if (!link) {
-        return res.status(404).json({ message: "Link not found" });
-      }
-
-      await Link.findByIdAndDelete(req.params.id);
-
-      res.json({
-        success: true,
-        message: "Link deleted successfully",
-      });
-    } catch (error) {
-      console.error("Delete link error:", error);
-      res.status(500).json({ message: "Server Error" });
+    if (!link) {
+      return res.status(404).json({ message: "Link not found." });
     }
-  }
+
+    await Link.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Link deleted successfully.",
+    });
+  })
 );
 
 module.exports = router;

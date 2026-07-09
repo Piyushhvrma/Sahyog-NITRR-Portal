@@ -21,6 +21,11 @@ const SupportRequestSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  emailStatus: {
+  type: String,
+  enum: ["pending", "sent", "failed"],
+  default: "pending",
+}
 });
 
 module.exports = mongoose.model("SupportRequest", SupportRequestSchema);

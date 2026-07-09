@@ -3,64 +3,51 @@ const router = express.Router();
 const SupportRequest = require("../models/SupportRequest");
 const { Parser } = require("json2csv");
 
-// =========================================================
-// 1. POST: SUBMIT FORM DATA, SAVE TO DB & SEND EMAIL ALERTS
-// =========================================================
-router.post("/", async (req, res) => {
-  try {
+const validateRequest = require("../middleware/validateRequest");
+const asyncHandler = require("../middleware/asyncHandler");
+const jwtAuth = require("../middleware/jwtAuth");
+const requireRole = require("../middleware/roleAuth");
+const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
+
+const {
+  supportRequestValidator,
+} = require("../validators/supportValidators");
+
+router.post(
+  "/",
+  formLimiter,
+  supportRequestValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
     const { name, contact, category, message } = req.body;
 
-    // Validation guard clause
-    if (!category || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fill all required fields",
-      });
-    }
-
-    // 1. Save data directly to MongoDB Atlas
-    const supportRequest = new SupportRequest({
+    const supportRequest = await SupportRequest.create({
       name: name || "Anonymous Student",
       contact: contact || "Not Provided",
       category,
       message,
     });
 
-    await supportRequest.save();
-
-    // 2. Dispatch automated email alert via Brevo API
     const emailPayload = {
       sender: {
         name: "SAHYOG Support",
         email: process.env.EMAIL_FROM,
       },
-      to: [
-        {
-          email: process.env.SUPPORT_RECEIVER,
-        },
-      ],
+      to: [{ email: process.env.SUPPORT_RECEIVER }],
       subject: `❤️ New SAHYOG Help Request [${category}]`,
       htmlContent: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee; border-radius: 8px;">
-          <h2 style="color: #ef4444; margin-top: 0;">❤️ New Student Support Request</h2>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 16px 0;" />
-          <p><b>Name / Alias:</b> ${name || "Anonymous Student"}</p>
-          <p><b>Provided Contact Info:</b> ${contact || "Not Provided"}</p>
-          <p><b>Problem Space:</b> <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${category}</span></p>
-          
-          <h3 style="color: #0f172a; margin-top: 20px;">Elaborated Situation Description:</h3>
-          <div style="background: #f8fafc; padding: 16px; border-radius: 8px; line-height: 1.6; border-left: 4px solid #ef4444; white-space: pre-wrap;">
-            ${message}
-          </div>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;" />
-          <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0;">
-            Submitted securely through the SAHYOG Help Portal
-          </p>
+        <div style="font-family: Arial, sans-serif;">
+          <h2>New Student Support Request</h2>
+          <p><b>Name:</b> ${name || "Anonymous Student"}</p>
+          <p><b>Contact:</b> ${contact || "Not Provided"}</p>
+          <p><b>Category:</b> ${category}</p>
+          <p><b>Message:</b></p>
+          <pre>${message}</pre>
         </div>
       `,
     };
 
-    await fetch("https://api.brevo.com/v3/smtp/email", {
+    const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
         "api-key": process.env.BREVO_API_KEY,
@@ -69,47 +56,62 @@ router.post("/", async (req, res) => {
       body: JSON.stringify(emailPayload),
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Support request submitted successfully",
-    });
-  } catch (error) {
-    console.error("Support Request Process Fault:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to submit request",
-    });
-  }
-});
+    if (!emailRes.ok) {
+      supportRequest.emailStatus = "failed";
+      await supportRequest.save();
 
-// =========================================================
-// 2. GET: DOWNLOAD ENTIRE LOG SHEET AS EXCEL-READY CSV
-// =========================================================
-router.get("/download-sheet", async (req, res) => {
-  try {
-    const requests = await SupportRequest.find().sort({ createdAt: -1 }).lean();
-
-    if (!requests || requests.length === 0) {
-      return res.status(404).send(
-        `<div style="font-family: sans-serif; text-align: center; padding: 50px;">
-          <h2>No Submissions Found</h2>
-          <p>There are no recorded help requests in MongoDB to compile yet.</p>
-         </div>`
-      );
+      return res.status(502).json({
+        success: false,
+        message:
+          "Request saved, but email alert failed. Please contact admin.",
+      });
     }
 
-    const fields = ["_id", "name", "contact", "category", "message", "createdAt"];
-    const json2csvParser = new Parser({ fields });
-    const csvData = json2csvParser.parse(requests);
+    supportRequest.emailStatus = "sent";
+    await supportRequest.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Support request submitted successfully.",
+    });
+  })
+);
+
+router.get(
+  "/download-sheet",
+  jwtAuth,
+  requireRole("admin", "superadmin"),
+  adminLimiter,
+  asyncHandler(async (req, res) => {
+    const requests = await SupportRequest.find()
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!requests.length) {
+      return res.status(404).send("No submissions found.");
+    }
+
+    const fields = [
+      "_id",
+      "name",
+      "contact",
+      "category",
+      "message",
+      "emailStatus",
+      "createdAt",
+    ];
+
+    const parser = new Parser({ fields });
+    const csvData = parser.parse(requests);
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", "attachment; filename=Sahyog_Support_Submissions.csv");
-    
-    return res.status(200).send(csvData);
-  } catch (error) {
-    console.error("CSV Generation Crash:", error);
-    return res.status(500).send("Critical error compiling your data sheet.");
-  }
-});
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=Sahyog_Support_Submissions.csv"
+    );
+
+    res.status(200).send(csvData);
+  })
+);
 
 module.exports = router;

@@ -3,23 +3,38 @@ const multer = require("multer");
 
 const router = express.Router();
 
+const validateRequest = require("../middleware/validateRequest");
+const asyncHandler = require("../middleware/asyncHandler");
+const { formLimiter } = require("../middleware/rateLimiters");
+
+const {
+  bloodRequestValidator,
+} = require("../validators/bloodValidators");
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024,
   },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("Only image or PDF documents are allowed."));
+    }
+
+    cb(null, true);
+  },
 });
 
-router.post("/", upload.single("document"), async (req, res) => {
-  try {
+router.post(
+  "/",
+  formLimiter,
+  upload.single("document"),
+  bloodRequestValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
     const { name, email, phone, bloodGroup, requestDetails } = req.body;
-
-    if (!name || !phone || !bloodGroup || !requestDetails) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fill all required fields",
-      });
-    }
 
     if (
       !process.env.BREVO_API_KEY ||
@@ -28,13 +43,15 @@ router.post("/", upload.single("document"), async (req, res) => {
     ) {
       return res.status(500).json({
         success: false,
-        message: "Email API configuration missing in backend",
+        message: "Email configuration missing.",
       });
     }
 
-    const receivers = process.env.BLOOD_REQUEST_RECEIVER.split(",").map((mail) => ({
-      email: mail.trim(),
-    }));
+    const receivers = process.env.BLOOD_REQUEST_RECEIVER.split(",").map(
+      (mail) => ({
+        email: mail.trim(),
+      })
+    );
 
     const attachments = [];
 
@@ -53,26 +70,19 @@ router.post("/", upload.single("document"), async (req, res) => {
       to: receivers,
       subject: `🩸 New Blood Request - ${bloodGroup}`,
       htmlContent: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2 style="color: #d90429;">🩸 New Blood Request Received</h2>
+        <div style="font-family: Arial, sans-serif;">
+          <h2>New Blood Request</h2>
           <p><b>Name:</b> ${name}</p>
           <p><b>Email:</b> ${email || "Not provided"}</p>
           <p><b>Phone:</b> ${phone}</p>
           <p><b>Blood Group:</b> ${bloodGroup}</p>
-          <h3>Request Details</h3>
-          <p>${requestDetails}</p>
-          <hr />
-          <p style="color: gray;">
-            Submitted through SAHYOG - The Student Wellbeing Club Portal.
-          </p>
+          <p><b>Details:</b></p>
+          <pre>${requestDetails}</pre>
         </div>
       `,
-      attachment: attachments,
+      ...(attachments.length > 0 && { attachment: attachments }),
+      ...(email && { replyTo: { email } }),
     };
-
-    if (email) {
-      emailPayload.replyTo = { email };
-    }
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -84,22 +94,17 @@ router.post("/", upload.single("document"), async (req, res) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText);
+      return res.status(502).json({
+        success: false,
+        message: "Blood request email failed. Please try again.",
+      });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: "Blood request submitted successfully",
+      message: "Blood request submitted successfully.",
     });
-  } catch (error) {
-    console.error("Blood request email error:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to submit blood request",
-    });
-  }
-});
+  })
+);
 
 module.exports = router;

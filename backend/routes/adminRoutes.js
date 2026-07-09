@@ -11,13 +11,21 @@ const Notification = require("../models/Notification");
 
 const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
+const validateRequest = require("../middleware/validateRequest");
+const asyncHandler = require("../middleware/asyncHandler");
+const { adminLimiter } = require("../middleware/rateLimiters");
 
-// all routes here require login
+const {
+  updateRoleValidator,
+} = require("../validators/adminValidators");
+
 router.use(jwtAuth);
+router.use(adminLimiter);
 
-// admin + superadmin dashboard stats
-router.get("/stats", requireRole("admin", "superadmin"), async (req, res) => {
-  try {
+router.get(
+  "/stats",
+  requireRole("admin", "superadmin"),
+  asyncHandler(async (req, res) => {
     const [
       userCount,
       linkCount,
@@ -45,40 +53,29 @@ router.get("/stats", requireRole("admin", "superadmin"), async (req, res) => {
       announcementCount,
       notificationCount,
     });
-  } catch (error) {
-    console.error("Admin stats error:", error);
-    res.status(500).json({ message: "Failed to fetch admin stats." });
-  }
-});
+  })
+);
 
-// only superadmin can see/manage user roles
-router.get("/users", requireRole("superadmin"), async (req, res) => {
-  try {
+router.get(
+  "/users",
+  requireRole("superadmin"),
+  asyncHandler(async (req, res) => {
     const users = await User.find()
       .select("name email role authProvider createdAt")
       .sort({ createdAt: -1 });
 
     res.json({ users });
-  } catch (error) {
-    console.error("Admin users error:", error);
-    res.status(500).json({ message: "Failed to fetch users." });
-  }
-});
+  })
+);
 
-// promote/demote users
-router.patch("/users/:id/role", requireRole("superadmin"), async (req, res) => {
-  try {
+router.patch(
+  "/users/:id/role",
+  requireRole("superadmin"),
+  updateRoleValidator,
+  validateRequest,
+  asyncHandler(async (req, res) => {
     const { role } = req.body;
 
-    const allowedRoles = ["student", "admin", "superadmin"];
-
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        message: "Invalid role.",
-      });
-    }
-
-    // prevent superadmin from demoting himself accidentally
     if (req.params.id === req.user.id && role !== "superadmin") {
       return res.status(400).json({
         message: "You cannot remove your own superadmin role.",
@@ -88,9 +85,7 @@ router.patch("/users/:id/role", requireRole("superadmin"), async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found.",
-      });
+      return res.status(404).json({ message: "User not found." });
     }
 
     user.role = role;
@@ -105,10 +100,7 @@ router.patch("/users/:id/role", requireRole("superadmin"), async (req, res) => {
         role: user.role,
       },
     });
-  } catch (error) {
-    console.error("Update role error:", error);
-    res.status(500).json({ message: "Failed to update user role." });
-  }
-});
+  })
+);
 
 module.exports = router;
