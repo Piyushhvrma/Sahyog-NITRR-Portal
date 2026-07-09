@@ -1,27 +1,14 @@
 // frontend/src/api.js
-// SAHYOG 2.0 compatibility API file
-// ---------------------------------
-// Earlier, all API functions were written directly here.
-// Now, we created a modular API folder:
-//
-// src/api/
-//   client.js
-//   auth.api.js
-//   links.api.js
-//   events.api.js
-//   notifications.api.js
-//   support.api.js
-//   blood.api.js
-//   feedback.api.js
-//   ai.api.js
-//   users.api.js
-//   index.js
-//
-// This file exists only so old imports like:
-// import { fetchEvents } from "../api";
-// still keep working.
-//
-// Later, when all files are updated, we can directly import from "../api/index"
-// or from specific feature API files.
+// SAHYOG 2.0 compatibility file
 
-export * from "./api";
+export { API_BASE_URL, apiRequest } from "./api/client.js";
+
+export * from "./api/auth.api.js";
+export * from "./api/links.api.js";
+export * from "./api/events.api.js";
+export * from "./api/notifications.api.js";
+export * from "./api/support.api.js";
+export * from "./api/blood.api.js";
+export * from "./api/feedback.api.js";
+export * from "./api/ai.api.js";
+export * from "./api/users.api.js";
