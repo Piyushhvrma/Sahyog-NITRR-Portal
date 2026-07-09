@@ -1,16 +1,51 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const https = require("https");
 const { OAuth2Client } = require("google-auth-library");
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const User = require('../models/User');
+const User = require("../models/User");
+const jwtAuth = require("../middleware/jwtAuth");
 
-if (!process.env.JWT_SECRET) {
-  console.error("\n*** FATAL ERROR: JWT_SECRET environment variable is not defined! ***\n");
-}
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  maxAge: 3 * 60 * 60 * 1000,
+};
+
+const createToken = (user) => {
+  return jwt.sign(
+    {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role || "student",
+      },
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "3h" }
+  );
+};
+
+const sendAuthCookie = (res, token) => {
+  res.cookie("token", token, cookieOptions);
+};
+
+const sanitizeUser = (user) => {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role || "student",
+    profilePictureUrl: user.profilePictureUrl || "",
+  };
+};
 
 const sendOtpEmail = async (email, otp) => {
   return new Promise((resolve, reject) => {
@@ -43,15 +78,15 @@ const sendOtpEmail = async (email, otp) => {
       },
     };
 
-    const req = https.request(options, (res) => {
+    const req = https.request(options, (response) => {
       let body = "";
 
-      res.on("data", (chunk) => {
+      response.on("data", (chunk) => {
         body += chunk;
       });
 
-      res.on("end", () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
+      response.on("end", () => {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
           resolve(body);
         } else {
           reject(new Error(body));
@@ -65,189 +100,90 @@ const sendOtpEmail = async (email, otp) => {
   });
 };
 
-router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Please provide name, email, and password.' });
-  }
-
+router.post("/register", async (req, res) => {
   try {
-    let user = await User.findOne({ email });
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Please provide name, email, and password.",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    let user = await User.findOne({ email: normalizedEmail });
 
     if (user) {
-      return res.status(400).json({ message: 'User with this email already exists.' });
+      return res.status(400).json({
+        message: "User with this email already exists.",
+      });
     }
 
-    user = new User({
-      name,
-      email,
-      password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      authProvider: "local",
+      role: "student",
     });
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    const token = createToken(user);
+    sendAuthCookie(res, token);
 
-    await user.save();
-
-    const payload = {
-      user: {
-        id: user.id
-      }
-    };
-
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server configuration error.' });
-    }
-
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '3h' }
-    );
-
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      },
-      message: 'User registered successfully!'
+    return res.status(201).json({
+      user: sanitizeUser(user),
+      message: "User registered successfully!",
     });
-
   } catch (error) {
-    console.error('Registration Server Error:', error.message);
-    res.status(500).json({ message: 'Server error during registration. Please try again later.' });
+    console.error("Registration error:", error.message);
+    return res.status(500).json({
+      message: "Server error during registration.",
+    });
   }
 });
 
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Please provide both email and password.' });
-  }
-
+router.post("/login", async (req, res) => {
   try {
-    let user = await User.findOne({ email });
+    const { email, password } = req.body;
 
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please provide email and password.",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user || !user.password) {
+      return res.status(400).json({
+        message: "Invalid credentials.",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials.' });
+      return res.status(400).json({
+        message: "Invalid credentials.",
+      });
     }
 
-    const payload = {
-      user: {
-        id: user.id
-      }
-    };
+    const token = createToken(user);
+    sendAuthCookie(res, token);
 
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'Server configuration error.' });
-    }
-
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '3h' }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      }
+    return res.json({
+      user: sanitizeUser(user),
+      message: "Login successful.",
     });
-
   } catch (error) {
-    console.error('Login Server Error:', error.message);
-    res.status(500).json({ message: 'Server error during login. Please try again later.' });
-  }
-});
-
-router.post("/forgot-password", async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ message: "Please enter your email." });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "No account found with this email." });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    user.resetOtp = otp;
-    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
-
-    await user.save();
-
-    await sendOtpEmail(email, otp);
-
-    res.json({
-      message: "OTP sent to your email."
-    });
-
-  } catch (error) {
-    console.error("Forgot Password Error:", error);
-    res.status(500).json({
-      message: "Failed to send OTP. Please try again."
-    });
-  }
-});
-
-router.post("/reset-password", async (req, res) => {
-  const { email, otp, newPassword } = req.body;
-
-  if (!email || !otp || !newPassword) {
-    return res.status(400).json({
-      message: "Email, OTP and new password are required."
-    });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({ message: "Invalid request." });
-    }
-
-    if (!user.resetOtp || user.resetOtp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP." });
-    }
-
-    if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
-      return res.status(400).json({ message: "OTP expired. Please request again." });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
-
-    user.resetOtp = "";
-    user.resetOtpExpiry = null;
-
-    await user.save();
-
-    res.json({
-      message: "Password reset successful. Please login."
-    });
-
-  } catch (error) {
-    console.error("Reset Password Error:", error);
-    res.status(500).json({
-      message: "Failed to reset password. Please try again."
+    console.error("Login error:", error.message);
+    return res.status(500).json({
+      message: "Server error during login.",
     });
   }
 });
@@ -258,7 +194,7 @@ router.post("/google-login", async (req, res) => {
 
     if (!credential) {
       return res.status(400).json({
-        message: "Google credential missing",
+        message: "Google credential is required.",
       });
     }
 
@@ -269,50 +205,156 @@ router.post("/google-login", async (req, res) => {
 
     const payload = ticket.getPayload();
 
-    const email = payload.email;
-    const name = payload.name;
+    const googleId = payload.sub;
+    const email = payload.email.toLowerCase().trim();
+    const name = payload.name || "SAHYOG User";
 
     let user = await User.findOne({ email });
 
     if (!user) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash("google-auth-user", salt);
-
       user = await User.create({
         name,
         email,
-        password: hashedPassword,
+        password: "",
+        googleId,
+        authProvider: "google",
+        role: "student",
+      });
+    } else {
+      user.googleId = user.googleId || googleId;
+      user.authProvider = user.authProvider || "google";
+      await user.save();
+    }
+
+    const token = createToken(user);
+    sendAuthCookie(res, token);
+
+    return res.json({
+      user: sanitizeUser(user),
+      message: "Google login successful.",
+    });
+  } catch (error) {
+    console.error("Google login error:", error.message);
+    return res.status(500).json({
+      message: "Google login failed.",
+    });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required.",
       });
     }
 
-    const jwtPayload = {
-      user: {
-        id: user.id,
-      },
-    };
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const token = jwt.sign(
-      jwtPayload,
-      process.env.JWT_SECRET,
-      { expiresIn: "3h" }
-    );
+    const user = await User.findOne({ email: normalizedEmail });
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    user.resetOtp = otp;
+    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    await sendOtpEmail(normalizedEmail, otp);
+
+    return res.json({
+      message: "OTP sent to your email.",
     });
-
   } catch (error) {
-    console.error("Google Login Error:", error);
-
-    res.status(500).json({
-      message: "Google login failed",
+    console.error("Forgot password error:", error.message);
+    return res.status(500).json({
+      message: "Failed to send OTP.",
     });
   }
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        message: "Email, OTP and new password are required.",
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user || user.resetOtp !== otp) {
+      return res.status(400).json({
+        message: "Invalid OTP.",
+      });
+    }
+
+    if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
+      return res.status(400).json({
+        message: "OTP expired.",
+      });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetOtp = "";
+    user.resetOtpExpiry = null;
+    user.authProvider = user.authProvider || "local";
+
+    await user.save();
+
+    return res.json({
+      message: "Password reset successful.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error.message);
+    return res.status(500).json({
+      message: "Failed to reset password.",
+    });
+  }
+});
+
+router.get("/me", jwtAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password -resetOtp");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    return res.json({
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to fetch user session.",
+    });
+  }
+});
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+
+  return res.json({
+    message: "Logged out successfully.",
+  });
 });
 
 module.exports = router;

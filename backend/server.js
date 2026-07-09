@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
@@ -19,24 +20,27 @@ const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
-// ✅ FIX: Add COOP header BEFORE cors — fixes Google OAuth popup postMessage error
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   next();
 });
 
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://sahyog-nitrr-portal.vercel.app"
-  ],
-  optionsSuccessStatus: 200,
-  credentials: true
-};
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://sahyog-nitrr-portal.vercel.app",
+];
 
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("SAHYOG Backend is running");
@@ -59,18 +63,18 @@ app.use("/api/notifications", notificationRoutes);
 const start = async () => {
   try {
     if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is not defined");
+      throw new Error("MONGO_URI is missing");
     }
 
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ Connected to MongoDB Atlas!");
 
-    const port = process.env.PORT || 4000;
-    app.listen(port, () => {
-      console.log(`✅ Server is running on port ${port}`);
+    const PORT = process.env.PORT || 4000;
+
+    app.listen(PORT, () => {
+      console.log(`SAHYOG Backend running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("Backend startup error:", error.message);
     process.exit(1);
   }
 };

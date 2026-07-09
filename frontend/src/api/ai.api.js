@@ -6,3 +6,9 @@ export const sendAIMessage = (message) => {
     body: { message },
   });
 };
+
+export const likeEvent = (eventId) => {
+  return apiRequest(`/api/events/like/${eventId}`, {
+    method: "PUT",
+  });
+};

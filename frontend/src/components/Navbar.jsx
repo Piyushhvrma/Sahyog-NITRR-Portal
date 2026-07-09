@@ -22,8 +22,7 @@ const Navbar = () => {
 
   const loadUnreadCount = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const data = await fetchNotificationCount(token);
+      const data = await fetchNotificationCount();
       setUnreadCount(data.count || 0);
     } catch (err) {
       console.log(err);

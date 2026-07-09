@@ -33,7 +33,7 @@ const SignupPage = () => {
         password,
       });
 
-      login(data.token, data.user);
+      login(data.user);
 
       setStatus({
         type: "success",
@@ -60,7 +60,7 @@ const SignupPage = () => {
 
       const data = await googleLogin(credentialResponse.credential);
 
-      login(data.token, data.user);
+      login(data.user);
 
       setStatus({
         type: "success",

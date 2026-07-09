@@ -1,4 +1,4 @@
-import { apiRequest } from "./client";
+import { apiRequest } from "./client.js";
 
 export const loginUser = (payload) => {
   return apiRequest("/api/auth/login", {
@@ -32,5 +32,15 @@ export const resetPassword = (payload) => {
   return apiRequest("/api/auth/reset-password", {
     method: "POST",
     body: payload,
+  });
+};
+
+export const fetchCurrentUser = () => {
+  return apiRequest("/api/auth/me");
+};
+
+export const logoutUser = () => {
+  return apiRequest("/api/auth/logout", {
+    method: "POST",
   });
 };

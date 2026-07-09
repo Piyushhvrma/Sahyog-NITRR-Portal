@@ -91,7 +91,7 @@ const EventsPage = () => {
   
   // --- THIS IS THE FIX ---
   // Get everything you need directly from your useAuth hook
-  const { user, token, isLoggedIn } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   // --- END FIX ---
   
   const navigate = useNavigate();
@@ -118,13 +118,8 @@ const EventsPage = () => {
     }
     
     // The 'token' variable is now correctly provided by useAuth()
-    if (!token) {
-      alert('Authentication token is missing. Please log in again.');
-      return;
-    }
-
     try {
-      const updatedLikesArray = await likeEvent(eventId, token);
+      const updatedLikesArray = await likeEvent(eventId);
       
       // Update the main events state
       setEvents(currentEvents =>

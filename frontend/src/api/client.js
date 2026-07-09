@@ -18,7 +18,6 @@ export async function apiRequest(endpoint, options = {}) {
     isFormData = false,
     token,
     adminPassword,
-    credentials = "include",
   } = options;
 
   const finalHeaders = {
@@ -40,7 +39,7 @@ export async function apiRequest(endpoint, options = {}) {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     method,
     headers: finalHeaders,
-    credentials,
+    credentials: "include",
     body: body
       ? isFormData
         ? body
@@ -56,6 +55,8 @@ export async function apiRequest(endpoint, options = {}) {
 
     throw new Error(message);
   }
+
+  if (res.status === 204) return null;
 
   return res.json();
 }

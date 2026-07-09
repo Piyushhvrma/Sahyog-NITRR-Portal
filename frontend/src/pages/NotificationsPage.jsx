@@ -8,12 +8,11 @@ import "../styles2/NotificationPage.css";
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
 
   const loadNotifications = async () => {
     try {
       setError("");
-      const data = await fetchNotifications(token);
+      const data = await fetchNotifications();
       setNotifications(data);
     } catch (err) {
       setError(err.message || "Failed to load notifications.");
@@ -26,7 +25,7 @@ const NotificationsPage = () => {
 
   const markAsRead = async (id) => {
     try {
-      await markNotificationAsRead(id, token);
+      await markNotificationAsRead(id);
       loadNotifications();
     } catch (err) {
       setError(err.message || "Failed to mark notification as read.");
