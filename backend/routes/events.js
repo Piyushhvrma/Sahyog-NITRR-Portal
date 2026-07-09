@@ -9,6 +9,13 @@ const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
 const { uploadEventImage } = require("../middleware/upload");
+const { sendPaginated, sendSuccess } = require("../utils/response");
+const {
+  getCache,
+  setCache,
+  deleteCacheByPattern,
+  buildCacheKey,
+} = require("../utils/cache");
 
 const {
   uploadEventValidator,
@@ -22,22 +29,36 @@ router.get(
     const limit = Math.min(Math.max(Number(req.query.limit) || 6, 1), 20);
     const skip = (page - 1) * limit;
 
+    const cacheKey = buildCacheKey("events", { page, limit });
+    const cachedData = await getCache(cacheKey);
+
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+
     const [events, totalEvents] = await Promise.all([
       Event.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
       Event.countDocuments(),
     ]);
 
-    res.json({
+    const responsePayload = {
+      success: true,
+      message: "Events fetched successfully.",
       events,
       pagination: {
         page,
         limit,
+        total: totalEvents,
         totalEvents,
         totalPages: Math.ceil(totalEvents / limit),
         hasNextPage: page * limit < totalEvents,
         hasPrevPage: page > 1,
       },
-    });
+    };
+
+    await setCache(cacheKey, responsePayload, 120);
+
+    return res.status(200).json(responsePayload);
   })
 );
 
@@ -63,9 +84,10 @@ router.post(
       cloudinaryPublicId: req.file.filename || "",
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Event uploaded successfully.",
+    await deleteCacheByPattern("events:*");
+    await deleteCacheByPattern("admin:stats*");
+
+    return sendSuccess(res, 201, "Event uploaded successfully.", {
       event,
     });
   })
@@ -99,7 +121,9 @@ router.put(
 
     await event.save();
 
-    res.json(event.likes);
+    await deleteCacheByPattern("events:*");
+
+    return res.json(event.likes);
   })
 );
 
@@ -129,10 +153,10 @@ router.delete(
 
     await Event.findByIdAndDelete(req.params.id);
 
-    res.json({
-      success: true,
-      message: "Event and image deleted successfully.",
-    });
+    await deleteCacheByPattern("events:*");
+    await deleteCacheByPattern("admin:stats*");
+
+    return sendSuccess(res, 200, "Event and image deleted successfully.");
   })
 );
 

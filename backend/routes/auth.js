@@ -8,6 +8,7 @@ const jwtAuth = require("../middleware/jwtAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { authLimiter } = require("../middleware/rateLimiters");
+const { deleteCache } = require("../utils/cache");
 const { sendSuccess } = require("../utils/response");
 
 const {
@@ -51,6 +52,8 @@ router.post(
       authProvider: "local",
       role: "student",
     });
+
+    await deleteCache("users:count");
 
     sendAuthCookie(res, createToken(user));
 
@@ -119,6 +122,8 @@ router.post(
         authProvider: "google",
         role: "student",
       });
+
+      await deleteCache("users:count");
     } else {
       user.googleId = user.googleId || googleId;
       user.authProvider = user.authProvider || "google";

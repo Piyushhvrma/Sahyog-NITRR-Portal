@@ -7,6 +7,13 @@ const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
+const { sendSuccess } = require("../utils/response");
+const {
+  getCache,
+  setCache,
+  deleteCacheByPattern,
+  buildCacheKey,
+} = require("../utils/cache");
 
 const {
   uploadLinkValidator,
@@ -14,7 +21,6 @@ const {
   mongoIdParamValidator,
 } = require("../validators/linkValidators");
 
-// GET /api/links?page=1&limit=10&year=&branch=&semester=
 router.get(
   "/",
   getLinksValidator,
@@ -26,6 +32,20 @@ router.get(
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const skip = (page - 1) * limit;
 
+    const cacheKey = buildCacheKey("links", {
+      year: year || "all",
+      branch: branch || "all",
+      semester: semester || "all",
+      page,
+      limit,
+    });
+
+    const cachedData = await getCache(cacheKey);
+
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+
     const filter = {};
     if (year) filter.year = year;
     if (branch) filter.branch = branch;
@@ -36,17 +56,24 @@ router.get(
       Link.countDocuments(filter),
     ]);
 
-    res.json({
+    const responsePayload = {
+      success: true,
+      message: "Links fetched successfully.",
       links,
       pagination: {
         page,
         limit,
+        total: totalLinks,
         totalLinks,
         totalPages: Math.ceil(totalLinks / limit),
         hasNextPage: page * limit < totalLinks,
         hasPrevPage: page > 1,
       },
-    });
+    };
+
+    await setCache(cacheKey, responsePayload, 300);
+
+    return res.status(200).json(responsePayload);
   })
 );
 
@@ -60,9 +87,10 @@ router.post(
   asyncHandler(async (req, res) => {
     const link = await Link.create(req.body);
 
-    res.status(201).json({
-      success: true,
-      message: "Link uploaded successfully.",
+    await deleteCacheByPattern("links:*");
+    await deleteCacheByPattern("admin:stats*");
+
+    return sendSuccess(res, 201, "Link uploaded successfully.", {
       link,
     });
   })
@@ -84,10 +112,10 @@ router.delete(
 
     await Link.findByIdAndDelete(req.params.id);
 
-    res.json({
-      success: true,
-      message: "Link deleted successfully.",
-    });
+    await deleteCacheByPattern("links:*");
+    await deleteCacheByPattern("admin:stats*");
+
+    return sendSuccess(res, 200, "Link deleted successfully.");
   })
 );
 

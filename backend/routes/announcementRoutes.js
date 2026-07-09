@@ -10,6 +10,12 @@ const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess } = require("../utils/response");
 const { emitToAllUsers } = require("../socket/socket");
+const {
+  getCache,
+  setCache,
+  deleteCache,
+  deleteCacheByPattern,
+} = require("../utils/cache");
 
 const {
   createAnnouncementNotifications,
@@ -38,14 +44,19 @@ router.post(
     });
 
     await createAnnouncementNotifications(announcement);
+
+    await deleteCache("announcements:all");
+    await deleteCache("announcements:latest");
+    await deleteCacheByPattern("admin:stats*");
+
     emitToAllUsers("new-announcement", {
-  announcement,
-  notification: {
-    title,
-    message: description,
-    type: "ADMIN",
-  },
-});
+      announcement,
+      notification: {
+        title,
+        message: description,
+        type: "ADMIN",
+      },
+    });
 
     return sendSuccess(res, 201, "Announcement published successfully.", {
       announcement,
@@ -56,7 +67,17 @@ router.post(
 router.get(
   "/",
   asyncHandler(async (req, res) => {
+    const cacheKey = "announcements:all";
+    const cachedData = await getCache(cacheKey);
+
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+
     const announcements = await Announcement.find().sort({ createdAt: -1 });
+
+    await setCache(cacheKey, announcements, 180);
+
     return res.json(announcements);
   })
 );
@@ -64,7 +85,17 @@ router.get(
 router.get(
   "/latest",
   asyncHandler(async (req, res) => {
+    const cacheKey = "announcements:latest";
+    const cachedData = await getCache(cacheKey);
+
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+
     const latest = await Announcement.find().sort({ createdAt: -1 }).limit(3);
+
+    await setCache(cacheKey, latest, 180);
+
     return res.json(latest);
   })
 );
@@ -85,6 +116,10 @@ router.delete(
 
     await Announcement.findByIdAndDelete(req.params.id);
     await deleteNotificationsByAnnouncement(announcement._id);
+
+    await deleteCache("announcements:all");
+    await deleteCache("announcements:latest");
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 200, "Announcement deleted successfully.");
   })

@@ -16,6 +16,11 @@ const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess } = require("../utils/response");
+const {
+  getCache,
+  setCache,
+  deleteCacheByPattern,
+} = require("../utils/cache");
 
 const {
   updateRoleValidator,
@@ -28,6 +33,13 @@ router.get(
   "/stats",
   requireRole("admin", "superadmin"),
   asyncHandler(async (req, res) => {
+    const cacheKey = "admin:stats";
+    const cachedData = await getCache(cacheKey);
+
+    if (cachedData) {
+      return res.status(200).json(cachedData);
+    }
+
     const [
       userCount,
       linkCount,
@@ -54,7 +66,9 @@ router.get(
       BloodRequest.countDocuments({ status: "new" }),
     ]);
 
-    return sendSuccess(res, 200, "Admin stats fetched successfully.", {
+    const responsePayload = {
+      success: true,
+      message: "Admin stats fetched successfully.",
       userCount,
       linkCount,
       eventCount,
@@ -66,7 +80,11 @@ router.get(
       newFeedbackCount,
       newSupportCount,
       newBloodRequestCount,
-    });
+    };
+
+    await setCache(cacheKey, responsePayload, 60);
+
+    return res.status(200).json(responsePayload);
   })
 );
 
@@ -106,6 +124,8 @@ router.patch(
 
     user.role = role;
     await user.save();
+
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 200, `User role updated to ${role}.`, {
       user: {

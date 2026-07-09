@@ -10,6 +10,7 @@ const requireRole = require("../middleware/roleAuth");
 const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess, sendPaginated } = require("../utils/response");
 const { sendSupportRequestEmail } = require("../services/mail.service");
+const { deleteCacheByPattern } = require("../utils/cache");
 
 const {
   supportRequestValidator,
@@ -35,6 +36,8 @@ router.post(
       category,
       message,
     });
+
+    await deleteCacheByPattern("admin:stats*");
 
     try {
       await sendSupportRequestEmail({
@@ -123,6 +126,8 @@ router.patch(
 
     await request.save();
 
+    await deleteCacheByPattern("admin:stats*");
+
     return sendSuccess(res, 200, "Support request updated successfully.", {
       request,
     });
@@ -144,6 +149,8 @@ router.delete(
     }
 
     await SupportRequest.findByIdAndDelete(req.params.id);
+
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 200, "Support request deleted successfully.");
   })

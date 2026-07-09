@@ -29,23 +29,16 @@ const roomRoutes = require("./routes/roomRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
 const { initializeSocket } = require("./socket/socket");
+const { connectRedis } = require("./config/redis");
+const { corsOptions, socketCorsOptions } = require("./config/cors");
 
 const app = express();
 const server = http.createServer(app);
 
 app.set("trust proxy", 1);
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://sahyog-nitrr-portal.vercel.app",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
 const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-  },
+  cors: socketCorsOptions,
 });
 
 initializeSocket(io);
@@ -63,19 +56,9 @@ app.use(
   })
 );
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+app.use(cors(corsOptions));
 
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
-);
+app.options("*", cors(corsOptions));
 
 if (process.env.NODE_ENV !== "test") {
   app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
@@ -127,6 +110,7 @@ const start = async () => {
     }
 
     await mongoose.connect(process.env.MONGO_URI);
+    await connectRedis();
 
     const PORT = process.env.PORT || 4000;
 

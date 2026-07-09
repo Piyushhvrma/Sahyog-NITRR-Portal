@@ -12,6 +12,7 @@ const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
 const { uploadBloodDocument } = require("../middleware/upload");
 const { sendSuccess, sendPaginated } = require("../utils/response");
 const { sendBloodRequestEmail } = require("../services/mail.service");
+const { deleteCacheByPattern } = require("../utils/cache");
 
 const {
   bloodRequestValidator,
@@ -41,6 +42,8 @@ router.post(
       documentName: req.file?.originalname || "",
       hasDocument: !!req.file,
     });
+
+    await deleteCacheByPattern("admin:stats*");
 
     const attachments = [];
 
@@ -143,6 +146,8 @@ router.patch(
 
     await request.save();
 
+    await deleteCacheByPattern("admin:stats*");
+
     return sendSuccess(res, 200, "Blood request updated successfully.", {
       request,
     });
@@ -164,6 +169,8 @@ router.delete(
     }
 
     await BloodRequest.findByIdAndDelete(req.params.id);
+
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 200, "Blood request deleted successfully.");
   })

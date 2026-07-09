@@ -10,6 +10,7 @@ const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess, sendPaginated } = require("../utils/response");
+const { deleteCacheByPattern } = require("../utils/cache");
 
 const {
   feedbackValidator,
@@ -28,6 +29,8 @@ router.post(
   validateRequest,
   asyncHandler(async (req, res) => {
     const feedback = await Feedback.create(req.body);
+
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 201, "Feedback received, thank you.", {
       feedback,
@@ -94,6 +97,8 @@ router.patch(
     feedback.status = req.body.status;
     await feedback.save();
 
+    await deleteCacheByPattern("admin:stats*");
+
     return sendSuccess(res, 200, "Feedback status updated successfully.", {
       feedback,
     });
@@ -115,6 +120,8 @@ router.delete(
     }
 
     await Feedback.findByIdAndDelete(req.params.id);
+
+    await deleteCacheByPattern("admin:stats*");
 
     return sendSuccess(res, 200, "Feedback deleted successfully.");
   })
