@@ -1,9 +1,13 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
 import sahyogLogo from "../assets/sahyog-logo.png";
+
+import {
+  registerUser,
+  googleLogin,
+} from "../api";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -11,7 +15,7 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState({ type: null, message: "" });
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -19,39 +23,32 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setIsLoading(true);
-    setError("");
-
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+      setIsLoading(true);
+      setStatus({ type: null, message: "" });
+
+      const data = await registerUser({
+        name,
+        email,
+        password,
       });
 
-      const data = await res.json();
+      login(data.token, data.user);
 
-      if (res.ok) {
-        login(data.token, data.user);
+      setStatus({
+        type: "success",
+        message: "Account created successfully. Redirecting...",
+      });
 
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 500);
-
-        return;
-      }
-
-      setError(data.message || "Signup Failed");
-      setIsLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to connect to server.");
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 500);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Signup failed.",
+      });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -59,35 +56,26 @@ const SignupPage = () => {
   const handleGoogleSignup = async (credentialResponse) => {
     try {
       setIsLoading(true);
-      setError("");
+      setStatus({ type: null, message: "" });
 
-      const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          credential: credentialResponse.credential,
-        }),
+      const data = await googleLogin(credentialResponse.credential);
+
+      login(data.token, data.user);
+
+      setStatus({
+        type: "success",
+        message: "Google signup successful. Redirecting...",
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        login(data.token, data.user);
-
-        setTimeout(() => {
-          navigate("/", { replace: true });
-        }, 800);
-
-        return;
-      }
-
-      setError(data.message || "Google Signup Failed");
-      setIsLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("Google Signup Failed");
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 800);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Google Signup Failed.",
+      });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -95,19 +83,17 @@ const SignupPage = () => {
   return (
     <div className="auth-page-v2">
       <div className="auth-card-v2">
-        <div className="auth-logo-v2"><img
-    src={sahyogLogo}
-    alt="SAHYOG"
-    className="auth-logo-img"
-  /></div>
+        <div className="auth-logo-v2">
+          <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
+        </div>
 
         <h1>Create Account</h1>
 
         <p>
-  Create your SAHYOG account to explore academic resources,
-  receive important updates, connect with support services, and
-  stay involved with student wellbeing initiatives.
-</p>
+          Create your SAHYOG account to explore academic resources, receive
+          important updates, connect with support services, and stay involved
+          with student wellbeing initiatives.
+        </p>
 
         {isLoading && (
           <div className="auth-loading-v2">
@@ -124,7 +110,12 @@ const SignupPage = () => {
           ) : (
             <GoogleLogin
               onSuccess={handleGoogleSignup}
-              onError={() => setError("Google Signup Failed")}
+              onError={() =>
+                setStatus({
+                  type: "error",
+                  message: "Google Signup Failed.",
+                })
+              }
               theme="outline"
               size="large"
               shape="pill"
@@ -171,7 +162,16 @@ const SignupPage = () => {
           </button>
         </form>
 
-        {error && <div className="auth-error-v2">{error}</div>}
+        {status.message && (
+          <div
+            className="auth-error-v2"
+            style={{
+              color: status.type === "success" ? "#22c55e" : "#fecaca",
+            }}
+          >
+            {status.message}
+          </div>
+        )}
 
         <p className="auth-switch-v2">
           Already have an account?

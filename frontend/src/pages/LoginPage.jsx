@@ -1,9 +1,15 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
 import sahyogLogo from "../assets/sahyog-logo.png";
+
+import {
+  loginUser,
+  googleLogin,
+  forgotPassword,
+  resetPassword,
+} from "../api";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -15,47 +21,42 @@ const LoginPage = () => {
   const [newPassword, setNewPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [status, setStatus] = useState({ type: null, message: "" });
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
+  const clearStatus = () => {
+    setStatus({ type: null, message: "" });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setIsLoading(true);
-    setError("");
-    setSuccess("");
-
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      setIsLoading(true);
+      clearStatus();
+
+      const data = await loginUser({
+        email,
+        password,
       });
 
-      const data = await res.json();
+      login(data.token, data.user);
 
-      if (res.ok) {
-        login(data.token, data.user);
+      setStatus({
+        type: "success",
+        message: "Login successful. Redirecting...",
+      });
 
-        setTimeout(() => {
-          navigate("/");
-        }, 500);
-
-        return;
-      }
-
-      setError(data.message || "Login failed.");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to connect to server.");
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Login failed.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -64,33 +65,22 @@ const LoginPage = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
 
-    setIsLoading(true);
-    setError("");
-    setSuccess("");
-
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-        }),
+      setIsLoading(true);
+      clearStatus();
+
+      const data = await forgotPassword(email);
+
+      setOtpSent(true);
+      setStatus({
+        type: "success",
+        message: data.message || "OTP sent to your email.",
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setOtpSent(true);
-        setSuccess(data.message || "OTP sent to your email.");
-        return;
-      }
-
-      setError(data.message || "Failed to send OTP.");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to connect to server.");
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to send OTP.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -99,39 +89,31 @@ const LoginPage = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    setIsLoading(true);
-    setError("");
-    setSuccess("");
-
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          otp,
-          newPassword,
-        }),
+      setIsLoading(true);
+      clearStatus();
+
+      const data = await resetPassword({
+        email,
+        otp,
+        newPassword,
       });
 
-      const data = await res.json();
+      setStatus({
+        type: "success",
+        message: data.message || "Password reset successful. Please login.",
+      });
 
-      if (res.ok) {
-        setSuccess(data.message || "Password reset successful.");
-        setForgotMode(false);
-        setOtpSent(false);
-        setOtp("");
-        setNewPassword("");
-        setPassword("");
-        return;
-      }
-
-      setError(data.message || "Failed to reset password.");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to connect to server.");
+      setForgotMode(false);
+      setOtpSent(false);
+      setOtp("");
+      setNewPassword("");
+      setPassword("");
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to reset password.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,49 +122,51 @@ const LoginPage = () => {
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       setIsLoading(true);
-      setError("");
-      setSuccess("");
+      clearStatus();
 
-      const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          credential: credentialResponse.credential,
-        }),
+      const data = await googleLogin(credentialResponse.credential);
+
+      login(data.token, data.user);
+
+      setStatus({
+        type: "success",
+        message: "Google login successful. Redirecting...",
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        login(data.token, data.user);
-
-        setTimeout(() => {
-          navigate("/");
-        }, 800);
-
-        return;
-      }
-
-      setError(data.message || "Google Login Failed");
-      setIsLoading(false);
-    } catch (err) {
-      console.error(err);
-      setError("Google Login Failed");
+      setTimeout(() => {
+        navigate("/");
+      }, 800);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Google Login Failed.",
+      });
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  const switchToForgotMode = () => {
+    setForgotMode(true);
+    setOtpSent(false);
+    setOtp("");
+    setNewPassword("");
+    clearStatus();
+  };
+
+  const switchToLoginMode = () => {
+    setForgotMode(false);
+    setOtpSent(false);
+    setOtp("");
+    setNewPassword("");
+    clearStatus();
   };
 
   return (
     <div className="auth-page-v2">
       <div className="auth-card-v2">
         <div className="auth-logo-v2">
-          <img
-            src={sahyogLogo}
-            alt="SAHYOG"
-            className="auth-logo-img"
-          />
+          <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
         </div>
 
         <h1>{forgotMode ? "Reset Password" : "Welcome Back"}</h1>
@@ -193,11 +177,7 @@ const LoginPage = () => {
             : "Access your SAHYOG dashboard for PYQs, notes, club events, blood support, announcements, and student help services — all in one trusted NIT Raipur portal."}
         </p>
 
-        {isLoading && (
-          <div className="auth-loading-v2">
-            Please wait...
-          </div>
-        )}
+        {isLoading && <div className="auth-loading-v2">Please wait...</div>}
 
         {!forgotMode && (
           <>
@@ -210,7 +190,12 @@ const LoginPage = () => {
               ) : (
                 <GoogleLogin
                   onSuccess={handleGoogleLogin}
-                  onError={() => setError("Google Login Failed")}
+                  onError={() =>
+                    setStatus({
+                      type: "error",
+                      message: "Google Login Failed.",
+                    })
+                  }
                   theme="outline"
                   size="large"
                   shape="pill"
@@ -250,32 +235,28 @@ const LoginPage = () => {
             </form>
 
             <p
-  style={{
-    textAlign: "right",
-    marginTop: "10px",
-    marginBottom: "15px",
-  }}
->
-  <button
-    type="button"
-    onClick={() => {
-      setForgotMode(true);
-      setError("");
-      setSuccess("");
-    }}
-    style={{
-      background: "transparent",
-      border: "none",
-      color: "#ffffff",
-      cursor: "pointer",
-      fontSize: "0.95rem",
-      fontWeight: "500",
-      padding: 0,
-    }}
-  >
-    Forgot Password?
-  </button>
-</p>
+              style={{
+                textAlign: "right",
+                marginTop: "10px",
+                marginBottom: "15px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={switchToForgotMode}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#ffffff",
+                  cursor: "pointer",
+                  fontSize: "0.95rem",
+                  fontWeight: "500",
+                  padding: 0,
+                }}
+              >
+                Forgot Password?
+              </button>
+            </p>
           </>
         )}
 
@@ -338,14 +319,7 @@ const LoginPage = () => {
             <p className="auth-switch-v2">
               <button
                 type="button"
-                onClick={() => {
-                  setForgotMode(false);
-                  setOtpSent(false);
-                  setOtp("");
-                  setNewPassword("");
-                  setError("");
-                  setSuccess("");
-                }}
+                onClick={switchToLoginMode}
                 style={{
                   background: "none",
                   border: "none",
@@ -361,14 +335,14 @@ const LoginPage = () => {
           </>
         )}
 
-        {error && <div className="auth-error-v2">{error}</div>}
-
-        {success && (
+        {status.message && (
           <div
             className="auth-error-v2"
-            style={{ color: "#22c55e" }}
+            style={{
+              color: status.type === "success" ? "#22c55e" : "#fecaca",
+            }}
           >
-            {success}
+            {status.message}
           </div>
         )}
 
