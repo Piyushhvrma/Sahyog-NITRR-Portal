@@ -8,12 +8,14 @@ const Feedback = require("../models/Feedback");
 const SupportRequest = require("../models/SupportRequest");
 const Announcement = require("../models/Announcement");
 const Notification = require("../models/Notification");
+const BloodRequest = require("../models/BloodRequest");
 
 const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
+const { sendSuccess } = require("../utils/response");
 
 const {
   updateRoleValidator,
@@ -34,6 +36,10 @@ router.get(
       supportCount,
       announcementCount,
       notificationCount,
+      bloodRequestCount,
+      newFeedbackCount,
+      newSupportCount,
+      newBloodRequestCount,
     ] = await Promise.all([
       User.countDocuments(),
       Link.countDocuments(),
@@ -42,9 +48,13 @@ router.get(
       SupportRequest.countDocuments(),
       Announcement.countDocuments(),
       Notification.countDocuments(),
+      BloodRequest.countDocuments(),
+      Feedback.countDocuments({ status: "new" }),
+      SupportRequest.countDocuments({ status: "new" }),
+      BloodRequest.countDocuments({ status: "new" }),
     ]);
 
-    res.json({
+    return sendSuccess(res, 200, "Admin stats fetched successfully.", {
       userCount,
       linkCount,
       eventCount,
@@ -52,6 +62,10 @@ router.get(
       supportCount,
       announcementCount,
       notificationCount,
+      bloodRequestCount,
+      newFeedbackCount,
+      newSupportCount,
+      newBloodRequestCount,
     });
   })
 );
@@ -64,7 +78,9 @@ router.get(
       .select("name email role authProvider createdAt")
       .sort({ createdAt: -1 });
 
-    res.json({ users });
+    return sendSuccess(res, 200, "Users fetched successfully.", {
+      users,
+    });
   })
 );
 
@@ -91,8 +107,7 @@ router.patch(
     user.role = role;
     await user.save();
 
-    res.json({
-      message: `User role updated to ${role}.`,
+    return sendSuccess(res, 200, `User role updated to ${role}.`, {
       user: {
         id: user.id,
         name: user.name,

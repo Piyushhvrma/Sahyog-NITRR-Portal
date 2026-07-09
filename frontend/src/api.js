@@ -60,12 +60,26 @@ export {
   deleteAnnouncement,
 } from "./api/announcements.api.js";
 
-export {
-  fetchAdminStats,
-  fetchAdminUsers,
-  updateUserRole,
-} from "./api/admin.api.js";
+
 
 export {
   uploadProfilePicture,
 } from "./api/profile.api.js";
+
+export {
+  fetchAdminStats,
+  fetchAdminUsers,
+  updateUserRole,
+  fetchAdminFeedbacks,
+  updateFeedbackStatus,
+  deleteFeedback,
+  downloadFeedbackCSVUrl,
+  fetchAdminSupportRequests,
+  updateSupportRequestStatus,
+  deleteSupportRequest,
+  fetchAdminBloodRequests,
+  updateBloodRequestStatus,
+  deleteBloodRequest,
+  downloadBloodRequestCSVUrl,
+} from "./api/admin.api.js";
+

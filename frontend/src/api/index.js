@@ -68,3 +68,20 @@ export {
 export {
   uploadProfilePicture,
 } from "./profile.api.js";
+
+export {
+  fetchAdminStats,
+  fetchAdminUsers,
+  updateUserRole,
+  fetchAdminFeedbacks,
+  updateFeedbackStatus,
+  deleteFeedback,
+  downloadFeedbackCSVUrl,
+  fetchAdminSupportRequests,
+  updateSupportRequestStatus,
+  deleteSupportRequest,
+  fetchAdminBloodRequests,
+  updateBloodRequestStatus,
+  deleteBloodRequest,
+  downloadBloodRequestCSVUrl,
+} from "./admin.api.js";

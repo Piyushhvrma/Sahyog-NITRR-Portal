@@ -7,6 +7,9 @@ import AdminAnnouncementUpload from "../components/AdminAnnouncementUpload.jsx";
 import AdminAnnouncementList from "../components/AdminAnnouncementList.jsx";
 import AdminEventList from "../components/AdminEventList.jsx";
 import AdminLinksList from "../components/AdminLinksList.jsx";
+import AdminFeedbackDashboard from "../components/AdminFeedbackDashboard.jsx";
+import AdminSupportDashboard from "../components/AdminSupportDashboard.jsx";
+import AdminBloodRequestDashboard from "../components/AdminBloodRequestDashboard.jsx";
 
 import StatusMessage from "../components/ui/StatusMessage.jsx";
 
@@ -157,6 +160,17 @@ const AdminPage = () => {
           )}
         </div>
       )}
+      <AdminFeedbackDashboard />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminSupportDashboard />
+
+<hr style={{ margin: "2rem 0" }} />
+
+<AdminBloodRequestDashboard />
+
+<hr style={{ margin: "2rem 0" }} />
 
       <AdminUpload />
 

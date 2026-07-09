@@ -1,11 +1,34 @@
-// models/Feedback.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const FeedbackSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true }, // Removed 'category' to match form
-  createdAt: { type: Date, default: Date.now }
-});
+const FeedbackSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-module.exports = mongoose.model('Feedback', FeedbackSchema);
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["new", "reviewed", "resolved"],
+      default: "new",
+    },
+  },
+  { timestamps: true }
+);
+
+module.exports =
+  mongoose.models.Feedback || mongoose.model("Feedback", FeedbackSchema);
