@@ -1,37 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../api";
+import { fetchEvents, deleteEvent } from "../api";
+import StatusMessage from "./ui/StatusMessage";
+import ConfirmModal from "./ui/ConfirmModal";
 
 const AdminEventList = ({ adminPassword }) => {
   const [events, setEvents] = useState([]);
+  const [status, setStatus] = useState({ type: null, message: "" });
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
-  const fetchEvents = async () => {
-    const res = await fetch(`${API_BASE_URL}/api/events`);
-    const data = await res.json();
-    setEvents(data);
+  const loadEvents = async () => {
+    try {
+      const data = await fetchEvents();
+      setEvents(data || []);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to load events.",
+      });
+    }
   };
 
   useEffect(() => {
-    fetchEvents();
+    loadEvents();
   }, []);
 
-  const deleteEvent = async (id) => {
-    if (!window.confirm("Delete this event?")) return;
+  const handleDelete = async () => {
+    if (!selectedEventId) return;
 
-    const res = await fetch(`${API_BASE_URL}/api/events/${id}`, {
-      method: "DELETE",
-      headers: {
-        "x-admin-password": adminPassword,
-      },
-    });
+    try {
+      await deleteEvent(selectedEventId, adminPassword);
 
-    const data = await res.json();
-    alert(data.message);
-    fetchEvents();
+      setStatus({
+        type: "success",
+        message: "Event deleted successfully.",
+      });
+
+      setSelectedEventId(null);
+      loadEvents();
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to delete event.",
+      });
+      setSelectedEventId(null);
+    }
   };
 
   return (
     <div className="admin-manage-card">
       <h2>🎉 Manage Events</h2>
+
+      <StatusMessage type={status.type} message={status.message} />
 
       {events.length === 0 ? (
         <p>No events found.</p>
@@ -45,13 +64,23 @@ const AdminEventList = ({ adminPassword }) => {
 
             <button
               className="admin-delete-btn"
-              onClick={() => deleteEvent(event._id)}
+              onClick={() => setSelectedEventId(event._id)}
             >
               Delete
             </button>
           </div>
         ))
       )}
+
+      <ConfirmModal
+        open={!!selectedEventId}
+        title="Delete Event?"
+        message="This will delete the event from MongoDB. In the backend upgrade, we will also delete its Cloudinary image."
+        confirmText="Delete"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setSelectedEventId(null)}
+      />
     </div>
   );
 };

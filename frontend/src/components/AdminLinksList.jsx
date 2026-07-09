@@ -1,37 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../api";
+import { fetchLinks, deleteLink } from "../api";
+import StatusMessage from "./ui/StatusMessage";
+import ConfirmModal from "./ui/ConfirmModal";
 
 const AdminLinksList = ({ adminPassword }) => {
   const [links, setLinks] = useState([]);
+  const [status, setStatus] = useState({ type: null, message: "" });
+  const [selectedLinkId, setSelectedLinkId] = useState(null);
 
-  const fetchLinks = async () => {
-    const res = await fetch(`${API_BASE_URL}/api/links`);
-    const data = await res.json();
-    setLinks(data.links || []);
+  const loadLinks = async () => {
+    try {
+      const data = await fetchLinks();
+      setLinks(data.links || []);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to load links.",
+      });
+    }
   };
 
   useEffect(() => {
-    fetchLinks();
+    loadLinks();
   }, []);
 
-  const deleteLink = async (id) => {
-    if (!window.confirm("Delete this PYQ/Note link?")) return;
+  const handleDelete = async () => {
+    if (!selectedLinkId) return;
 
-    const res = await fetch(`${API_BASE_URL}/api/links/${id}`, {
-      method: "DELETE",
-      headers: {
-        "x-admin-password": adminPassword,
-      },
-    });
+    try {
+      await deleteLink(selectedLinkId, adminPassword);
 
-    const data = await res.json();
-    alert(data.message);
-    fetchLinks();
+      setStatus({
+        type: "success",
+        message: "Link deleted successfully.",
+      });
+
+      setSelectedLinkId(null);
+      loadLinks();
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to delete link.",
+      });
+      setSelectedLinkId(null);
+    }
   };
 
   return (
     <div className="admin-manage-card">
       <h2>📚 Manage PYQs / Notes</h2>
+
+      <StatusMessage type={status.type} message={status.message} />
 
       {links.length === 0 ? (
         <p>No links found.</p>
@@ -41,8 +60,9 @@ const AdminLinksList = ({ adminPassword }) => {
             <div>
               <h3>{link.title}</h3>
               <p>
-                {link.year} Year • {link.branch} • Semester {link.semester}
+                {link.year} • {link.branch} • {link.semester}
               </p>
+
               <a href={link.url} target="_blank" rel="noreferrer">
                 Open Link
               </a>
@@ -50,13 +70,23 @@ const AdminLinksList = ({ adminPassword }) => {
 
             <button
               className="admin-delete-btn"
-              onClick={() => deleteLink(link._id)}
+              onClick={() => setSelectedLinkId(link._id)}
             >
               Delete
             </button>
           </div>
         ))
       )}
+
+      <ConfirmModal
+        open={!!selectedLinkId}
+        title="Delete Resource Link?"
+        message="This will permanently delete this PYQ/Note link from the database."
+        confirmText="Delete"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setSelectedLinkId(null)}
+      />
     </div>
   );
 };
