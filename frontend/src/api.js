@@ -83,3 +83,14 @@ export {
   downloadBloodRequestCSVUrl,
 } from "./api/admin.api.js";
 
+
+
+export {
+  createRoom,
+  fetchRooms,
+  fetchRoomByCode,
+  voteInRoom,
+  toggleRoomStatus,
+  deleteRoom,
+} from "./api/rooms.api.js";
+

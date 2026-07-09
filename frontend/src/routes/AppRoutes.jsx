@@ -22,6 +22,7 @@ import SemesterPage from "../pages/SemesterPage.jsx";
 import Viewer from "../pages/Viewer.jsx";
 import ProfilePage from "../pages/ProfilePage.jsx";
 import NotificationsPage from "../pages/NotificationsPage.jsx";
+import RoomsPage from "../pages/RoomsPage.jsx";
 
 import SignupPage from "../pages/SignupPage.jsx";
 import LoginPage from "../pages/LoginPage.jsx";
@@ -85,6 +86,7 @@ export default function AppRoutes() {
         <Route path="/branch/:year" element={<BranchPage />} />
         <Route path="/semester/:year/:branch" element={<SemesterPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/rooms" element={<RoomsPage />} />
 
         <Route
           path="/viewer/:year/:branch/:semester"

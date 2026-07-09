@@ -10,6 +10,8 @@ const mongoSanitize = require("express-mongo-sanitize");
 const hpp = require("hpp");
 const compression = require("compression");
 const morgan = require("morgan");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
@@ -23,12 +25,30 @@ const aiRoutes = require("./routes/aiRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const roomRoutes = require("./routes/roomRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
+const { initializeSocket } = require("./socket/socket");
 
 const app = express();
+const server = http.createServer(app);
 
 app.set("trust proxy", 1);
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://sahyog-nitrr-portal.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+initializeSocket(io);
 
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
@@ -42,12 +62,6 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://sahyog-nitrr-portal.vercel.app",
-  process.env.FRONTEND_URL,
-].filter(Boolean);
 
 app.use(
   cors({
@@ -95,6 +109,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/rooms", roomRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -115,7 +130,7 @@ const start = async () => {
 
     const PORT = process.env.PORT || 4000;
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`SAHYOG Backend running on port ${PORT}`);
     });
   } catch (error) {

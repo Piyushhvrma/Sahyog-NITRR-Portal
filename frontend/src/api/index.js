@@ -85,3 +85,21 @@ export {
   deleteBloodRequest,
   downloadBloodRequestCSVUrl,
 } from "./admin.api.js";
+
+
+export {
+  createRoom,
+  fetchRooms,
+  fetchRoomByCode,
+  voteInRoom,
+  toggleRoomStatus,
+} from "./rooms.api.js";
+
+export {
+  createRoom,
+  fetchRooms,
+  fetchRoomByCode,
+  voteInRoom,
+  toggleRoomStatus,
+  deleteRoom,
+} from "./rooms.api.js";

@@ -10,20 +10,14 @@ import {
   downloadBloodRequestCSVUrl,
 } from "../api";
 
+import { connectSocket } from "../socket/socket.js";
+
 const Navbar = () => {
   const { user } = useContext(AuthContext);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isAdmin = user?.role === "admin" || user?.role === "superadmin";
-
-  useEffect(() => {
-    if (user) {
-      loadUnreadCount();
-    } else {
-      setUnreadCount(0);
-    }
-  }, [user]);
 
   const loadUnreadCount = async () => {
     try {
@@ -34,9 +28,24 @@ const Navbar = () => {
     }
   };
 
-  const closeProfileMenu = () => {
-    setShowProfileMenu(false);
-  };
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    loadUnreadCount();
+
+    const socket = connectSocket();
+
+    socket.on("new-announcement", () => {
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("new-announcement");
+    };
+  }, [user]);
 
   const profileInitial = user?.name?.charAt(0)?.toUpperCase() || "👤";
 
@@ -106,7 +115,7 @@ const Navbar = () => {
             <div className="profile-section-wrapper">
               <div
                 className="profile-trigger-zone"
-                onClick={() => setShowProfileMenu((prev) => !prev)}
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
                 <button className="profile-circle" type="button">
                   {user?.profilePictureUrl ? (
@@ -132,50 +141,39 @@ const Navbar = () => {
 
               {showProfileMenu && (
                 <div className="profile-dropdown">
-                  <Link to="/profile" onClick={closeProfileMenu}>
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     My Profile
                   </Link>
 
                   <Link
-                    to="/coming-soon/my-downloads"
-                    onClick={closeProfileMenu}
+                    to="/rooms"
+                    onClick={() => setShowProfileMenu(false)}
                   >
-                    My Downloads
-                  </Link>
-
-                  <Link
-                    to="/coming-soon/cr-contact"
-                    onClick={closeProfileMenu}
-                  >
-                    Connect With CR
+                    Join Room
                   </Link>
 
                   <Link
                     to="/coming-soon/team-sahyog"
-                    onClick={closeProfileMenu}
+                    onClick={() => setShowProfileMenu(false)}
                   >
                     Team Sahyog
                   </Link>
 
                   <Link
                     to="/coming-soon/campus-view"
-                    onClick={closeProfileMenu}
+                    onClick={() => setShowProfileMenu(false)}
                   >
                     Campus View
-                  </Link>
-
-                  <Link
-                    to="/coming-soon/emergency-contacts"
-                    onClick={closeProfileMenu}
-                  >
-                    Emergency Contacts
                   </Link>
 
                   {isAdmin && (
                     <>
                       <Link
                         to="/admin"
-                        onClick={closeProfileMenu}
+                        onClick={() => setShowProfileMenu(false)}
                         style={{ color: "#6ee7ff" }}
                       >
                         Admin Panel
@@ -184,7 +182,7 @@ const Navbar = () => {
                       <a
                         href={downloadSupportCSVUrl()}
                         download
-                        onClick={closeProfileMenu}
+                        onClick={() => setShowProfileMenu(false)}
                         style={{ color: "#6ee7ff" }}
                       >
                         Export Support 📊
@@ -193,7 +191,7 @@ const Navbar = () => {
                       <a
                         href={downloadFeedbackCSVUrl()}
                         download
-                        onClick={closeProfileMenu}
+                        onClick={() => setShowProfileMenu(false)}
                         style={{ color: "#6ee7ff" }}
                       >
                         Export Feedback 📝
@@ -202,7 +200,7 @@ const Navbar = () => {
                       <a
                         href={downloadBloodRequestCSVUrl()}
                         download
-                        onClick={closeProfileMenu}
+                        onClick={() => setShowProfileMenu(false)}
                         style={{ color: "#6ee7ff" }}
                       >
                         Export Blood Requests 🩸

@@ -9,6 +9,7 @@ const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess } = require("../utils/response");
+const { emitToAllUsers } = require("../socket/socket");
 
 const {
   createAnnouncementNotifications,
@@ -37,6 +38,14 @@ router.post(
     });
 
     await createAnnouncementNotifications(announcement);
+    emitToAllUsers("new-announcement", {
+  announcement,
+  notification: {
+    title,
+    message: description,
+    type: "ADMIN",
+  },
+});
 
     return sendSuccess(res, 201, "Announcement published successfully.", {
       announcement,
