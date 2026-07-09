@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const validateEnv = require("./config/env");
+validateEnv();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -57,7 +60,6 @@ app.use(
 );
 
 app.use(cors(corsOptions));
-
 app.options("*", cors(corsOptions));
 
 if (process.env.NODE_ENV !== "test") {
@@ -75,6 +77,16 @@ app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     message: "SAHYOG Backend is running",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "healthy",
+    service: "SAHYOG Backend",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -103,12 +115,17 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
+process.on("unhandledRejection", (error) => {
+  console.error("Unhandled Rejection:", error.message);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error.message);
+  process.exit(1);
+});
+
 const start = async () => {
   try {
-    if (!process.env.MONGO_URI) {
-      throw new Error("MONGO_URI is missing");
-    }
-
     await mongoose.connect(process.env.MONGO_URI);
     await connectRedis();
 

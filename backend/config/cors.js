@@ -1,11 +1,19 @@
-const allowedOrigins = [
+const devOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:4173",
   "http://localhost:3000",
-  "https://sahyog-nitrr-portal.vercel.app",
+];
+
+const prodOrigins = [
   process.env.FRONTEND_URL,
+  "https://sahyog-nitrr-portal.vercel.app",
 ].filter(Boolean);
+
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? prodOrigins
+    : [...devOrigins, ...prodOrigins];
 
 const corsOptions = {
   origin(origin, callback) {
