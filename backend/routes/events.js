@@ -45,11 +45,30 @@ const upload = multer({
   limits: { fileSize: 3 * 1024 * 1024 },
 });
 
+// GET /api/events?page=1&limit=6
 router.get(
   "/",
   asyncHandler(async (req, res) => {
-    const events = await Event.find().sort({ createdAt: -1 });
-    res.json(events);
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 6, 1), 20);
+    const skip = (page - 1) * limit;
+
+    const [events, totalEvents] = await Promise.all([
+      Event.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Event.countDocuments(),
+    ]);
+
+    res.json({
+      events,
+      pagination: {
+        page,
+        limit,
+        totalEvents,
+        totalPages: Math.ceil(totalEvents / limit),
+        hasNextPage: page * limit < totalEvents,
+        hasPrevPage: page > 1,
+      },
+    });
   })
 );
 
@@ -125,11 +144,19 @@ router.delete(
       return res.status(404).json({ message: "Event not found." });
     }
 
+    if (event.cloudinaryPublicId) {
+      try {
+        await cloudinary.uploader.destroy(event.cloudinaryPublicId);
+      } catch (error) {
+        console.error("Cloudinary event image delete failed:", error.message);
+      }
+    }
+
     await Event.findByIdAndDelete(req.params.id);
 
     res.json({
       success: true,
-      message: "Event deleted successfully.",
+      message: "Event and image deleted successfully.",
     });
   })
 );

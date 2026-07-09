@@ -5,13 +5,23 @@ import ConfirmModal from "./ui/ConfirmModal";
 
 const AdminEventList = () => {
   const [events, setEvents] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 6,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
   const [status, setStatus] = useState({ type: null, message: "" });
   const [selectedEventId, setSelectedEventId] = useState(null);
 
-  const loadEvents = async () => {
+  const loadEvents = async (page = 1) => {
     try {
-      const data = await fetchEvents();
-      setEvents(data || []);
+      const data = await fetchEvents({ page, limit: pagination.limit });
+
+      setEvents(data.events || []);
+      setPagination(data.pagination || pagination);
     } catch (error) {
       setStatus({
         type: "error",
@@ -21,7 +31,7 @@ const AdminEventList = () => {
   };
 
   useEffect(() => {
-    loadEvents();
+    loadEvents(1);
   }, []);
 
   const handleDelete = async () => {
@@ -32,11 +42,11 @@ const AdminEventList = () => {
 
       setStatus({
         type: "success",
-        message: "Event deleted successfully.",
+        message: "Event and image deleted successfully.",
       });
 
       setSelectedEventId(null);
-      loadEvents();
+      loadEvents(pagination.page);
     } catch (error) {
       setStatus({
         type: "error",
@@ -72,10 +82,32 @@ const AdminEventList = () => {
         ))
       )}
 
+      {pagination.totalPages > 1 && (
+        <div className="options" style={{ marginTop: "20px" }}>
+          <button
+            disabled={!pagination.hasPrevPage}
+            onClick={() => loadEvents(pagination.page - 1)}
+          >
+            Previous
+          </button>
+
+          <button disabled>
+            Page {pagination.page} of {pagination.totalPages}
+          </button>
+
+          <button
+            disabled={!pagination.hasNextPage}
+            onClick={() => loadEvents(pagination.page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <ConfirmModal
         open={!!selectedEventId}
         title="Delete Event?"
-        message="This will permanently delete this event from the database."
+        message="This will delete the event from MongoDB and remove its image from Cloudinary."
         confirmText="Delete"
         danger
         onConfirm={handleDelete}

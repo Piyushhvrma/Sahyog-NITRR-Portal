@@ -1,7 +1,12 @@
 import { apiRequest } from "./client.js";
 
-export const fetchEvents = () => {
-  return apiRequest("/api/events");
+export const fetchEvents = ({ page = 1, limit = 6 } = {}) => {
+  const params = new URLSearchParams();
+
+  params.set("page", page);
+  params.set("limit", limit);
+
+  return apiRequest(`/api/events?${params.toString()}`);
 };
 
 export const uploadEvent = (formData) => {

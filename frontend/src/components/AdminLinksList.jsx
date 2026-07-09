@@ -5,13 +5,23 @@ import ConfirmModal from "./ui/ConfirmModal";
 
 const AdminLinksList = () => {
   const [links, setLinks] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
   const [status, setStatus] = useState({ type: null, message: "" });
   const [selectedLinkId, setSelectedLinkId] = useState(null);
 
-  const loadLinks = async () => {
+  const loadLinks = async (page = 1) => {
     try {
-      const data = await fetchLinks();
+      const data = await fetchLinks({ page, limit: pagination.limit });
+
       setLinks(data.links || []);
+      setPagination(data.pagination || pagination);
     } catch (error) {
       setStatus({
         type: "error",
@@ -21,7 +31,7 @@ const AdminLinksList = () => {
   };
 
   useEffect(() => {
-    loadLinks();
+    loadLinks(1);
   }, []);
 
   const handleDelete = async () => {
@@ -36,7 +46,7 @@ const AdminLinksList = () => {
       });
 
       setSelectedLinkId(null);
-      loadLinks();
+      loadLinks(pagination.page);
     } catch (error) {
       setStatus({
         type: "error",
@@ -76,6 +86,28 @@ const AdminLinksList = () => {
             </button>
           </div>
         ))
+      )}
+
+      {pagination.totalPages > 1 && (
+        <div className="options" style={{ marginTop: "20px" }}>
+          <button
+            disabled={!pagination.hasPrevPage}
+            onClick={() => loadLinks(pagination.page - 1)}
+          >
+            Previous
+          </button>
+
+          <button disabled>
+            Page {pagination.page} of {pagination.totalPages}
+          </button>
+
+          <button
+            disabled={!pagination.hasNextPage}
+            onClick={() => loadLinks(pagination.page + 1)}
+          >
+            Next
+          </button>
+        </div>
       )}
 
       <ConfirmModal

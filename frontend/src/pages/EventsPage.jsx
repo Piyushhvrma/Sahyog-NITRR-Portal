@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-// --- THIS IS THE FIX ---
-// 1. Import your custom 'useAuth' hook
-import { useAuth } from '../context/AuthContext.jsx'; 
-// 2. Import all the API functions you need
-import { fetchEvents, likeEvent, API_BASE_URL } from '../api.js'; 
-// --- END FIX ---
+import { useAuth } from "../context/AuthContext.jsx";
+import { fetchEvents, likeEvent } from "../api.js";
 
-// --- Heart SVG Icon Component ---
 const HeartIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -24,142 +19,187 @@ const HeartIcon = () => (
   </svg>
 );
 
-
-// --- Reusable EventCard Component ---
 const EventCard = ({ event, user, onLike }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Check if the current user has liked this event
   const currentUserId = user?.id || user?._id || null;
-  const isLikedByCurrentUser = !!currentUserId && event.likes.some(like => String(like) === String(currentUserId));
 
-  // The imageUrl from the database is now a full https:// link from Cloudinary
-  const fullImageUrl = event.imageUrl;
+  const isLikedByCurrentUser =
+    !!currentUserId &&
+    event.likes?.some((like) => String(like) === String(currentUserId));
 
-  const shortDescription = event.description.length > 100
-    ? event.description.substring(0, 100) + '...'
-    : event.description;
-
-  // Call the handleLike function that was passed down from the parent
-  const handleLikeClick = () => {
-    onLike(event._id);
-  };
+  const shortDescription =
+    event.description.length > 120
+      ? event.description.substring(0, 120) + "..."
+      : event.description;
 
   return (
     <div className="event-card-grid">
       <img
-        src={fullImageUrl}
+        src={event.imageUrl}
         alt={event.title}
         className="event-image-grid"
-        // Add a fallback image in case the URL is broken
-        onError={(e) => { e.target.src = 'https://placehold.co/600x400/2c3e50/f8f9fa?text=Image+Missing'; }}
+        onError={(e) => {
+          e.target.src =
+            "https://placehold.co/600x400/2c3e50/f8f9fa?text=Image+Missing";
+        }}
       />
+
       <div className="event-content-grid">
         <h2>{event.title}</h2>
-        <p>{isExpanded ? event.description : shortDescription}</p>
+
+        <p style={{ whiteSpace: "pre-line" }}>
+          {isExpanded ? event.description : shortDescription}
+        </p>
+
         <div className="event-footer">
-          <button onClick={() => setIsExpanded(!isExpanded)} className="read-more-btn">
-            {isExpanded ? 'Show Less' : 'Read More'}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="read-more-btn"
+          >
+            {isExpanded ? "Show Less" : "Read More"}
           </button>
-          <div className="like-section">
 
-  <button
-    onClick={handleLikeClick}
-    className={`event-like-btn ${
-      isLikedByCurrentUser
-        ? "liked"
-        : ""
-    }`}
-  >
-    ❤️ {event.likes.length} Likes
-  </button>
-
-</div>
+          <button
+            onClick={() => onLike(event._id)}
+            className={`event-like-btn ${isLikedByCurrentUser ? "liked" : ""}`}
+          >
+            ❤️ {event.likes?.length || 0} Likes
+          </button>
         </div>
-        <small>Posted on: {new Date(event.createdAt).toLocaleDateString()}</small>
+
+        <small>
+          Posted on:{" "}
+          {new Date(event.createdAt || event.updatedAt).toLocaleDateString()}
+        </small>
       </div>
     </div>
   );
 };
 
-
-// --- Main EventsPage Component ---
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 6,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // --- THIS IS THE FIX ---
-  // Get everything you need directly from your useAuth hook
+  const [error, setError] = useState("");
+
   const { user, isLoggedIn } = useAuth();
-  // --- END FIX ---
-  
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await fetchEvents(); // Use the function from api.js
-        setEvents(data);
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-        setError(error.message); 
-      }
+  const loadEvents = async (page = 1) => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const data = await fetchEvents({ page, limit: pagination.limit });
+
+      setEvents(data.events || []);
+      setPagination(data.pagination || pagination);
+    } catch (err) {
+      setError(err.message || "Failed to fetch events.");
+    } finally {
       setIsLoading(false);
-    };
-    load();
-  }, []); // Runs once on page load
+    }
+  };
+
+  useEffect(() => {
+    loadEvents(1);
+  }, []);
 
   const handleLike = async (eventId) => {
     if (!isLoggedIn) {
-      alert('You must be logged in to like a post.');
-      navigate('/login');
+      alert("You must be logged in to like a post.");
+      navigate("/login");
       return;
     }
-    
-    // The 'token' variable is now correctly provided by useAuth()
+
     try {
       const updatedLikesArray = await likeEvent(eventId);
-      
-      // Update the main events state
-      setEvents(currentEvents =>
-        currentEvents.map(event =>
+
+      setEvents((currentEvents) =>
+        currentEvents.map((event) =>
           event._id === eventId
-            ? { ...event, likes: updatedLikesArray } 
+            ? { ...event, likes: updatedLikesArray }
             : event
         )
       );
     } catch (err) {
-      console.error('Failed to like post:', err);
-      alert('Failed to like post. Please try again.');
+      alert(err.message || "Failed to like post.");
     }
   };
 
   if (isLoading) {
-    return <div className="container"><h2>Loading Events...</h2></div>;
+    return (
+      <div className="container">
+        <h2>Loading Events...</h2>
+      </div>
+    );
   }
-  
+
   if (error) {
-    return <div className="container"><h2>Error: {error}</h2></div>;
+    return (
+      <div className="container">
+        <h2>Error: {error}</h2>
+      </div>
+    );
   }
 
   return (
     <div className="container events-grid-container">
       <h1>SAHYOG - Club Events</h1>
+
       <div className="events-grid">
         {events.length === 0 ? (
           <p>No events posted yet. Check back soon!</p>
         ) : (
-          events.map(event => (
+          events.map((event) => (
             <EventCard
               key={event._id}
               event={event}
-              user={user} // Pass the user from useAuth
+              user={user}
               onLike={handleLike}
             />
           ))
         )}
       </div>
+
+      {pagination.totalPages > 1 && (
+        <div
+          style={{
+            marginTop: "30px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            disabled={!pagination.hasPrevPage}
+            onClick={() => loadEvents(pagination.page - 1)}
+          >
+            Previous
+          </button>
+
+          <span style={{ fontWeight: "700" }}>
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+
+          <button
+            disabled={!pagination.hasNextPage}
+            onClick={() => loadEvents(pagination.page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

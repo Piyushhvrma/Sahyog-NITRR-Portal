@@ -1,15 +1,22 @@
 import { apiRequest } from "./client.js";
 
-export const fetchLinks = ({ year, branch, semester } = {}) => {
+export const fetchLinks = ({
+  year,
+  branch,
+  semester,
+  page = 1,
+  limit = 10,
+} = {}) => {
   const params = new URLSearchParams();
 
   if (year) params.set("year", year);
   if (branch) params.set("branch", branch);
   if (semester) params.set("semester", semester);
 
-  const query = params.toString();
+  params.set("page", page);
+  params.set("limit", limit);
 
-  return apiRequest(`/api/links${query ? `?${query}` : ""}`);
+  return apiRequest(`/api/links?${params.toString()}`);
 };
 
 export const uploadLink = (payload) => {
