@@ -1,36 +1,19 @@
 const express = require("express");
-const multer = require("multer");
-
 const router = express.Router();
 
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { formLimiter } = require("../middleware/rateLimiters");
+const { uploadBloodDocument } = require("../middleware/upload");
 
 const {
   bloodRequestValidator,
 } = require("../validators/bloodValidators");
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 5 * 1024 * 1024,
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
-
-    if (!allowedTypes.includes(file.mimetype)) {
-      return cb(new Error("Only image or PDF documents are allowed."));
-    }
-
-    cb(null, true);
-  },
-});
-
 router.post(
   "/",
   formLimiter,
-  upload.single("document"),
+  uploadBloodDocument.single("document"),
   bloodRequestValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
