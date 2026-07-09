@@ -1,5 +1,6 @@
 // frontend/src/api.js
-// SAHYOG 2.0 compatibility file
+// SAHYOG 2.0 compatibility file.
+// Old imports like import { fetchEvents } from "../api" will still work.
 
 export { API_BASE_URL, apiRequest } from "./api/client.js";
 
@@ -12,3 +13,4 @@ export * from "./api/blood.api.js";
 export * from "./api/feedback.api.js";
 export * from "./api/ai.api.js";
 export * from "./api/users.api.js";
+export * from "./api/announcements.api.js";

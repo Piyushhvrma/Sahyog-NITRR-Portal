@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { submitSupportRequest } from "../api";
 
 const SahyogSupportPage = () => {
   const [formData, setFormData] = useState({
@@ -21,26 +21,22 @@ const SahyogSupportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setStatus({ type: null, text: "" });
 
     if (!formData.category || !formData.message) {
       setStatus({
         type: "error",
         text: "Please select a category and describe your concern.",
       });
-      setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await axios.post(
-        "https://sahyog-backend-topb.onrender.com/api/support",
-        formData,
-        { withCredentials: true }
-      );
+      setIsSubmitting(true);
+      setStatus({ type: null, text: "" });
 
-      if (response.data.success) {
+      const data = await submitSupportRequest(formData);
+
+      if (data.success) {
         setStatus({
           type: "success",
           text: "Your request has been sent privately to the SAHYOG team.",
@@ -56,9 +52,7 @@ const SahyogSupportPage = () => {
     } catch (error) {
       setStatus({
         type: "error",
-        text: `Submission failed: ${
-          error.response?.data?.message || "Please try again later."
-        }`,
+        text: `Submission failed: ${error.message || "Please try again later."}`,
       });
     } finally {
       setIsSubmitting(false);
@@ -78,11 +72,7 @@ const SahyogSupportPage = () => {
           </p>
         </div>
 
-        {status.text && (
-          <div className={`help-status ${status.type}`}>
-            {status.text}
-          </div>
-        )}
+        {status.text && <div className={`help-status ${status.type}`}>{status.text}</div>}
 
         <form className="help-clean-form" onSubmit={handleSubmit}>
           <div className="help-form-row">
@@ -139,11 +129,7 @@ const SahyogSupportPage = () => {
             />
           </div>
 
-          <button
-            type="submit"
-            className="help-submit-btn"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="help-submit-btn" disabled={isSubmitting}>
             {isSubmitting ? "Sending..." : "Submit Request"}
           </button>
         </form>

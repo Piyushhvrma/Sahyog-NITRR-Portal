@@ -1,52 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../api";
+import { fetchAnnouncements, deleteAnnouncement } from "../api";
 
 const AdminAnnouncementList = ({ adminPassword }) => {
   const [announcements, setAnnouncements] = useState([]);
+  const [error, setError] = useState("");
 
-  const fetchAnnouncements = async () => {
+  const loadAnnouncements = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/announcements`
-      );
-
-      const data = await res.json();
-
+      setError("");
+      const data = await fetchAnnouncements();
       setAnnouncements(data);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      setError(err.message || "Failed to load announcements.");
     }
   };
 
   useEffect(() => {
-    fetchAnnouncements();
+    loadAnnouncements();
   }, []);
 
-  const deleteAnnouncement = async (id) => {
+  const handleDeleteAnnouncement = async (id) => {
+    if (!window.confirm("Delete this announcement?")) return;
+
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/announcements/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "x-admin-password": adminPassword,
-          },
-        }
-      );
-
-      const data = await res.json();
-
-      alert(data.message);
-
-      fetchAnnouncements();
-    } catch (error) {
-      console.log(error);
+      const data = await deleteAnnouncement(id, adminPassword);
+      alert(data.message || "Announcement deleted.");
+      loadAnnouncements();
+    } catch (err) {
+      alert(err.message || "Failed to delete announcement.");
     }
   };
 
   return (
     <div style={{ marginTop: "30px" }}>
       <h2>📢 All Announcements</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {announcements.length === 0 ? (
         <p>No announcements found.</p>
@@ -62,19 +51,12 @@ const AdminAnnouncementList = ({ adminPassword }) => {
             }}
           >
             <h3>{item.title}</h3>
-
             <p>{item.description}</p>
-
             <p>
-              <strong>Category:</strong>{" "}
-              {item.category}
+              <strong>Category:</strong> {item.category}
             </p>
 
-            <button
-              onClick={() =>
-                deleteAnnouncement(item._id)
-              }
-            >
+            <button onClick={() => handleDeleteAnnouncement(item._id)}>
               Delete
             </button>
           </div>

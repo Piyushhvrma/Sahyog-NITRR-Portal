@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { submitBloodRequest } from "../api";
 
 const EmergencyBloodRequestPage = () => {
   const [formData, setFormData] = useState({
@@ -11,31 +12,24 @@ const EmergencyBloodRequestPage = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
-  const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const [status, setStatus] = useState({ type: null, text: "" });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (name === "document") {
-      setFormData({
-        ...formData,
-        document: files[0],
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
+    setFormData({
+      ...formData,
+      [name]: name === "document" ? files[0] : value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
+      setLoading(true);
+      setStatus({ type: null, text: "" });
+
       const data = new FormData();
 
       data.append("name", formData.name);
@@ -48,15 +42,13 @@ const EmergencyBloodRequestPage = () => {
         data.append("document", formData.document);
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/blood-request`, {
-        method: "POST",
-        body: data,
-      });
-
-      const result = await response.json();
+      const result = await submitBloodRequest(data);
 
       if (result.success) {
-        alert("Blood request submitted successfully!");
+        setStatus({
+          type: "success",
+          text: "Blood request submitted successfully!",
+        });
 
         setFormData({
           name: "",
@@ -67,13 +59,19 @@ const EmergencyBloodRequestPage = () => {
           document: null,
         });
 
-        document.getElementById("document").value = "";
+        const fileInput = document.getElementById("document");
+        if (fileInput) fileInput.value = "";
       } else {
-        alert(result.message || "Something went wrong");
+        setStatus({
+          type: "error",
+          text: result.message || "Something went wrong.",
+        });
       }
     } catch (error) {
-      console.error("Blood request submit error:", error);
-      alert("Failed to submit blood request");
+      setStatus({
+        type: "error",
+        text: error.message || "Failed to submit blood request.",
+      });
     } finally {
       setLoading(false);
     }
@@ -89,6 +87,18 @@ const EmergencyBloodRequestPage = () => {
             Fill the details carefully. Your request will be sent directly to the SAHYOG team.
           </p>
         </div>
+
+        {status.text && (
+          <p
+            style={{
+              color: status.type === "success" ? "#22c55e" : "#fecaca",
+              fontWeight: "700",
+              textAlign: "center",
+            }}
+          >
+            {status.text}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="blood-form">
           <input

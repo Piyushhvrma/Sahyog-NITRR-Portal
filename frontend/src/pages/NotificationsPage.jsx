@@ -1,42 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { API_BASE_URL } from "../api";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+} from "../api";
 import "../styles2/NotificationPage.css";
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
+  const [error, setError] = useState("");
   const token = localStorage.getItem("token");
 
-  const fetchNotifications = async () => {
+  const loadNotifications = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/notifications`, {
-        headers: {
-          "x-auth-token": token,
-        },
-      });
-
-      const data = await res.json();
+      setError("");
+      const data = await fetchNotifications(token);
       setNotifications(data);
     } catch (err) {
-      console.log(err);
+      setError(err.message || "Failed to load notifications.");
     }
   };
 
   useEffect(() => {
-    fetchNotifications();
+    loadNotifications();
   }, []);
 
   const markAsRead = async (id) => {
     try {
-      await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
-        method: "PUT",
-        headers: {
-          "x-auth-token": token,
-        },
-      });
-
-      fetchNotifications();
+      await markNotificationAsRead(id, token);
+      loadNotifications();
     } catch (err) {
-      console.log(err);
+      setError(err.message || "Failed to mark notification as read.");
     }
   };
 
@@ -63,6 +56,12 @@ const NotificationsPage = () => {
           </div>
         </div>
       </div>
+
+      {error && (
+        <p style={{ color: "#fecaca", fontWeight: "700", textAlign: "center" }}>
+          {error}
+        </p>
+      )}
 
       <div className="notify-list">
         {notifications.length === 0 ? (

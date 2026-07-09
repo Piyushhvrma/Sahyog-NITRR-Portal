@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { API_BASE_URL } from "../api";
+import { createAnnouncement } from "../api";
 
 const AdminAnnouncementUpload = ({ adminPassword }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
-
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -16,32 +15,12 @@ const AdminAnnouncementUpload = ({ adminPassword }) => {
       setLoading(true);
       setMessage("");
 
-      const res = await fetch(
-        `${API_BASE_URL}/api/announcements`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-admin-password": adminPassword,
-          },
-          body: JSON.stringify({
-            title,
-            description,
-            category,
-          }),
-        }
+      await createAnnouncement(
+        { title, description, category },
+        adminPassword
       );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(
-          data.message || "Failed to create announcement"
-        );
-      }
-
       setMessage("✅ Announcement Published Successfully");
-
       setTitle("");
       setDescription("");
       setCategory("General");
@@ -73,10 +52,7 @@ const AdminAnnouncementUpload = ({ adminPassword }) => {
           required
         />
 
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option>General</option>
           <option>Event</option>
           <option>Blood Donation</option>
@@ -84,23 +60,13 @@ const AdminAnnouncementUpload = ({ adminPassword }) => {
           <option>Academic</option>
         </select>
 
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading
-            ? "Publishing..."
-            : "Publish Announcement"}
+        <button type="submit" disabled={loading}>
+          {loading ? "Publishing..." : "Publish Announcement"}
         </button>
       </form>
 
       {message && (
-        <p
-          style={{
-            marginTop: "15px",
-            fontWeight: "600",
-          }}
-        >
+        <p style={{ marginTop: "15px", fontWeight: "600" }}>
           {message}
         </p>
       )}

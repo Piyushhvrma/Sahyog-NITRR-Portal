@@ -1,4 +1,7 @@
-import { apiRequest } from "./client";
+// frontend/src/api/support.api.js
+// Handles SAHYOG support request APIs.
+
+import { apiRequest, API_BASE_URL } from "./client.js";
 
 export const submitSupportRequest = (payload) => {
   return apiRequest("/api/support", {
@@ -8,5 +11,5 @@ export const submitSupportRequest = (payload) => {
 };
 
 export const downloadSupportCSVUrl = () => {
-  return "/api/support/download-sheet";
+  return `${API_BASE_URL}/api/support/download-sheet`;
 };

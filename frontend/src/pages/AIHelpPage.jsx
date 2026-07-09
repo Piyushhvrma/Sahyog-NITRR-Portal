@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { sendAIMessage } from "../api";
 
 const AIHelpPage = () => {
   const [chat, setChat] = useState(() => {
@@ -27,21 +27,20 @@ const AIHelpPage = () => {
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    const userMessage = message;
+    const userMessage = message.trim();
 
     setChat((prev) => [...prev, { sender: "user", text: userMessage }]);
     setMessage("");
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        "https://sahyog-backend-topb.onrender.com/api/ai/chat",
-        { message: userMessage },
-        { withCredentials: true }
-      );
+      const data = await sendAIMessage(userMessage);
 
-      setChat((prev) => [...prev, { sender: "ai", text: res.data.reply }]);
-    } catch (error) {
+      setChat((prev) => [
+        ...prev,
+        { sender: "ai", text: data.reply || "I could not generate a reply." },
+      ]);
+    } catch {
       setChat((prev) => [
         ...prev,
         {
@@ -126,7 +125,7 @@ const AIHelpPage = () => {
           rows="1"
         />
 
-        <button className="ai-send-btn" onClick={sendMessage}>
+        <button className="ai-send-btn" onClick={sendMessage} disabled={loading}>
           Send
         </button>
       </div>

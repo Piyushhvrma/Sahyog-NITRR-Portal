@@ -2,7 +2,10 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import sahyogLogo from "../assets/sahyog-logo.png";
-import { API_BASE_URL } from "../api";
+import {
+  fetchNotificationCount,
+  downloadSupportCSVUrl,
+} from "../api";
 
 const ADMIN_EMAIL = "sahyogbloodrequest@gmail.com";
 
@@ -13,21 +16,14 @@ const Navbar = () => {
 
   useEffect(() => {
     if (user) {
-      fetchUnreadCount();
+      loadUnreadCount();
     }
   }, [user]);
 
-  const fetchUnreadCount = async () => {
+  const loadUnreadCount = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const res = await fetch(`${API_BASE_URL}/api/notifications/count`, {
-        headers: {
-          "x-auth-token": token,
-        },
-      });
-
-      const data = await res.json();
+      const data = await fetchNotificationCount(token);
       setUnreadCount(data.count || 0);
     } catch (err) {
       console.log(err);
@@ -122,7 +118,7 @@ const Navbar = () => {
                       </Link>
 
                       <a
-                        href="https://sahyog-backend-topb.onrender.com/api/support/download-sheet"
+                        href={downloadSupportCSVUrl()}
                         download
                         onClick={() => setShowProfileMenu(false)}
                         style={{ color: "#6ee7ff" }}
