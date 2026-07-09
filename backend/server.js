@@ -8,6 +8,8 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const hpp = require("hpp");
+const compression = require("compression");
+const morgan = require("morgan");
 
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
@@ -44,16 +46,28 @@ app.use(
 const allowedOrigins = [
   "http://localhost:5173",
   "https://sahyog-nitrr-portal.vercel.app",
-];
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     optionsSuccessStatus: 200,
   })
 );
 
+if (process.env.NODE_ENV !== "test") {
+  app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+}
+
+app.use(compression());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
@@ -61,7 +75,10 @@ app.use(mongoSanitize());
 app.use(hpp());
 
 app.get("/", (req, res) => {
-  res.send("SAHYOG Backend is running");
+  res.status(200).json({
+    success: true,
+    message: "SAHYOG Backend is running",
+  });
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -78,6 +95,13 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.originalUrl}`,
+  });
+});
 
 app.use(errorHandler);
 

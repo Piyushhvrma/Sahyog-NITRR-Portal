@@ -8,6 +8,8 @@ const asyncHandler = require("../middleware/asyncHandler");
 const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
 const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
+const { sendSuccess } = require("../utils/response");
+const { sendSupportRequestEmail } = require("../services/mail.service");
 
 const {
   supportRequestValidator,
@@ -28,52 +30,27 @@ router.post(
       message,
     });
 
-    const emailPayload = {
-      sender: {
-        name: "SAHYOG Support",
-        email: process.env.EMAIL_FROM,
-      },
-      to: [{ email: process.env.SUPPORT_RECEIVER }],
-      subject: `❤️ New SAHYOG Help Request [${category}]`,
-      htmlContent: `
-        <div style="font-family: Arial, sans-serif;">
-          <h2>New Student Support Request</h2>
-          <p><b>Name:</b> ${name || "Anonymous Student"}</p>
-          <p><b>Contact:</b> ${contact || "Not Provided"}</p>
-          <p><b>Category:</b> ${category}</p>
-          <p><b>Message:</b></p>
-          <pre>${message}</pre>
-        </div>
-      `,
-    };
+    try {
+      await sendSupportRequestEmail({
+        name,
+        contact,
+        category,
+        message,
+      });
 
-    const emailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": process.env.BREVO_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(emailPayload),
-    });
+      supportRequest.emailStatus = "sent";
+      await supportRequest.save();
 
-    if (!emailRes.ok) {
+      return sendSuccess(res, 200, "Support request submitted successfully.");
+    } catch (error) {
       supportRequest.emailStatus = "failed";
       await supportRequest.save();
 
       return res.status(502).json({
         success: false,
-        message:
-          "Request saved, but email alert failed. Please contact admin.",
+        message: "Request saved, but email alert failed. Please contact admin.",
       });
     }
-
-    supportRequest.emailStatus = "sent";
-    await supportRequest.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Support request submitted successfully.",
-    });
   })
 );
 
@@ -110,7 +87,7 @@ router.get(
       "attachment; filename=Sahyog_Support_Submissions.csv"
     );
 
-    res.status(200).send(csvData);
+    return res.status(200).send(csvData);
   })
 );
 

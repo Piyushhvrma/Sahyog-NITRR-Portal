@@ -2,14 +2,18 @@ const express = require("express");
 const router = express.Router();
 
 const Announcement = require("../models/Announcement");
-const Notification = require("../models/Notification");
-const User = require("../models/User");
 
 const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
+const { sendSuccess } = require("../utils/response");
+
+const {
+  createAnnouncementNotifications,
+  deleteNotificationsByAnnouncement,
+} = require("../services/notification.service");
 
 const {
   createAnnouncementValidator,
@@ -32,23 +36,9 @@ router.post(
       category,
     });
 
-    const users = await User.find().select("_id");
+    await createAnnouncementNotifications(announcement);
 
-    const notifications = users.map((user) => ({
-      userId: user._id,
-      announcementId: announcement._id,
-      title,
-      message: description,
-      type: "ADMIN",
-    }));
-
-    if (notifications.length > 0) {
-      await Notification.insertMany(notifications);
-    }
-
-    res.status(201).json({
-      success: true,
-      message: "Announcement published successfully.",
+    return sendSuccess(res, 201, "Announcement published successfully.", {
       announcement,
     });
   })
@@ -58,7 +48,7 @@ router.get(
   "/",
   asyncHandler(async (req, res) => {
     const announcements = await Announcement.find().sort({ createdAt: -1 });
-    res.json(announcements);
+    return res.json(announcements);
   })
 );
 
@@ -66,7 +56,7 @@ router.get(
   "/latest",
   asyncHandler(async (req, res) => {
     const latest = await Announcement.find().sort({ createdAt: -1 }).limit(3);
-    res.json(latest);
+    return res.json(latest);
   })
 );
 
@@ -85,15 +75,9 @@ router.delete(
     }
 
     await Announcement.findByIdAndDelete(req.params.id);
+    await deleteNotificationsByAnnouncement(announcement._id);
 
-    await Notification.deleteMany({
-      announcementId: announcement._id,
-    });
-
-    res.json({
-      success: true,
-      message: "Announcement deleted successfully.",
-    });
+    return sendSuccess(res, 200, "Announcement deleted successfully.");
   })
 );
 
