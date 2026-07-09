@@ -3,7 +3,7 @@ import { fetchEvents, deleteEvent } from "../api";
 import StatusMessage from "./ui/StatusMessage";
 import ConfirmModal from "./ui/ConfirmModal";
 
-const AdminEventList = ({ adminPassword }) => {
+const AdminEventList = () => {
   const [events, setEvents] = useState([]);
   const [status, setStatus] = useState({ type: null, message: "" });
   const [selectedEventId, setSelectedEventId] = useState(null);
@@ -28,7 +28,7 @@ const AdminEventList = ({ adminPassword }) => {
     if (!selectedEventId) return;
 
     try {
-      await deleteEvent(selectedEventId, adminPassword);
+      await deleteEvent(selectedEventId);
 
       setStatus({
         type: "success",
@@ -75,7 +75,7 @@ const AdminEventList = ({ adminPassword }) => {
       <ConfirmModal
         open={!!selectedEventId}
         title="Delete Event?"
-        message="This will delete the event from MongoDB. In the backend upgrade, we will also delete its Cloudinary image."
+        message="This will permanently delete this event from the database."
         confirmText="Delete"
         danger
         onConfirm={handleDelete}

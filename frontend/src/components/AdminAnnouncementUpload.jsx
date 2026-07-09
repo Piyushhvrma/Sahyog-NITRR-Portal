@@ -1,56 +1,48 @@
 import React, { useState } from "react";
-import { BRANCHES, YEARS, SEMESTERS } from "../constant";
-import { uploadLink } from "../api";
+import { createAnnouncement } from "../api";
 import StatusMessage from "./ui/StatusMessage";
 
-export default function AdminUpload({ adminPassword }) {
-  const [branch, setBranch] = useState("");
-  const [year, setYear] = useState("");
-  const [semester, setSemester] = useState("");
+const AdminAnnouncementUpload = () => {
   const [title, setTitle] = useState("");
-  const [link, setLink] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("General");
+
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: null, message: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!branch || !year || !semester || !title || !link) {
+    if (!title || !description) {
       setStatus({
         type: "error",
-        message: "Please fill all fields.",
+        message: "Title and description are required.",
       });
       return;
     }
-
-    const payload = {
-      branch,
-      year,
-      semester,
-      title,
-      url: link,
-    };
 
     try {
       setLoading(true);
       setStatus({ type: null, message: "" });
 
-      await uploadLink(payload, adminPassword);
+      await createAnnouncement({
+        title,
+        description,
+        category,
+      });
 
       setStatus({
         type: "success",
-        message: "PYQ/Note link uploaded successfully.",
+        message: "Announcement published successfully.",
       });
 
-      setBranch("");
-      setYear("");
-      setSemester("");
       setTitle("");
-      setLink("");
+      setDescription("");
+      setCategory("General");
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Upload failed.",
+        message: error.message || "Failed to publish announcement.",
       });
     } finally {
       setLoading(false);
@@ -58,60 +50,42 @@ export default function AdminUpload({ adminPassword }) {
   };
 
   return (
-    <div className="container">
-      <h2>Admin Upload Panel</h2>
+    <div className="announcement-admin-card">
+      <h2>📢 Publish Announcement</h2>
 
       <StatusMessage type={status.type} message={status.message} />
 
       <form onSubmit={handleSubmit}>
-        <label>Branch:</label>
-        <select value={branch} onChange={(e) => setBranch(e.target.value)}>
-          <option value="">-- Select Branch --</option>
-          {BRANCHES.map((b, i) => (
-            <option key={i} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
-
-        <label>Year:</label>
-        <select value={year} onChange={(e) => setYear(e.target.value)}>
-          <option value="">-- Select Year --</option>
-          {YEARS.map((y, i) => (
-            <option key={i} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-
-        <label>Semester:</label>
-        <select value={semester} onChange={(e) => setSemester(e.target.value)}>
-          <option value="">-- Select Semester --</option>
-          {SEMESTERS.map((s, i) => (
-            <option key={i} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-
-        <label>Title:</label>
         <input
+          type="text"
+          placeholder="Announcement Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder='Example: "End Sem 2024"'
+          required
         />
 
-        <label>Google Drive / Resource Link:</label>
-        <input
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="Paste resource link here"
+        <textarea
+          placeholder="Announcement Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows="5"
+          required
         />
+
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option>General</option>
+          <option>Event</option>
+          <option>Blood Donation</option>
+          <option>Emergency</option>
+          <option>Academic</option>
+        </select>
 
         <button type="submit" disabled={loading}>
-          {loading ? "Uploading..." : "Upload PYQ"}
+          {loading ? "Publishing..." : "Publish Announcement"}
         </button>
       </form>
     </div>
   );
-}
+};
+
+export default AdminAnnouncementUpload;

@@ -7,6 +7,12 @@ const NotificationSchema = new mongoose.Schema({
     required: true,
   },
 
+  announcementId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Announcement",
+    default: null,
+  },
+
   title: {
     type: String,
     required: true,
@@ -34,4 +40,6 @@ const NotificationSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Notification", NotificationSchema);
+module.exports =
+  mongoose.models.Notification ||
+  mongoose.model("Notification", NotificationSchema);

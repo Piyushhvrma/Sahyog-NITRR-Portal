@@ -1,109 +1,138 @@
-const router = require('express').Router();
-const multer = require('multer');
-const path = require('path');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const router = require("express").Router();
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-// Import Event model (matches 'Event.js' file name)
-const Event = require('../models/Event');
+const Event = require("../models/Event");
+const jwtAuth = require("../middleware/jwtAuth");
+const requireRole = require("../middleware/roleAuth");
 
-// --- THIS IS THE FIX ---
-// Import BOTH functions from your single middleware file using destructuring
-const { adminAuth, jwtAuth } = require('../middleware/auth');
-// --- END FIX ---
-
-// --- 1. CONFIGURE CLOUDINARY ---
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// --- 2. CONFIGURE MULTER STORAGE TO USE CLOUDINARY ---
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary,
   params: {
-    folder: 'sahyog-events', // A folder name in your Cloudinary account
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    folder: "sahyog-events",
+    allowed_formats: ["jpg", "png", "jpeg", "webp"],
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// --- ROUTES ---
-
-// GET /api/events - Fetch all events
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const events = await Event.find().sort({ createdAt: -1 });
     res.json(events);
   } catch (error) {
-    console.error('Error fetching events:', error.message);
-    res.status(500).send('Server Error');
+    console.error("Fetch events error:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
-// POST /api/events/upload - Admin uploads a new event
-// This route now correctly uses the imported 'adminAuth'
-router.post('/upload', adminAuth, upload.single('eventImage'), async (req, res) => {
-  try {
-    const { title, description } = req.body;
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image file is required.' });
+router.post(
+  "/upload",
+  jwtAuth,
+  requireRole("admin", "superadmin"),
+  upload.single("eventImage"),
+  async (req, res) => {
+    try {
+      const { title, description } = req.body;
+
+      if (!title || !description) {
+        return res.status(400).json({
+          message: "Title and description are required.",
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          message: "Image file is required.",
+        });
+      }
+
+      const newEvent = new Event({
+        title,
+        description,
+        imageUrl: req.file.path,
+        cloudinaryPublicId: req.file.filename || "",
+      });
+
+      await newEvent.save();
+
+      res.status(201).json({
+        message: "Event uploaded successfully!",
+        event: newEvent,
+      });
+    } catch (error) {
+      console.error("Event upload error:", error);
+      res.status(500).json({ message: "Server Error during upload" });
     }
-    const imageUrl = req.file.path; // This is the Cloudinary URL
-    const newEvent = new Event({ title, description, imageUrl });
-    await newEvent.save();
-    res.status(201).json({ message: 'Event uploaded successfully!' });
-  } catch (error) {
-    console.error('Event Upload Error:', error);
-    res.status(500).send('Server Error during upload');
   }
-});
+);
 
-// PUT /api/events/like/:id - Like or unlike an event
-// This route now correctly uses the imported 'jwtAuth'
-router.put('/like/:id', jwtAuth, async (req, res) => {
-  try {
-    console.log('User ID from token:', req.user.id);
-    const event = await Event.findById(req.params.id);
-
-    if (event.likes.some(like => like.toString() === req.user.id)) {
-      event.likes = event.likes.filter(
-        like => like.toString() !== req.user.id
-      );
-    } else {
-      console.log("liked")
-      event.likes.push(req.user.id);
-    }
-
-    await event.save();
-    res.json(event.likes); // Return the updated likes array
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-// DELETE /api/events/:id - Admin deletes an event
-router.delete("/:id", adminAuth, async (req, res) => {
+router.put("/like/:id", jwtAuth, async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
 
     if (!event) {
-      return res.status(404).json({ message: "Event not found" });
+      return res.status(404).json({
+        message: "Event not found.",
+      });
     }
 
-    await Event.findByIdAndDelete(req.params.id);
+    const userId = req.user.id;
 
-    res.json({
-      success: true,
-      message: "Event deleted successfully",
-    });
+    const alreadyLiked = event.likes.some(
+      (like) => like.toString() === userId
+    );
+
+    if (alreadyLiked) {
+      event.likes = event.likes.filter(
+        (like) => like.toString() !== userId
+      );
+    } else {
+      event.likes.push(userId);
+    }
+
+    await event.save();
+
+    res.json(event.likes);
   } catch (error) {
-    console.error("Event Delete Error:", error);
-    res.status(500).json({ message: "Server Error while deleting event" });
+    console.error("Like event error:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 });
+
+router.delete(
+  "/:id",
+  jwtAuth,
+  requireRole("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const event = await Event.findById(req.params.id);
+
+      if (!event) {
+        return res.status(404).json({
+          message: "Event not found",
+        });
+      }
+
+      // actual Cloudinary cleanup will be completed in Cloudinary cleanup module
+      await Event.findByIdAndDelete(req.params.id);
+
+      res.json({
+        success: true,
+        message: "Event deleted successfully",
+      });
+    } catch (error) {
+      console.error("Delete event error:", error);
+      res.status(500).json({ message: "Server Error" });
+    }
+  }
+);
 
 module.exports = router;

@@ -252,7 +252,6 @@ router.post("/forgot-password", async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
@@ -263,7 +262,9 @@ router.post("/forgot-password", async (req, res) => {
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-    user.resetOtp = otp;
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    user.resetOtpHash = otpHash;
     user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
 
     await user.save();
@@ -292,23 +293,34 @@ router.post("/reset-password", async (req, res) => {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-
     const user = await User.findOne({ email: normalizedEmail });
 
-    if (!user || user.resetOtp !== otp) {
+    if (!user || !user.resetOtpHash) {
       return res.status(400).json({
         message: "Invalid OTP.",
       });
     }
 
     if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
+      user.resetOtpHash = "";
+      user.resetOtpExpiry = null;
+      await user.save();
+
       return res.status(400).json({
         message: "OTP expired.",
       });
     }
 
+    const isOtpValid = await bcrypt.compare(otp, user.resetOtpHash);
+
+    if (!isOtpValid) {
+      return res.status(400).json({
+        message: "Invalid OTP.",
+      });
+    }
+
     user.password = await bcrypt.hash(newPassword, 10);
-    user.resetOtp = "";
+    user.resetOtpHash = "";
     user.resetOtpExpiry = null;
     user.authProvider = user.authProvider || "local";
 
@@ -327,7 +339,7 @@ router.post("/reset-password", async (req, res) => {
 
 router.get("/me", jwtAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password -resetOtp");
+    const user = await User.findById(req.user.id).select("-password -resetOtpHash");
 
     if (!user) {
       return res.status(404).json({

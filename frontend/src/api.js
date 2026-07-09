@@ -59,3 +59,9 @@ export {
   createAnnouncement,
   deleteAnnouncement,
 } from "./api/announcements.api.js";
+
+export {
+  fetchAdminStats,
+  fetchAdminUsers,
+  updateUserRole,
+} from "./api/admin.api.js";

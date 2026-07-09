@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { fetchAnnouncements, deleteAnnouncement } from "../api";
+import StatusMessage from "./ui/StatusMessage";
+import ConfirmModal from "./ui/ConfirmModal";
 
-const AdminAnnouncementList = ({ adminPassword }) => {
+const AdminAnnouncementList = () => {
   const [announcements, setAnnouncements] = useState([]);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState({ type: null, message: "" });
+  const [selectedAnnouncementId, setSelectedAnnouncementId] = useState(null);
 
   const loadAnnouncements = async () => {
     try {
-      setError("");
       const data = await fetchAnnouncements();
-      setAnnouncements(data);
-    } catch (err) {
-      setError(err.message || "Failed to load announcements.");
+      setAnnouncements(data || []);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to load announcements.",
+      });
     }
   };
 
@@ -19,49 +24,66 @@ const AdminAnnouncementList = ({ adminPassword }) => {
     loadAnnouncements();
   }, []);
 
-  const handleDeleteAnnouncement = async (id) => {
-    if (!window.confirm("Delete this announcement?")) return;
+  const handleDelete = async () => {
+    if (!selectedAnnouncementId) return;
 
     try {
-      const data = await deleteAnnouncement(id, adminPassword);
-      alert(data.message || "Announcement deleted.");
+      await deleteAnnouncement(selectedAnnouncementId);
+
+      setStatus({
+        type: "success",
+        message: "Announcement deleted successfully.",
+      });
+
+      setSelectedAnnouncementId(null);
       loadAnnouncements();
-    } catch (err) {
-      alert(err.message || "Failed to delete announcement.");
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to delete announcement.",
+      });
+      setSelectedAnnouncementId(null);
     }
   };
 
   return (
-    <div style={{ marginTop: "30px" }}>
+    <div className="admin-manage-card" style={{ marginTop: "30px" }}>
       <h2>📢 All Announcements</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      <StatusMessage type={status.type} message={status.message} />
 
       {announcements.length === 0 ? (
         <p>No announcements found.</p>
       ) : (
         announcements.map((item) => (
-          <div
-            key={item._id}
-            style={{
-              border: "1px solid #333",
-              padding: "15px",
-              marginBottom: "15px",
-              borderRadius: "10px",
-            }}
-          >
-            <h3>{item.title}</h3>
-            <p>{item.description}</p>
-            <p>
-              <strong>Category:</strong> {item.category}
-            </p>
+          <div className="admin-list-item" key={item._id}>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+              <p>
+                <strong>Category:</strong> {item.category}
+              </p>
+            </div>
 
-            <button onClick={() => handleDeleteAnnouncement(item._id)}>
+            <button
+              className="admin-delete-btn"
+              onClick={() => setSelectedAnnouncementId(item._id)}
+            >
               Delete
             </button>
           </div>
         ))
       )}
+
+      <ConfirmModal
+        open={!!selectedAnnouncementId}
+        title="Delete Announcement?"
+        message="This will delete the announcement and its connected notifications."
+        confirmText="Delete"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setSelectedAnnouncementId(null)}
+      />
     </div>
   );
 };

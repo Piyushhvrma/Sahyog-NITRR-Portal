@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
 
 import AdminUpload from "../components/AdminUpload.jsx";
@@ -8,144 +8,178 @@ import AdminAnnouncementList from "../components/AdminAnnouncementList.jsx";
 import AdminEventList from "../components/AdminEventList.jsx";
 import AdminLinksList from "../components/AdminLinksList.jsx";
 
-const ADMIN_PASSWORD = "piyushss";
-const ADMIN_EMAIL = "sahyogbloodrequest@gmail.com";
+import StatusMessage from "../components/ui/StatusMessage.jsx";
+
+import {
+  fetchAdminStats,
+  fetchAdminUsers,
+  updateUserRole,
+} from "../api";
 
 const AdminPage = () => {
   const { user } = useContext(AuthContext);
 
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState("");
+  const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [status, setStatus] = useState({ type: null, message: "" });
 
-  // ===========================
-  // EMAIL RESTRICTION
-  // ===========================
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isSuperAdmin = user?.role === "superadmin";
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return (
-      <div
-        className="container"
-        style={{
-          textAlign: "center",
-          paddingTop: "80px",
-        }}
-      >
-        <h2>🚫 Access Denied</h2>
-
-        <p>
-          You are not authorized to access the
-          admin panel.
-        </p>
-      </div>
-    );
-  }
-
-  // ===========================
-  // PASSWORD LOGIN
-  // ===========================
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    setError("");
-
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-    } else {
-      setError(
-        "Incorrect admin password. Please try again."
-      );
+  const loadStats = async () => {
+    try {
+      const data = await fetchAdminStats();
+      setStats(data);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to load admin stats.",
+      });
     }
   };
 
-  // ===========================
-  // ADMIN LOGIN SCREEN
-  // ===========================
+  const loadUsers = async () => {
+    if (!isSuperAdmin) return;
 
-  if (!isAuthenticated) {
+    try {
+      const data = await fetchAdminUsers();
+      setUsers(data.users || []);
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to load users.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadStats();
+    }
+
+    if (isSuperAdmin) {
+      loadUsers();
+    }
+  }, [isAdmin, isSuperAdmin]);
+
+  const handleRoleChange = async (userId, role) => {
+    try {
+      await updateUserRole(userId, role);
+
+      setStatus({
+        type: "success",
+        message: "User role updated successfully.",
+      });
+
+      loadUsers();
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error.message || "Failed to update user role.",
+      });
+    }
+  };
+
+  if (!user) {
     return (
       <div className="container">
-        <h2>Admin Login</h2>
-
-        <form onSubmit={handleLogin}>
-          <label>Admin Password:</label>
-
-          <input
-            type="password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            placeholder="Enter admin password"
-            style={{
-              marginBottom: "1rem",
-            }}
-          />
-
-          {error && (
-            <p
-              style={{
-                color: "red",
-                marginTop: "10px",
-              }}
-            >
-              {error}
-            </p>
-          )}
-
-          <button type="submit">
-            Login
-          </button>
-        </form>
+        <h2>🚫 Access Denied</h2>
+        <p>Please login to access the admin panel.</p>
       </div>
     );
   }
 
-  // ===========================
-  // ADMIN DASHBOARD
-  // ===========================
+  if (!isAdmin) {
+    return (
+      <div className="container">
+        <h2>🚫 Access Denied</h2>
+        <p>You are not authorized to access the admin panel.</p>
+      </div>
+    );
+  }
 
   return (
     <div
       className="admin-container"
       style={{
-        maxWidth: "900px",
+        maxWidth: "1000px",
         margin: "2rem auto",
       }}
     >
-      <h1
-        style={{
-          textAlign: "center",
-          marginBottom: "30px",
-        }}
-      >
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
         SAHYOG Admin Dashboard
       </h1>
 
-      <AdminUpload adminPassword={password} />
+      <StatusMessage type={status.type} message={status.message} />
 
-<hr style={{ margin: "2rem 0" }} />
+      {stats && (
+        <div className="admin-manage-card" style={{ marginBottom: "2rem" }}>
+          <h2>📊 Platform Stats</h2>
 
-<AdminLinksList adminPassword={password} />
+          <div className="options">
+            <button>Total Users: {stats.userCount}</button>
+            <button>Resources: {stats.linkCount}</button>
+            <button>Events: {stats.eventCount}</button>
+            <button>Feedbacks: {stats.feedbackCount}</button>
+            <button>Support Requests: {stats.supportCount}</button>
+            <button>Announcements: {stats.announcementCount}</button>
+          </div>
+        </div>
+      )}
 
-<hr style={{ margin: "2rem 0" }} />
+      {isSuperAdmin && (
+        <div className="admin-manage-card" style={{ marginBottom: "2rem" }}>
+          <h2>👑 Manage Admin Roles</h2>
 
-<AdminEventUpload adminPassword={password} />
+          {users.length === 0 ? (
+            <p>No users found.</p>
+          ) : (
+            users.map((item) => (
+              <div className="admin-list-item" key={item._id}>
+                <div>
+                  <h3>{item.name}</h3>
+                  <p>{item.email}</p>
+                  <p>Current Role: {item.role}</p>
+                </div>
 
-<hr style={{ margin: "2rem 0" }} />
+                <select
+                  value={item.role}
+                  onChange={(e) =>
+                    handleRoleChange(item._id, e.target.value)
+                  }
+                >
+                  <option value="student">student</option>
+                  <option value="admin">admin</option>
+                  <option value="superadmin">superadmin</option>
+                </select>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
-<AdminEventList adminPassword={password} />
+      <AdminUpload />
 
-<hr style={{ margin: "2rem 0" }} />
+      <hr style={{ margin: "2rem 0" }} />
 
-<AdminAnnouncementUpload adminPassword={password} />
+      <AdminLinksList />
 
-<hr style={{ margin: "2rem 0" }} />
+      <hr style={{ margin: "2rem 0" }} />
 
-<AdminAnnouncementList adminPassword={password} />
+      <AdminEventUpload />
+
+      <hr style={{ margin: "2rem 0" }} />
+
+      <AdminEventList />
+
+      <hr style={{ margin: "2rem 0" }} />
+
+      <AdminAnnouncementUpload />
+
+      <hr style={{ margin: "2rem 0" }} />
+
+      <AdminAnnouncementList />
     </div>
-    
   );
 };
 

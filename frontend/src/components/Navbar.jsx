@@ -2,21 +2,24 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import sahyogLogo from "../assets/sahyog-logo.png";
+
 import {
   fetchNotificationCount,
   downloadSupportCSVUrl,
 } from "../api";
-
-const ADMIN_EMAIL = "sahyogbloodrequest@gmail.com";
 
 const Navbar = () => {
   const { user } = useContext(AuthContext);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+
   useEffect(() => {
     if (user) {
       loadUnreadCount();
+    } else {
+      setUnreadCount(0);
     }
   }, [user]);
 
@@ -34,22 +37,38 @@ const Navbar = () => {
       <div className="navbar-left">
         <Link to="/" className="navbar-brand">
           <img src={sahyogLogo} alt="Sahyog Logo" className="navbar-logo" />
+
           <div className="brand-title-box">
-            <span className="brand-text">SAHYOG - The Student Wellbeing Club</span>
+            <span className="brand-text">
+              SAHYOG - The Student Wellbeing Club
+            </span>
             <span className="brand-subtitle">NIT Raipur</span>
           </div>
         </Link>
       </div>
 
       <div className="navbar-center">
-        <Link to="/" className="navbar-link">Home</Link>
-        <Link to="/blood-request" className="navbar-link blood-link">Blood Request</Link>
+        <Link to="/" className="navbar-link">
+          Home
+        </Link>
+
+        <Link to="/blood-request" className="navbar-link blood-link">
+          Blood Request
+        </Link>
 
         {user && (
           <>
-            <Link to="/help" className="navbar-link help-link">Sahyog Help</Link>
-            <Link to="/events" className="navbar-link">Events</Link>
-            <Link to="/about" className="navbar-link">About Us</Link>
+            <Link to="/help" className="navbar-link help-link">
+              Sahyog Help
+            </Link>
+
+            <Link to="/events" className="navbar-link">
+              Events
+            </Link>
+
+            <Link to="/about" className="navbar-link">
+              About Us
+            </Link>
           </>
         )}
       </div>
@@ -57,8 +76,13 @@ const Navbar = () => {
       <div className="navbar-right">
         {!user && (
           <div className="auth-links">
-            <Link to="/login" className="navbar-link">Login</Link>
-            <Link to="/signup" className="navbar-link">Register</Link>
+            <Link to="/login" className="navbar-link">
+              Login
+            </Link>
+
+            <Link to="/signup" className="navbar-link">
+              Register
+            </Link>
           </div>
         )}
 
@@ -77,36 +101,56 @@ const Navbar = () => {
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
                 <button className="profile-circle">👤</button>
-                <span className="navbar-user">{user?.name?.split(" ")[0]}</span>
+                <span className="navbar-user">
+                  {user?.name?.split(" ")[0]}
+                </span>
               </div>
 
               {showProfileMenu && (
                 <div className="profile-dropdown">
-                  <Link to="/profile" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     My Profile
                   </Link>
 
-                  <Link to="/coming-soon/my-downloads" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/my-downloads"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     My Downloads
                   </Link>
 
-                  <Link to="/coming-soon/cr-contact" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/cr-contact"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Connect With CR
                   </Link>
 
-                  <Link to="/coming-soon/team-sahyog" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/team-sahyog"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Team Sahyog
                   </Link>
 
-                  <Link to="/coming-soon/campus-view" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/campus-view"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Campus View
                   </Link>
 
-                  <Link to="/coming-soon/emergency-contacts" onClick={() => setShowProfileMenu(false)}>
+                  <Link
+                    to="/coming-soon/emergency-contacts"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
                     Emergency Contacts
                   </Link>
 
-                  {user.email === ADMIN_EMAIL && (
+                  {isAdmin && (
                     <>
                       <Link
                         to="/admin"

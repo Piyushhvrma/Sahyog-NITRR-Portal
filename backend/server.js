@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const adminRoutes = require("./routes/adminRoutes");
 
 const linksRoute = require("./routes/links");
 const feedbackRoute = require("./routes/feedback");
@@ -17,6 +18,7 @@ const supportRoutes = require("./routes/supportRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+
 
 const app = express();
 
@@ -59,6 +61,7 @@ app.use("/api/support", supportRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 const start = async () => {
   try {

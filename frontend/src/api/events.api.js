@@ -1,28 +1,25 @@
-import { apiRequest } from "./client";
+import { apiRequest } from "./client.js";
 
 export const fetchEvents = () => {
   return apiRequest("/api/events");
 };
 
-export const uploadEvent = (formData, adminPassword) => {
+export const uploadEvent = (formData) => {
   return apiRequest("/api/events/upload", {
     method: "POST",
     body: formData,
     isFormData: true,
-    adminPassword,
   });
 };
 
-export const deleteEvent = (id, adminPassword) => {
+export const deleteEvent = (id) => {
   return apiRequest(`/api/events/${id}`, {
     method: "DELETE",
-    adminPassword,
   });
 };
 
-export const likeEvent = (eventId, token) => {
+export const likeEvent = (eventId) => {
   return apiRequest(`/api/events/like/${eventId}`, {
     method: "PUT",
-    token,
   });
 };

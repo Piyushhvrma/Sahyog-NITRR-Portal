@@ -3,7 +3,7 @@ import { fetchLinks, deleteLink } from "../api";
 import StatusMessage from "./ui/StatusMessage";
 import ConfirmModal from "./ui/ConfirmModal";
 
-const AdminLinksList = ({ adminPassword }) => {
+const AdminLinksList = () => {
   const [links, setLinks] = useState([]);
   const [status, setStatus] = useState({ type: null, message: "" });
   const [selectedLinkId, setSelectedLinkId] = useState(null);
@@ -28,7 +28,7 @@ const AdminLinksList = ({ adminPassword }) => {
     if (!selectedLinkId) return;
 
     try {
-      await deleteLink(selectedLinkId, adminPassword);
+      await deleteLink(selectedLinkId);
 
       setStatus({
         type: "success",

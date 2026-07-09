@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
 
     email: {
       type: String,
@@ -16,10 +12,7 @@ const UserSchema = new mongoose.Schema(
       trim: true,
     },
 
-    password: {
-      type: String,
-      default: "",
-    },
+    password: { type: String, default: "" },
 
     role: {
       type: String,
@@ -33,29 +26,15 @@ const UserSchema = new mongoose.Schema(
       default: "local",
     },
 
-    googleId: {
-      type: String,
-      default: "",
-    },
+    googleId: { type: String, default: "" },
 
-    profilePictureUrl: {
-      type: String,
-      default: "",
-    },
+    profilePictureUrl: { type: String, default: "" },
 
-    resetOtp: {
-      type: String,
-      default: "",
-    },
+    resetOtpHash: { type: String, default: "" },
 
-    resetOtpExpiry: {
-      type: Date,
-      default: null,
-    },
+    resetOtpExpiry: { type: Date, default: null },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", UserSchema);
