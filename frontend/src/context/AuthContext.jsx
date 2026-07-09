@@ -35,11 +35,15 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const updateUser = (updatedUserData) => {
+    setUser(updatedUserData);
+  };
+
   const logout = async () => {
     try {
       await logoutUser();
     } catch {
-      // even if backend logout fails, clear frontend state
+      // Ignore backend logout failure and clear frontend state anyway
     } finally {
       setUser(null);
     }
@@ -69,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         logout,
+        updateUser,
         isLoggedIn,
         isLoading,
       }}

@@ -65,3 +65,7 @@ export {
   fetchAdminUsers,
   updateUserRole,
 } from "./api/admin.api.js";
+
+export {
+  uploadProfilePicture,
+} from "./api/profile.api.js";

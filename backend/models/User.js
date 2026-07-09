@@ -30,6 +30,8 @@ const UserSchema = new mongoose.Schema(
 
     profilePictureUrl: { type: String, default: "" },
 
+    profilePicturePublicId: { type: String, default: "" },
+
     resetOtpHash: { type: String, default: "" },
 
     resetOtpExpiry: { type: Date, default: null },
@@ -37,4 +39,5 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports =
+  mongoose.models.User || mongoose.model("User", UserSchema);

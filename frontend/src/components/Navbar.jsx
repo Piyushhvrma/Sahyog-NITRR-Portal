@@ -32,6 +32,8 @@ const Navbar = () => {
     }
   };
 
+  const profileInitial = user?.name?.charAt(0)?.toUpperCase() || "👤";
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -100,7 +102,23 @@ const Navbar = () => {
                 className="profile-trigger-zone"
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
-                <button className="profile-circle">👤</button>
+                <button className="profile-circle">
+                  {user?.profilePictureUrl ? (
+                    <img
+                      src={user.profilePictureUrl}
+                      alt="Profile"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    profileInitial
+                  )}
+                </button>
+
                 <span className="navbar-user">
                   {user?.name?.split(" ")[0]}
                 </span>
