@@ -1,5 +1,3 @@
-/* Blood Request Landing + Emergency Form - White Premium UI */
-
 .blood-page,
 .emergency-blood-page {
   min-height: calc(100vh - 120px);
@@ -9,26 +7,26 @@
   align-items: flex-start;
 }
 
-/* landing page */
-
 .blood-hero-card {
   width: min(1100px, 100%);
+}
+
+.blood-content-card,
+.emergency-blood-card {
+  background: #1b2a3d;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.36);
+  color: #f8fafc;
 }
 
 .blood-content-card {
   width: 100%;
   padding: 46px;
   border-radius: 36px;
-  background:
-    radial-gradient(circle at top right, rgba(239, 68, 68, 0.08), transparent 35%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.985), rgba(248, 250, 252, 0.985));
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 30px 75px rgba(15, 23, 42, 0.26);
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 34px;
   align-items: center;
-  color: #0f172a;
 }
 
 .blood-text-block {
@@ -40,9 +38,9 @@
   display: inline-flex;
   padding: 8px 16px;
   border-radius: 999px;
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
-  color: #be123c;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  color: #fecaca;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.5px;
@@ -51,7 +49,7 @@
 
 .blood-text-block h1 {
   margin: 22px 0 12px;
-  color: #0f172a;
+  color: #ffffff;
   font-size: clamp(2.4rem, 4vw, 4rem);
   font-weight: 950;
   line-height: 1.05;
@@ -61,7 +59,7 @@
 
 .blood-quote {
   margin: 0 0 16px;
-  color: #be123c;
+  color: #fca5a5;
   font-size: 1.12rem;
   font-weight: 900;
   line-height: 1.65;
@@ -70,7 +68,7 @@
 .blood-subtitle {
   max-width: 620px;
   margin: 0;
-  color: #475569;
+  color: rgba(226, 232, 240, 0.84);
   font-size: 1.05rem;
   line-height: 1.75;
   font-weight: 500;
@@ -85,12 +83,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 24px;
-  background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
+  background: linear-gradient(135deg, #fb7185, #ef4444, #be123c);
   color: #ffffff !important;
   text-decoration: none;
   font-size: clamp(1.18rem, 2vw, 1.48rem);
   font-weight: 950;
-  box-shadow: 0 18px 42px rgba(220, 38, 38, 0.34);
+  box-shadow: 0 18px 42px rgba(239, 68, 68, 0.34);
   transition: 0.25s ease;
 }
 
@@ -107,9 +105,9 @@
 .blood-info-strip span {
   padding: 9px 14px;
   border-radius: 999px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #dff7ff;
   font-size: 0.88rem;
   font-weight: 900;
 }
@@ -119,11 +117,11 @@
   aspect-ratio: 1 / 1.02;
   overflow: hidden;
   border-radius: 42% 58% 50% 50% / 38% 42% 58% 62%;
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
+  background: #0f1f32;
+  border: 1px solid rgba(248, 113, 113, 0.34);
   box-shadow:
-    0 28px 60px rgba(15, 23, 42, 0.16),
-    0 18px 45px rgba(239, 68, 68, 0.16);
+    0 28px 60px rgba(0, 0, 0, 0.25),
+    0 18px 45px rgba(239, 68, 68, 0.14);
 }
 
 .blood-hero-image {
@@ -133,18 +131,10 @@
   transform: scale(1.06);
 }
 
-/* emergency white form */
-
 .emergency-blood-card {
   width: min(920px, 100%);
   padding: 46px;
   border-radius: 36px;
-  background:
-    radial-gradient(circle at top right, rgba(239, 68, 68, 0.08), transparent 35%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.985), rgba(248, 250, 252, 0.985));
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 30px 75px rgba(15, 23, 42, 0.26);
-  color: #0f172a;
 }
 
 .emergency-blood-header {
@@ -159,7 +149,7 @@
 
 .emergency-blood-header h1 {
   margin: 18px 0 12px;
-  color: #0f172a;
+  color: #ffffff;
   font-size: clamp(2.2rem, 4vw, 3.4rem);
   font-weight: 950;
   text-shadow: none;
@@ -168,7 +158,7 @@
 .emergency-blood-header p {
   margin: 0 auto;
   max-width: 680px;
-  color: #475569;
+  color: rgba(226, 232, 240, 0.84);
   font-size: 1.04rem;
   line-height: 1.7;
   font-weight: 600;
@@ -186,13 +176,18 @@
 .emergency-blood-form select,
 .emergency-blood-form textarea {
   width: 100%;
-  background: #f8fafc !important;
-  color: #0f172a !important;
-  border: 1px solid #dbe3ef !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
   border-radius: 16px;
   padding: 16px 18px;
   font-size: 1rem;
   font-weight: 700;
+}
+
+.emergency-blood-form input::placeholder,
+.emergency-blood-form textarea::placeholder {
+  color: rgba(226, 232, 240, 0.55);
 }
 
 .emergency-blood-form textarea {
@@ -203,21 +198,21 @@
 .emergency-blood-form select:focus,
 .emergency-blood-form textarea:focus {
   outline: none;
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.13);
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16);
 }
 
 .emergency-upload-box {
-  padding: 16px;
+  padding: 18px;
   border-radius: 18px;
-  background: #fff7ed;
-  border: 1px dashed #fb923c;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px dashed rgba(56, 189, 248, 0.34);
+  color: #e0f7ff;
 }
 
 .emergency-upload-box label {
   display: block;
   margin-bottom: 10px;
-  color: #9a3412;
   font-weight: 900;
 }
 
@@ -226,10 +221,11 @@
   margin: 8px 0 0;
   padding: 17px 24px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #ef4444, #dc2626, #991b1b);
+  background: linear-gradient(135deg, #fb7185, #ef4444, #be123c);
   color: white;
   font-weight: 950;
   border: none;
+  box-shadow: 0 18px 42px rgba(239, 68, 68, 0.28);
 }
 
 .emergency-status {
@@ -241,25 +237,25 @@
 }
 
 .emergency-status.success {
-  background: #dcfce7;
-  border: 1px solid #86efac;
-  color: #166534;
+  background: rgba(34, 197, 94, 0.13);
+  border: 1px solid rgba(134, 239, 172, 0.35);
+  color: #bbf7d0;
 }
 
 .emergency-status.error {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(254, 202, 202, 0.35);
+  color: #fecaca;
 }
 
-@media (max-width: 950px) {
+@media (max-width: 900px) {
   .blood-content-card {
     grid-template-columns: 1fr;
   }
 
   .blood-image-wrap {
-    width: min(420px, 100%);
-    margin: 0 auto;
+    max-width: 420px;
+    margin: auto;
     order: -1;
   }
 
@@ -267,54 +263,51 @@
     text-align: center;
   }
 
+  .blood-info-strip {
+    justify-content: center;
+  }
+
   .blood-main-btn {
     margin-left: auto;
     margin-right: auto;
   }
-
-  .blood-info-strip {
-    justify-content: center;
-  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 560px) {
   .blood-page,
   .emergency-blood-page {
-    padding: 16px 10px 26px;
+    padding: 18px 10px;
   }
 
   .blood-content-card,
   .emergency-blood-card {
-    padding: 24px 15px;
-    border-radius: 24px;
+    padding: 24px 16px;
+    border-radius: 26px;
   }
 
   .blood-image-wrap {
-    width: min(260px, 100%);
-  }
-
-  .blood-text-block h1,
-  .emergency-blood-header h1 {
-    font-size: 1.9rem;
-    line-height: 1.15;
-  }
-
-  .blood-quote {
-    font-size: 0.95rem;
-  }
-
-  .blood-subtitle,
-  .emergency-blood-header p {
-    font-size: 0.92rem;
+    width: min(310px, 100%);
+    margin: 0 auto;
+    aspect-ratio: 1 / 0.9;
+    border-radius: 30px 30px 52px 52px;
+    box-shadow:
+      0 16px 34px rgba(0, 0, 0, 0.28),
+      0 0 0 8px rgba(255, 255, 255, 0.035);
   }
 
   .blood-main-btn {
-    min-height: 66px;
-    font-size: 1rem;
+    min-height: 64px;
+    border-radius: 18px;
   }
 
   .blood-info-strip span {
-    font-size: 0.76rem;
-    padding: 8px 10px;
+    flex: 1 1 calc(50% - 10px);
+    text-align: center;
+  }
+
+  .emergency-blood-form input,
+  .emergency-blood-form select,
+  .emergency-blood-form textarea {
+    padding: 14px 15px;
   }
 }

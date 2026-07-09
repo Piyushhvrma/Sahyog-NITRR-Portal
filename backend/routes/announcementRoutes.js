@@ -10,6 +10,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 const { adminLimiter } = require("../middleware/rateLimiters");
 const { sendSuccess } = require("../utils/response");
 const { emitToAllUsers } = require("../socket/socket");
+
 const {
   getCache,
   setCache,
@@ -37,17 +38,16 @@ router.post(
   asyncHandler(async (req, res) => {
     const { title, description, category } = req.body;
 
+    const cleanTitle = title?.trim();
+    const cleanDescription = description?.trim();
+
     const announcement = await Announcement.create({
-      title,
-      description,
+      title: cleanTitle,
+      description: cleanDescription,
       category,
     });
 
-    await createAnnouncementNotifications({
-  _id: announcement._id,
-  title: announcement.title,
-  message: announcement.description,
-});
+    await createAnnouncementNotifications(announcement);
 
     await deleteCache("announcements:all");
     await deleteCache("announcements:latest");
@@ -56,8 +56,8 @@ router.post(
     emitToAllUsers("new-announcement", {
       announcement,
       notification: {
-        title,
-        message: description,
+        title: cleanTitle,
+        message: cleanDescription,
         type: "ADMIN",
       },
     });

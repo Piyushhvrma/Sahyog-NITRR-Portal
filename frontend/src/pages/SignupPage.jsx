@@ -3,11 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
 import sahyogLogo from "../assets/sahyog-logo.png";
+import authPreview from "../assets/auth-portal-preview.png";
 
-import {
-  registerUser,
-  googleLogin,
-} from "../api";
+import { registerUser, googleLogin } from "../api";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -82,18 +80,32 @@ const SignupPage = () => {
 
   return (
     <div className="auth-page-v2">
-      <div className="auth-card-v2">
-        <div className="auth-logo-v2">
+      <section className="auth-card-v2">
+        <div className="auth-brand-row">
           <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
+          <div>
+            <span>Join SAHYOG</span>
+            <strong>NIT Raipur</strong>
+          </div>
+        </div>
+
+        <div className="auth-preview-box">
+          <img src={authPreview} alt="SAHYOG portal preview" />
         </div>
 
         <h1>Create Account</h1>
 
-        <p>
-          Create your SAHYOG account to explore academic resources, receive
-          important updates, connect with support services, and stay involved
-          with student wellbeing initiatives.
+        <p className="auth-intro-text">
+          Register once to use academic resources, support services,
+          notifications, club events, blood help, AI Buddy and live rooms.
         </p>
+
+        <div className="auth-mini-features">
+          <span>Notes</span>
+          <span>Blood Help</span>
+          <span>Updates</span>
+          <span>Rooms</span>
+        </div>
 
         {isLoading && (
           <div className="auth-loading-v2">
@@ -105,7 +117,7 @@ const SignupPage = () => {
           {isLoading ? (
             <div className="google-loading">
               <div className="loader"></div>
-              <span>Setting up your account...</span>
+              <span>Setting up...</span>
             </div>
           ) : (
             <GoogleLogin
@@ -163,12 +175,7 @@ const SignupPage = () => {
         </form>
 
         {status.message && (
-          <div
-            className="auth-error-v2"
-            style={{
-              color: status.type === "success" ? "#22c55e" : "#fecaca",
-            }}
-          >
+          <div className={`auth-status-v2 ${status.type}`}>
             {status.message}
           </div>
         )}
@@ -177,7 +184,7 @@ const SignupPage = () => {
           Already have an account?
           <Link to="/login"> Sign In</Link>
         </p>
-      </div>
+      </section>
     </div>
   );
 };

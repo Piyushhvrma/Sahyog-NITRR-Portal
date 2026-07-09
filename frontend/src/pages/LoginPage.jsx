@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
 import sahyogLogo from "../assets/sahyog-logo.png";
+import authPreview from "../assets/auth-portal-preview.png";
 
 import {
   loginUser,
@@ -26,9 +27,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const clearStatus = () => {
-    setStatus({ type: null, message: "" });
-  };
+  const clearStatus = () => setStatus({ type: null, message: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,17 +36,10 @@ const LoginPage = () => {
       setIsLoading(true);
       clearStatus();
 
-      const data = await loginUser({
-        email,
-        password,
-      });
-
+      const data = await loginUser({ email, password });
       login(data.user);
 
-      setStatus({
-        type: "success",
-        message: "Login successful. Redirecting...",
-      });
+      setStatus({ type: "success", message: "Login successful. Redirecting..." });
 
       setTimeout(() => {
         navigate("/");
@@ -125,7 +117,6 @@ const LoginPage = () => {
       clearStatus();
 
       const data = await googleLogin(credentialResponse.credential);
-
       login(data.user);
 
       setStatus({
@@ -164,18 +155,33 @@ const LoginPage = () => {
 
   return (
     <div className="auth-page-v2">
-      <div className="auth-card-v2">
-        <div className="auth-logo-v2">
+      <section className="auth-card-v2">
+        <div className="auth-brand-row">
           <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
+          <div>
+            <span>SAHYOG Portal</span>
+            <strong>NIT Raipur</strong>
+          </div>
+        </div>
+
+        <div className="auth-preview-box">
+          <img src={authPreview} alt="SAHYOG portal preview" />
         </div>
 
         <h1>{forgotMode ? "Reset Password" : "Welcome Back"}</h1>
 
-        <p>
+        <p className="auth-intro-text">
           {forgotMode
-            ? "Enter your registered email and reset your SAHYOG account password using OTP verification."
-            : "Access your SAHYOG dashboard for PYQs, notes, club events, blood support, announcements, and student help services — all in one trusted NIT Raipur portal."}
+            ? "Enter your registered email and verify OTP to reset your password safely."
+            : "Access PYQs, notes, events, announcements, blood support, AI Buddy, live rooms and student help services."}
         </p>
+
+        <div className="auth-mini-features">
+          <span>PYQs</span>
+          <span>Support</span>
+          <span>Events</span>
+          <span>AI Buddy</span>
+        </div>
 
         {isLoading && <div className="auth-loading-v2">Please wait...</div>}
 
@@ -234,29 +240,13 @@ const LoginPage = () => {
               </button>
             </form>
 
-            <p
-              style={{
-                textAlign: "right",
-                marginTop: "10px",
-                marginBottom: "15px",
-              }}
+            <button
+              type="button"
+              className="auth-text-btn"
+              onClick={switchToForgotMode}
             >
-              <button
-                type="button"
-                onClick={switchToForgotMode}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "#ffffff",
-                  cursor: "pointer",
-                  fontSize: "0.95rem",
-                  fontWeight: "500",
-                  padding: 0,
-                }}
-              >
-                Forgot Password?
-              </button>
-            </p>
+              Forgot Password?
+            </button>
           </>
         )}
 
@@ -316,43 +306,29 @@ const LoginPage = () => {
               </form>
             )}
 
-            <p className="auth-switch-v2">
-              <button
-                type="button"
-                onClick={switchToLoginMode}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#6ee7ff",
-                  cursor: "pointer",
-                  padding: 0,
-                  fontSize: "inherit",
-                }}
-              >
-                Back to Login
-              </button>
-            </p>
+            <button
+              type="button"
+              className="auth-text-btn"
+              onClick={switchToLoginMode}
+            >
+              Back to Login
+            </button>
           </>
         )}
 
         {status.message && (
-          <div
-            className="auth-error-v2"
-            style={{
-              color: status.type === "success" ? "#22c55e" : "#fecaca",
-            }}
-          >
+          <div className={`auth-status-v2 ${status.type}`}>
             {status.message}
           </div>
         )}
 
         {!forgotMode && (
           <p className="auth-switch-v2">
-            Don't have an account?
-            <Link to="/signup"> Sign Up</Link>
+            New to SAHYOG?
+            <Link to="/signup"> Create Account</Link>
           </p>
         )}
-      </div>
+      </section>
     </div>
   );
 };

@@ -27,7 +27,8 @@ const AdminAnnouncementUpload = () => {
     if (cleanDescription.length < 5 || cleanDescription.length > 5000) {
       setStatus({
         type: "error",
-        message: "Announcement description must be between 5 and 5000 characters.",
+        message:
+          "Announcement description must be between 5 and 5000 characters.",
       });
       return;
     }
@@ -39,7 +40,6 @@ const AdminAnnouncementUpload = () => {
       await createAnnouncement({
         title: cleanTitle,
         description: cleanDescription,
-        message: cleanDescription,
         category,
       });
 
@@ -85,11 +85,11 @@ const AdminAnnouncementUpload = () => {
         />
 
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option>General</option>
-          <option>Event</option>
-          <option>Blood Donation</option>
-          <option>Emergency</option>
-          <option>Academic</option>
+          <option value="General">General</option>
+          <option value="Event">Event</option>
+          <option value="Blood Donation">Blood Donation</option>
+          <option value="Emergency">Emergency</option>
+          <option value="Academic">Academic</option>
         </select>
 
         <button type="submit" disabled={loading}>

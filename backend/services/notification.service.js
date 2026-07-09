@@ -6,11 +6,18 @@ const createAnnouncementNotifications = async (announcement) => {
 
   if (!users.length) return [];
 
+  const notificationMessage =
+    announcement.description || announcement.message || "";
+
+  if (!notificationMessage.trim()) {
+    throw new Error("Notification message is required.");
+  }
+
   const notifications = users.map((user) => ({
     userId: user._id,
     announcementId: announcement._id,
     title: announcement.title,
-    message: announcement.description,
+    message: notificationMessage,
     type: "ADMIN",
   }));
 

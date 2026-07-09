@@ -1,4 +1,4 @@
-/* SAHYOG Notifications - WhatsApp/Insta Inspired White UI */
+/* SAHYOG Notifications Page - Dark Premium Theme */
 
 .notify-page-v2 {
   min-height: calc(100vh - 120px);
@@ -10,17 +10,14 @@
 
 .notify-phone-card {
   width: min(760px, 100%);
-  padding: 28px;
+  padding: 30px;
   border-radius: 34px;
 
-  background:
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 35%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.985), rgba(248, 250, 252, 0.985));
+  background: #1b2a3d;
+  border: 1px solid rgba(148, 163, 184, 0.26);
 
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 30px 75px rgba(15, 23, 42, 0.26);
-
-  color: #0f172a;
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.36);
+  color: #f8fafc;
 }
 
 .notify-phone-header {
@@ -36,37 +33,38 @@
   padding: 7px 14px;
   border-radius: 999px;
 
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: rgba(56, 189, 248, 0.13);
+  border: 1px solid rgba(56, 189, 248, 0.34);
 
-  color: #2563eb;
+  color: #6ee7ff;
   font-size: 0.75rem;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 .notify-phone-header h1 {
   margin: 14px 0 0;
-  color: #0f172a;
+  color: #ffffff;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 950;
   text-shadow: none;
 }
 
 .notify-bell-circle {
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
   border-radius: 22px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  border: 1px solid rgba(250, 204, 21, 0.42);
 
-  font-size: 1.8rem;
+  font-size: 1.85rem;
+  box-shadow: 0 16px 34px rgba(249, 115, 22, 0.28);
 }
 
 .notify-summary-row {
@@ -77,24 +75,24 @@
 }
 
 .notify-summary-row div {
-  padding: 16px;
+  padding: 17px;
   border-radius: 20px;
 
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(15, 23, 42, 0.34);
+  border: 1px solid rgba(148, 163, 184, 0.24);
 
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
 .notify-summary-row strong {
   display: block;
-  color: #0f172a;
-  font-size: 1.8rem;
+  color: #ffffff;
+  font-size: 1.85rem;
   font-weight: 950;
 }
 
 .notify-summary-row span {
-  color: #64748b;
+  color: #cbd5e1;
   font-size: 0.9rem;
   font-weight: 850;
 }
@@ -110,8 +108,17 @@
   padding: 16px;
   border-radius: 26px;
 
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(15, 23, 42, 0.34);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.notify-chat-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notify-chat-list::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.35);
+  border-radius: 999px;
 }
 
 .notify-message-card {
@@ -122,25 +129,27 @@
   padding: 16px;
   border-radius: 22px;
 
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.24);
 
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
-
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
   transition: 0.25s ease;
 }
 
 .notify-message-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.11);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.25);
 }
 
 .notify-message-card.unread {
-  border-left: 5px solid #2563eb;
+  border-left: 5px solid #38bdf8;
+  background:
+    linear-gradient(90deg, rgba(56, 189, 248, 0.12), transparent 45%),
+    rgba(255, 255, 255, 0.08);
 }
 
 .notify-message-card.read {
-  opacity: 0.82;
+  opacity: 0.78;
 }
 
 .notify-avatar {
@@ -152,8 +161,8 @@
   align-items: center;
   justify-content: center;
 
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: rgba(56, 189, 248, 0.13);
+  border: 1px solid rgba(56, 189, 248, 0.34);
 
   font-size: 1.45rem;
 }
@@ -171,7 +180,7 @@
 
 .notify-message-top h2 {
   margin: 0;
-  color: #0f172a;
+  color: #ffffff;
   font-size: 1.08rem;
   font-weight: 950;
   line-height: 1.35;
@@ -181,17 +190,18 @@
   padding: 5px 10px;
   border-radius: 999px;
 
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: linear-gradient(135deg, #22d3ee, #2563eb);
+  color: white;
 
   font-size: 0.72rem;
   font-weight: 950;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
 .notify-message-body p {
   margin: 8px 0 12px;
 
-  color: #475569;
+  color: rgba(226, 232, 240, 0.84);
   font-size: 0.95rem;
   line-height: 1.6;
   font-weight: 500;
@@ -218,64 +228,66 @@
   padding: 8px 14px;
   border-radius: 999px;
 
-  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  background: linear-gradient(135deg, #22d3ee, #2563eb);
   color: white;
 
+  border: none;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 950;
+
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.26);
 }
 
 .notify-message-bottom strong {
-  color: #16a34a;
-  font-size: 0.78rem;
+  color: #86efac;
+  font-size: 0.8rem;
   font-weight: 950;
 }
 
 .notify-empty-v2 {
-  padding: 70px 20px;
+  padding: 60px 18px;
   text-align: center;
-  color: #475569;
+  color: #cbd5e1;
 }
 
 .notify-empty-icon {
-  font-size: 3.5rem;
-  margin-bottom: 14px;
+  font-size: 3rem;
+  margin-bottom: 12px;
 }
 
 .notify-empty-v2 h2 {
+  color: #ffffff;
   margin: 0 0 8px;
-  color: #0f172a;
   font-size: 1.45rem;
-  font-weight: 950;
 }
 
 .notify-empty-v2 p {
   margin: 0;
-  color: #64748b;
-  font-weight: 600;
+  color: rgba(226, 232, 240, 0.76);
+  line-height: 1.6;
 }
 
-/* mobile */
+/* Mobile */
 
-@media (max-width: 768px) {
+@media (max-width: 560px) {
   .notify-page-v2 {
-    padding: 16px 10px 26px;
+    padding: 18px 10px;
   }
 
   .notify-phone-card {
-    padding: 18px;
+    padding: 22px 14px;
     border-radius: 26px;
   }
 
-  .notify-phone-header h1 {
-    font-size: 2rem;
+  .notify-phone-header {
+    align-items: flex-start;
   }
 
   .notify-bell-circle {
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     border-radius: 18px;
-    font-size: 1.5rem;
+    font-size: 1.55rem;
   }
 
   .notify-summary-row {
@@ -283,12 +295,8 @@
   }
 
   .notify-summary-row div {
-    padding: 13px;
+    padding: 14px;
     border-radius: 18px;
-  }
-
-  .notify-summary-row strong {
-    font-size: 1.45rem;
   }
 
   .notify-chat-list {
@@ -301,21 +309,32 @@
     grid-template-columns: 44px 1fr;
     gap: 10px;
     padding: 13px;
-    border-radius: 18px;
+    border-radius: 20px;
   }
 
   .notify-avatar {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 15px;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+  }
+
+  .notify-message-top {
+    flex-direction: column;
+    gap: 6px;
   }
 
   .notify-message-top h2 {
-    font-size: 0.98rem;
+    font-size: 1rem;
   }
 
-  .notify-message-body p {
-    font-size: 0.88rem;
+  .notify-message-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .notify-message-bottom button {
+    width: 100%;
+    padding: 10px 14px;
   }
 }
