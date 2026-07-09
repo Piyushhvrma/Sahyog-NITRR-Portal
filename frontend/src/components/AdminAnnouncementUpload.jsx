@@ -13,10 +13,21 @@ const AdminAnnouncementUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title || !description) {
+    const cleanTitle = title.trim();
+    const cleanDescription = description.trim();
+
+    if (cleanTitle.length < 3) {
       setStatus({
         type: "error",
-        message: "Title and description are required.",
+        message: "Announcement title must be at least 3 characters.",
+      });
+      return;
+    }
+
+    if (cleanDescription.length < 5 || cleanDescription.length > 5000) {
+      setStatus({
+        type: "error",
+        message: "Announcement description must be between 5 and 5000 characters.",
       });
       return;
     }
@@ -26,8 +37,9 @@ const AdminAnnouncementUpload = () => {
       setStatus({ type: null, message: "" });
 
       await createAnnouncement({
-        title,
-        description,
+        title: cleanTitle,
+        description: cleanDescription,
+        message: cleanDescription,
         category,
       });
 

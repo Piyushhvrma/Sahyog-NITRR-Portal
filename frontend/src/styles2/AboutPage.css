@@ -364,3 +364,78 @@
 .portal-dev-card div {
   opacity: 1 !important;
 }
+
+.official-developer-card {
+  max-width: 520px;
+  margin: 36px auto 0;
+  padding: 28px 24px;
+
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+
+  text-align: center;
+}
+
+.developer-small-label {
+  display: block;
+  margin-bottom: 10px;
+
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.developer-name-link {
+  display: block;
+
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.developer-name-link:hover {
+  color: #2563eb;
+}
+
+.developer-role-inline {
+  display: block;
+  margin-top: 6px;
+
+  color: #475569;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.developer-email-link {
+  display: inline-block;
+  margin-top: 14px;
+
+  color: #2563eb;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.developer-email-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .official-developer-card {
+    margin-top: 28px;
+    padding: 22px 16px;
+  }
+
+  .developer-name-link {
+    font-size: 1.15rem;
+  }
+
+  .developer-email-link {
+    font-size: 0.84rem;
+    word-break: break-word;
+  }
+}

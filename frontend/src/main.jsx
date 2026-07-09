@@ -13,6 +13,8 @@ import "./styles2/HelpPages.css";
 import "./styles2/BloodRequestPage.css";
 import "./styles2/AuthPages.css";
 import "./styles2/AboutPage.css";
+import "./styles2/RoomsPage.css";
+import "./styles2/EventsPage.css";
 
 
 const root = createRoot(document.getElementById('root'));

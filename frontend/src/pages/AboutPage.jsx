@@ -154,36 +154,29 @@ const AboutPage = () => {
       and community engagement within NIT Raipur.
     </p>
 
-    <div className="developer-profile">
-      <a
-        href="https://www.linkedin.com/in/piyush-verma-25550728a/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="developer-name-link"
-      >
-        Piyush Verma
-      </a>
+    <div className="developer-profile official-developer-card">
+  <span className="developer-small-label">Designed & Developed By</span>
 
-      <p className="developer-role">
-        Lead Developer
-      </p>
-    </div>
+  <a
+    href="https://www.linkedin.com/in/piyush-verma-25550728a/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="developer-name-link"
+  >
+    Piyush Verma
+  </a>
 
-    <div className="developer-contact-grid">
-      <div className="contact-item">
-        <span className="contact-label">Email</span>
-        <span className="contact-value">
-          piyushverma6927@gmail.com
-        </span>
-      </div>
+  <span className="developer-role-inline">
+    Lead Developer
+  </span>
 
-      <div className="contact-item">
-        <span className="contact-label">Contact</span>
-        <span className="contact-value">
-          +91 62637 99143
-        </span>
-      </div>
-    </div>
+  <a
+    href="mailto:piyushvermanitrr@gmail.com"
+    className="developer-email-link"
+  >
+    piyushvermanitrr@gmail.com
+  </a>
+</div>
   </div>
 </section>
       </main>

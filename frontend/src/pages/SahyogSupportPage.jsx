@@ -60,23 +60,29 @@ const SahyogSupportPage = () => {
   };
 
   return (
-    <div className="help-clean-page">
-      <div className="help-clean-card">
-        <div className="help-clean-header">
-          <div className="help-clean-icon">❤️</div>
+    <div className="support-request-page">
+      <section className="support-request-card">
+        <div className="support-request-header">
+          <div className="support-request-icon">❤️</div>
+
+          <span className="support-request-badge">Private Student Support</span>
+
           <h1>Connect With SAHYOG Team</h1>
+
           <p>
             Share your concern with the student support team. You may use your
-            name or stay anonymous. Only add contact details if you want a
-            follow-up.
+            name or stay anonymous. Contact details are optional and only needed
+            if you want a follow-up.
           </p>
         </div>
 
-        {status.text && <div className={`help-status ${status.type}`}>{status.text}</div>}
+        {status.text && (
+          <div className={`support-status ${status.type}`}>{status.text}</div>
+        )}
 
-        <form className="help-clean-form" onSubmit={handleSubmit}>
-          <div className="help-form-row">
-            <div className="help-field">
+        <form className="support-request-form" onSubmit={handleSubmit}>
+          <div className="support-form-row">
+            <div className="support-field">
               <label>Name / Alias</label>
               <input
                 type="text"
@@ -87,7 +93,7 @@ const SahyogSupportPage = () => {
               />
             </div>
 
-            <div className="help-field">
+            <div className="support-field">
               <label>Contact</label>
               <input
                 type="text"
@@ -99,7 +105,7 @@ const SahyogSupportPage = () => {
             </div>
           </div>
 
-          <div className="help-field">
+          <div className="support-field">
             <label>Category</label>
             <select
               name="category"
@@ -118,7 +124,7 @@ const SahyogSupportPage = () => {
             </select>
           </div>
 
-          <div className="help-field">
+          <div className="support-field">
             <label>Your Concern</label>
             <textarea
               name="message"
@@ -129,11 +135,11 @@ const SahyogSupportPage = () => {
             />
           </div>
 
-          <button type="submit" className="help-submit-btn" disabled={isSubmitting}>
+          <button type="submit" className="support-submit-btn" disabled={isSubmitting}>
             {isSubmitting ? "Sending..." : "Submit Request"}
           </button>
         </form>
-      </div>
+      </section>
     </div>
   );
 };

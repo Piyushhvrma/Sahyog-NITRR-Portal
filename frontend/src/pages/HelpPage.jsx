@@ -1,65 +1,59 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import supportImage from "../assets/student-support.jpg";
 
 const HelpPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="help-clean-home">
-      <section className="help-home-hero">
-        <span className="help-home-badge">SAHYOG STUDENT SUPPORT</span>
+      <section className="help-hero-card">
+        <div className="help-content-card">
+          <div className="help-text-block">
+            <span className="help-home-badge">SAHYOG Student Support</span>
 
-        <h1>Get the right help, at the right time</h1>
+            <h1>Get the right help, at the right time</h1>
 
-        <p>
-          Choose student support for personal guidance, or use the AI assistant
-          for quick academic and study-related help.
-        </p>
-      </section>
+            <p className="help-home-subtitle">
+              Share your concern safely with the SAHYOG team or use the AI
+              assistant for quick academic and study-related guidance.
+            </p>
 
-      <section className="help-option-grid">
-        <div className="help-option-card primary">
-          <div className="help-option-icon">❤️</div>
+            <p className="help-home-note">
+              You may stay anonymous while submitting your concern. Contact
+              details are optional and only needed if you want a follow-up.
+            </p>
 
-          <h2>Connect With SAHYOG Team</h2>
+            <div className="help-action-grid">
+              <button
+                className="help-main-btn"
+                onClick={() => navigate("/help/sahyog")}
+              >
+                ❤️ Contact SAHYOG Team
+              </button>
 
-          <p>
-            Share your concern with trusted student volunteers. You may stay
-            anonymous and share contact details only if you want a follow-up.
-          </p>
+              <button
+                className="help-ai-btn"
+                onClick={() => navigate("/help/ai")}
+              >
+                🤖 Open AI Assistant
+              </button>
+            </div>
 
-          <div className="help-option-points">
-            <span>Academic stress</span>
-            <span>Career guidance</span>
-            <span>Campus support</span>
-            <span>Personal concerns</span>
+            <div className="help-trust-strip">
+              <span>Anonymous Support</span>
+              <span>Academic Help</span>
+              <span>Personal Guidance</span>
+            </div>
           </div>
 
-          <button onClick={() => navigate("/help/sahyog")}>
-            Contact Team
-          </button>
-        </div>
-
-        <div className="help-option-card">
-          <div className="help-option-icon">🤖</div>
-
-          <h2>AI Study Assistant</h2>
-
-          <p>
-            Ask for study planning, coding doubts, revision strategy, or quick
-            academic guidance anytime.
-          </p>
-
-          <div className="help-option-points">
-            <span>Study plans</span>
-            <span>Coding help</span>
-            <span>Revision support</span>
-            <span>Quick doubts</span>
+          <div className="help-image-wrap">
+            <img
+              src={supportImage}
+              alt="Student support and guidance"
+              className="help-hero-image"
+            />
           </div>
-
-          <button onClick={() => navigate("/help/ai")}>
-            Open AI Assistant
-          </button>
         </div>
       </section>
     </div>

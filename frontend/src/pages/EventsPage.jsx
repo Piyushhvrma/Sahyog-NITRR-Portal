@@ -1,26 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.jsx";
 import { fetchEvents, likeEvent } from "../api.js";
 
-const HeartIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    width="20"
-    height="20"
-  >
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-  </svg>
-);
-
-const EventCard = ({ event, user, onLike }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const EventCard = ({ event, user, onLike, onOpenImage }) => {
+  const [expanded, setExpanded] = useState(false);
 
   const currentUserId = user?.id || user?._id || null;
 
@@ -28,57 +13,74 @@ const EventCard = ({ event, user, onLike }) => {
     !!currentUserId &&
     event.likes?.some((like) => String(like) === String(currentUserId));
 
-  const shortDescription =
-    event.description.length > 120
-      ? event.description.substring(0, 120) + "..."
+  const shouldTrim = event.description?.length > 180;
+  const visibleText =
+    !expanded && shouldTrim
+      ? event.description.slice(0, 180) + "..."
       : event.description;
 
   return (
-    <div className="event-card-grid">
-      <img
-        src={event.imageUrl}
-        alt={event.title}
-        className="event-image-grid"
-        onError={(e) => {
-          e.target.src =
-            "https://placehold.co/600x400/2c3e50/f8f9fa?text=Image+Missing";
-        }}
-      />
+    <article className="event-modern-card">
+      <div className="event-modern-content">
+        <span className="event-badge">SAHYOG Event</span>
 
-      <div className="event-content-grid">
         <h2>{event.title}</h2>
 
-        <p style={{ whiteSpace: "pre-line" }}>
-          {isExpanded ? event.description : shortDescription}
-        </p>
+        <p>{visibleText}</p>
 
-        <div className="event-footer">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="read-more-btn"
-          >
-            {isExpanded ? "Show Less" : "Read More"}
-          </button>
+        <div className="event-modern-actions">
+          {shouldTrim && (
+            <button
+              type="button"
+              className="event-read-btn"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? "Show Less" : "Read More"}
+            </button>
+          )}
 
           <button
+            type="button"
             onClick={() => onLike(event._id)}
-            className={`event-like-btn ${isLikedByCurrentUser ? "liked" : ""}`}
+            className={`event-like-pill ${
+              isLikedByCurrentUser ? "liked" : ""
+            }`}
           >
             ❤️ {event.likes?.length || 0} Likes
           </button>
         </div>
 
         <small>
-          Posted on:{" "}
-          {new Date(event.createdAt || event.updatedAt).toLocaleDateString()}
+          Posted on{" "}
+          {new Date(event.createdAt || event.updatedAt).toLocaleDateString(
+            "en-IN"
+          )}
         </small>
       </div>
-    </div>
+
+      <button
+        type="button"
+        className="event-modern-image-wrap"
+        onClick={() => onOpenImage(event.imageUrl)}
+      >
+        <img
+          src={event.imageUrl}
+          alt={event.title}
+          className="event-modern-image"
+          onError={(e) => {
+            e.target.src =
+              "https://placehold.co/800x600/ffffff/0f172a?text=SAHYOG+Event";
+          }}
+        />
+      </button>
+    </article>
   );
 };
 
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 6,
@@ -135,69 +137,65 @@ const EventsPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="container">
-        <h2>Loading Events...</h2>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container">
-        <h2>Error: {error}</h2>
-      </div>
-    );
-  }
-
   return (
-    <div className="container events-grid-container">
-      <h1>SAHYOG - Club Events</h1>
+    <div className="events-page-v2">
+      <section className="events-main-shell">
+        <div className="events-top-heading">
+          <span>SAHYOG Gallery</span>
+          <h1>Club Events</h1>
+          <p>
+            Explore SAHYOG activities, student initiatives, workshops, and
+            community moments from NIT Raipur.
+          </p>
+        </div>
 
-      <div className="events-grid">
-        {events.length === 0 ? (
-          <p>No events posted yet. Check back soon!</p>
-        ) : (
+        {isLoading && <div className="events-empty-box">Loading Events...</div>}
+
+        {error && <div className="events-empty-box">Error: {error}</div>}
+
+        {!isLoading && !error && events.length === 0 && (
+          <div className="events-empty-box">No events posted yet.</div>
+        )}
+
+        {!isLoading &&
+          !error &&
           events.map((event) => (
             <EventCard
               key={event._id}
               event={event}
               user={user}
               onLike={handleLike}
+              onOpenImage={setSelectedImage}
             />
-          ))
+          ))}
+
+        {pagination.totalPages > 1 && (
+          <div className="events-pagination">
+            <button
+              disabled={!pagination.hasPrevPage}
+              onClick={() => loadEvents(pagination.page - 1)}
+            >
+              Previous
+            </button>
+
+            <span>
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+
+            <button
+              disabled={!pagination.hasNextPage}
+              onClick={() => loadEvents(pagination.page + 1)}
+            >
+              Next
+            </button>
+          </div>
         )}
-      </div>
+      </section>
 
-      {pagination.totalPages > 1 && (
-        <div
-          style={{
-            marginTop: "30px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "12px",
-            flexWrap: "wrap",
-          }}
-        >
-          <button
-            disabled={!pagination.hasPrevPage}
-            onClick={() => loadEvents(pagination.page - 1)}
-          >
-            Previous
-          </button>
-
-          <span style={{ fontWeight: "700" }}>
-            Page {pagination.page} of {pagination.totalPages}
-          </span>
-
-          <button
-            disabled={!pagination.hasNextPage}
-            onClick={() => loadEvents(pagination.page + 1)}
-          >
-            Next
-          </button>
+      {selectedImage && (
+        <div className="event-image-modal" onClick={() => setSelectedImage(null)}>
+          <button type="button">×</button>
+          <img src={selectedImage} alt="Event preview" />
         </div>
       )}
     </div>

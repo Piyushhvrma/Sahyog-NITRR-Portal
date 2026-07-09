@@ -1,37 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import bloodDonationImage from "../assets/blood-donation.jpg";
 
 const BloodRequestPage = () => {
   return (
     <div className="blood-page">
-      <div className="blood-card">
-        <div className="blood-top">
-          <div className="blood-icon">🩸</div>
-          <h1>Blood Request Portal</h1>
-          <p className="blood-quote">“रक्तदान महादान — One donation can save many lives.”</p>
-          <p className="blood-subtitle">
-            A SAHYOG initiative to connect urgent blood needs with willing helpers.
-          </p>
-        </div>
+      <section className="blood-hero-card">
+        <div className="blood-content-card">
+          <div className="blood-text-block">
+            <span className="blood-tag">SAHYOG Emergency Support</span>
 
-        <Link to="/blood-request/emergency" className="blood-main-btn">
-          🚨 Emergency Blood Request
-        </Link>
+            <h1>Blood Request Portal</h1>
 
-        <div className="blood-secondary-grid">
-          <div className="blood-secondary-card">
-            <span>🤝</span>
-            <h3>Donor Network</h3>
-            <p>Connect with available student donors.</p>
+            <p className="blood-quote">
+              “रक्तदान महादान — One donation can save many lives.”
+            </p>
+
+            <p className="blood-subtitle">
+              Submit urgent blood requirements directly to the SAHYOG team. The
+              request will be reviewed and forwarded for quick student support.
+            </p>
+
+            <Link to="/blood-request/emergency" className="blood-main-btn">
+              🚨 Emergency Blood Request
+            </Link>
+
+            <div className="blood-info-strip">
+              <span>Fast Review</span>
+              <span>Verified Details</span>
+              <span>Student Network</span>
+            </div>
           </div>
 
-          <div className="blood-secondary-card">
-            <span>🔔</span>
-            <h3>Instant Alerts</h3>
-            <p>Notify volunteers during urgent cases.</p>
+          <div className="blood-image-wrap">
+            <img
+              src={bloodDonationImage}
+              alt="Blood donation support"
+              className="blood-hero-image"
+            />
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

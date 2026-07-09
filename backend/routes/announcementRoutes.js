@@ -43,7 +43,11 @@ router.post(
       category,
     });
 
-    await createAnnouncementNotifications(announcement);
+    await createAnnouncementNotifications({
+  _id: announcement._id,
+  title: announcement.title,
+  message: announcement.description,
+});
 
     await deleteCache("announcements:all");
     await deleteCache("announcements:latest");

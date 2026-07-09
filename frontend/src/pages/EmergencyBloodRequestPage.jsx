@@ -61,11 +61,6 @@ const EmergencyBloodRequestPage = () => {
 
         const fileInput = document.getElementById("document");
         if (fileInput) fileInput.value = "";
-      } else {
-        setStatus({
-          type: "error",
-          text: result.message || "Something went wrong.",
-        });
       }
     } catch (error) {
       setStatus({
@@ -78,29 +73,28 @@ const EmergencyBloodRequestPage = () => {
   };
 
   return (
-    <div className="blood-page">
-      <div className="blood-card">
-        <div className="blood-top">
-          <div className="blood-icon">🚨</div>
+    <div className="emergency-blood-page">
+      <section className="emergency-blood-card">
+        <div className="emergency-blood-header">
+          <div className="emergency-blood-icon">🚨</div>
+
+          <span className="emergency-blood-badge">Urgent Blood Support</span>
+
           <h1>Emergency Blood Request</h1>
-          <p className="blood-subtitle">
-            Fill the details carefully. Your request will be sent directly to the SAHYOG team.
+
+          <p>
+            Fill the details carefully. Your request will be sent directly to the
+            SAHYOG team for quick review.
           </p>
         </div>
 
         {status.text && (
-          <p
-            style={{
-              color: status.type === "success" ? "#22c55e" : "#fecaca",
-              fontWeight: "700",
-              textAlign: "center",
-            }}
-          >
+          <div className={`emergency-status ${status.type}`}>
             {status.text}
-          </p>
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="blood-form">
+        <form onSubmit={handleSubmit} className="emergency-blood-form">
           <input
             type="text"
             name="name"
@@ -152,7 +146,7 @@ const EmergencyBloodRequestPage = () => {
             required
           />
 
-          <div className="blood-upload-box">
+          <div className="emergency-upload-box">
             <label>📄 Upload Valid Document / Prescription Photo</label>
             <input
               id="document"
@@ -163,11 +157,11 @@ const EmergencyBloodRequestPage = () => {
             />
           </div>
 
-          <button type="submit" className="blood-main-btn" disabled={loading}>
+          <button type="submit" className="emergency-submit-btn" disabled={loading}>
             {loading ? "Submitting..." : "Submit Blood Request"}
           </button>
         </form>
-      </div>
+      </section>
     </div>
   );
 };

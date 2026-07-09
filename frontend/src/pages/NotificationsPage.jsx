@@ -3,19 +3,20 @@ import {
   fetchNotifications,
   markNotificationAsRead,
 } from "../api";
-import "../styles2/NotificationPage.css";
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const loadNotifications = async () => {
     try {
-      setError("");
+      setLoading(true);
       const data = await fetchNotifications();
-      setNotifications(data);
-    } catch (err) {
-      setError(err.message || "Failed to load notifications.");
+      setNotifications(data.notifications || []);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -23,99 +24,109 @@ const NotificationsPage = () => {
     loadNotifications();
   }, []);
 
-  const markAsRead = async (id) => {
+  const handleRead = async (id) => {
     try {
       await markNotificationAsRead(id);
-      loadNotifications();
-    } catch (err) {
-      setError(err.message || "Failed to mark notification as read.");
+
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, isRead: true } : item
+        )
+      );
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
 
   return (
-    <div className="notify-page">
-      <div className="notify-hero">
-        <span className="notify-badge">SAHYOG Updates</span>
-        <h1>Notifications</h1>
-        <p>
-          Stay updated with admin announcements, important notices, and portal
-          activity.
-        </p>
+    <div className="notify-page-v2">
+      <section className="notify-phone-card">
+        <div className="notify-phone-header">
+          <div>
+            <span className="notify-small-label">SAHYOG Updates</span>
+            <h1>Notifications</h1>
+          </div>
 
-        <div className="notify-stats">
+          <div className="notify-bell-circle">🔔</div>
+        </div>
+
+        <div className="notify-summary-row">
           <div>
             <strong>{notifications.length}</strong>
             <span>Total</span>
           </div>
+
           <div>
             <strong>{unreadCount}</strong>
             <span>Unread</span>
           </div>
         </div>
-      </div>
 
-      {error && (
-        <p style={{ color: "#fecaca", fontWeight: "700", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
-
-      <div className="notify-list">
-        {notifications.length === 0 ? (
-          <div className="notify-empty">
-            <div className="notify-empty-icon">🔔</div>
-            <h2>No notifications yet</h2>
-            <p>New announcements from SAHYOG will appear here.</p>
-          </div>
-        ) : (
-          notifications.map((item) => (
-            <div
-              key={item._id}
-              className={`notify-card ${!item.isRead ? "unread" : "read"}`}
-            >
-              <div className="notify-icon">
-                {item.type === "ADMIN" ? "📢" : "✅"}
-              </div>
-
-              <div className="notify-content">
-                <div className="notify-top-row">
-                  <span className="notify-type">
-                    {item.type === "ADMIN" ? "Admin Announcement" : "Activity"}
-                  </span>
-
-                  {!item.isRead && <span className="notify-new-dot">New</span>}
-                </div>
-
-                <h2>{item.title}</h2>
-                <p>{item.message}</p>
-
-                <div className="notify-bottom-row">
-                  <span>
-                    {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-
-                  {!item.isRead ? (
-                    <button
-                      className="notify-read-btn"
-                      onClick={() => markAsRead(item._id)}
-                    >
-                      Mark as Read
-                    </button>
-                  ) : (
-                    <span className="notify-read-label">Read</span>
-                  )}
-                </div>
-              </div>
+        <div className="notify-chat-list">
+          {loading && (
+            <div className="notify-empty-v2">
+              <div className="notify-empty-icon">⏳</div>
+              <h2>Loading notifications...</h2>
             </div>
-          ))
-        )}
-      </div>
+          )}
+
+          {!loading && notifications.length === 0 && (
+            <div className="notify-empty-v2">
+              <div className="notify-empty-icon">🔕</div>
+              <h2>No notifications yet</h2>
+              <p>Important SAHYOG updates will appear here.</p>
+            </div>
+          )}
+
+          {!loading &&
+            notifications.map((item) => (
+              <div
+                key={item._id}
+                className={`notify-message-card ${
+                  item.isRead ? "read" : "unread"
+                }`}
+              >
+                <div className="notify-avatar">
+                  {item.type === "announcement"
+                    ? "📢"
+                    : item.type === "event"
+                    ? "🎉"
+                    : item.type === "blood"
+                    ? "🩸"
+                    : "🔔"}
+                </div>
+
+                <div className="notify-message-body">
+                  <div className="notify-message-top">
+                    <h2>{item.title || "SAHYOG Update"}</h2>
+
+                    {!item.isRead && <span className="notify-dot">New</span>}
+                  </div>
+
+                  <p>{item.message}</p>
+
+                  <div className="notify-message-bottom">
+                    <span>
+                      {item.createdAt
+                        ? new Date(item.createdAt).toLocaleString()
+                        : "Just now"}
+                    </span>
+
+                    {!item.isRead ? (
+                      <button onClick={() => handleRead(item._id)}>
+                        Mark read
+                      </button>
+                    ) : (
+                      <strong>Read</strong>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </section>
     </div>
   );
 };
