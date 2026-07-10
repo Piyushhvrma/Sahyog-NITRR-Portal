@@ -1,123 +1,125 @@
-# SAHYOG — The Student Wellbeing Club Portal
-
-### National Institute of Technology, Raipur
+# SAHYOG 2.0 — Student Wellbeing & Academic Resource Platform
 
 <div align="center">
 
-![SAHYOG](https://img.shields.io/badge/SAHYOG-Student%20Wellbeing%20Club-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Live%20%26%20Active-brightgreen?style=for-the-badge)
+![SAHYOG](https://img.shields.io/badge/SAHYOG-2.0-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Deployment%20Ready-brightgreen?style=for-the-badge)
 ![NIT Raipur](https://img.shields.io/badge/NIT-Raipur-orange?style=for-the-badge)
+![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge)
 
-**A full-stack MERN student welfare platform — built for NITRRians, by NITRRians.**
-
-[🌐 Live Portal](https://sahyog-nitrr-portal.vercel.app/) • [⚙️ Backend API](https://sahyog-backend-topb.onrender.com/)
+**A full-stack MERN platform built for the students of NIT Raipur.**
 
 </div>
 
 ---
 
-## What is SAHYOG?
+## About
 
-SAHYOG is the official digital portal of **SAHYOG — The Student Wellbeing Club, NIT Raipur**. It centralizes academic resources, student support services, community events, blood assistance, and AI-powered guidance into a single, secure platform for the NIT Raipur student community.
+SAHYOG started as a simple MERN project (v1.0) built to solve one real problem — students at NIT Raipur were relying on a mess of disconnected tools to get through college life: Google Drive for notes, WhatsApp groups for announcements, Instagram for event updates, and personal contacts scrambled together during blood emergencies.
 
----
+SAHYOG 2.0 is a complete architectural rebuild of that idea. Instead of a single flat app, it's now a modular platform that brings academics, student welfare, communication, AI assistance, and admin management into one secure system, designed with production deployment and institutional scalability in mind.
 
-## Live Deployment
+I didn't rewrite the project from scratch — I went module by module (auth, notifications, events, admin, AI, rooms) and rebuilt each one with proper validation, caching, role-based access control, real-time updates, and a codebase structured to scale beyond a college assignment.
 
-| Service     | Platform      | URL                                       |
-| ----------- | ------------- | ----------------------------------------- |
-| Frontend    | Vercel        | https://sahyog-nitrr-portal.vercel.app/   |
-| Backend API | Render        | https://sahyog-backend-topb.onrender.com/ |
-| Database    | MongoDB Atlas | Cloud Hosted                              |
+> "Every student should have one trusted platform for everything they need during college."
 
 ---
 
-## Key Highlights
+## Why This Rebuild
 
-- Full Stack MERN Architecture
-- Google OAuth + JWT Authentication
-- AI-Powered Student Assistant (Groq LLaMA 3.3 70B)
-- Emergency Blood Assistance Workflow
-- Student Support & Wellbeing Platform
-- Announcement & Notification Center
-- Cloudinary Media Management
-- Brevo Email Automation
-- MongoDB Atlas + Vercel + Render Deployment
+Most college portals only handle one thing — notes, or announcements, or events — and students end up juggling five different platforms. SAHYOG 2.0 was built to centralize all of it, while also being an exercise in writing full-stack code the way it's actually done in industry: modular routing, caching, RBAC, rate limiting, and realtime infrastructure — not just CRUD endpoints wired together.
 
-## Features
+---
 
-### Authentication & Security
+## Key Engineering Highlights
 
-- JWT-based session authentication
-- **Google OAuth 2.0 Direct Login** (one-click sign in)
-- Password hashing with bcrypt.js
-- Protected & public route architecture
-- Environment variable protection
-- Announcement creation protected via admin middleware
-- Announcement deletion protected via admin middleware
-- Notification APIs protected via JWT authentication
+- Modular, feature-based architecture (frontend and backend)
+- JWT Authentication with session restoration
+- Google OAuth 2.0 login
+- Role-Based Access Control (RBAC) on all admin routes
+- Redis caching layer
+- Socket.IO realtime rooms (live polling/elections)
+- Cloudinary media management with upload validation
+- Helmet + rate limiting for API hardening
+- Centralized error handling
+- REST APIs, organized route-by-feature
+- Fully responsive, mobile-first UI
 
-### Announcement & Notification System
+---
 
-- Admin announcement publishing dashboard
-- Announcement deletion system
-- Automatic notification generation
-- Notification bell with unread count
-- Dedicated notification center
-- Read / unread notification tracking
-- User-specific notifications
-- Admin broadcast communication system
+## What Changed: 1.0 → 2.0
+
+| Area          | SAHYOG 1.0        | SAHYOG 2.0                                                                    |
+| ------------- | ----------------- | ----------------------------------------------------------------------------- |
+| Auth          | Basic JWT         | JWT + Google OAuth + Session Restoration + Forgot Password/OTP                |
+| Frontend      | Flat structure    | Modular, feature-based structure                                              |
+| Admin         | Static panel      | Dedicated dashboard (resources, events, blood, feedback, support, CSV export) |
+| Notifications | Basic             | Full notification center with read/unread + delete                            |
+| Realtime      | None              | Socket.IO powered live voting/election rooms                                  |
+| Caching       | None              | Redis integration                                                             |
+| Security      | Basic             | Helmet, rate limiting, input validation, RBAC                                 |
+| API Structure | Monolithic routes | Feature-wise modular API layer                                                |
+| Uploads       | Basic             | Cloudinary-managed media with validation                                      |
+
+---
+
+## Core Features
+
+### Authentication
+
+- JWT-based session authentication with expiry checks on every app load
+- Google OAuth 2.0 login (server-side token verification via `google-auth-library`)
+- Forgot password flow with OTP verification via Brevo
+- Session restoration on refresh
+- Protected and public-only route architecture
 
 ### Academic Resources
 
-- Previous Year Question Papers (PYQs) portal
-- Filter by Year, Branch & Semester
-- Admin-controlled resource upload system
-- Google Drive link integration
+- Previous Year Question Papers (PYQs), notes, and study material
+- Branch-wise and semester-wise navigation
+- Paginated resource listing
+- Admin-controlled resource uploads
 
-### Student Support System
+### Student Welfare
 
-- AI-powered chat assistant (SAHYOG AI Buddy) — powered by Groq LLaMA 3.3 70B
-- Anonymous support form with direct team notification
-- Email dispatch via Brevo API
-- Fully confidential request handling
+- Blood request portal + emergency blood request flow with document/proof upload
+- Anonymous student support requests with category selection
+- Admin tracking and follow-up on both
 
-### Blood Assistance
+### Communication
 
-- Emergency blood request portal
-- Prescription/document upload support
-- Automated email alerts to SAHYOG team
-- Multi-recipient notification system
+- Institution-wide announcements from admin
+- Every major event (announcement, blood request, support ticket) auto-generates a notification
+- Notification center with unread count, read/unread tracking, and delete
 
-### Community, Events & Engagement
+### Events
 
-- Events gallery with image upload (Cloudinary)
-- Like / Unlike interactions (JWT protected)
-- Admin event publishing & deletion
-- Announcement publishing & deletion
-- Notification broadcasting system
-- Community engagement feed
+- Event gallery with Cloudinary-hosted images
+- Like/unlike system (JWT protected)
+- Admin-only publish/delete
 
-### Profile & Navigation
+### AI Buddy
 
-- User profile dashboard with avatar generation
-- Dropdown: My Profile, My Downloads, CR Contact, Team Sahyog, Campus View, Emergency Contacts
-- Admin-only export panel (CSV download of support responses)
+- Chat assistant powered by Groq (LLaMA 3.3 70B)
+- Conversation history persists across navigation
+- Responses rendered via React Markdown
 
-## Admin Management System
+### Live Rooms
 
-The portal includes a dedicated administrator dashboard for managing academic resources, events, announcements, and student communication.
+- Real-time polling/election rooms via Socket.IO
+- Room-code based joining
+- Live vote updates visible to everyone in the room instantly
 
-### Admin Features
+### Admin Dashboard
 
-- Upload PYQs and academic resources
-- Publish events with image hosting
-- Delete events
-- Create announcements
-- Delete announcements
-- Broadcast notifications
-- Export support requests (CSV)
-- Password-protected administrator access
+- Single control center for resources, events, announcements, blood requests, feedback, and support
+- CSV export of support responses
+- Role-based access, not hardcoded admin checks
+
+### Profile
+
+- Avatar upload via Cloudinary
+- Role display and account management
 
 ---
 
@@ -125,233 +127,176 @@ The portal includes a dedicated administrator dashboard for managing academic re
 
 ### Frontend
 
-| Technology               | Purpose                           |
-| ------------------------ | --------------------------------- |
-| React.js 18              | UI Framework                      |
-| Vite 5                   | Build Tool                        |
-| React Router DOM v6      | Client-side Routing               |
-| Axios                    | HTTP Client                       |
-| React Markdown           | AI chat rendering                 |
-| JWT Decode               | Token expiry management           |
-| Google Identity Services | OAuth 2.0 Login                   |
-| CSS3                     | Custom styling (glassmorphism UI) |
+| Technology               | Purpose             |
+| ------------------------ | ------------------- |
+| React 18                 | UI Framework        |
+| Vite                     | Build Tool          |
+| React Router DOM v6      | Client-side Routing |
+| Axios                    | HTTP Client         |
+| Socket.IO Client         | Realtime Rooms      |
+| Google Identity Services | OAuth 2.0 Login     |
+| React Markdown           | AI chat rendering   |
+| CSS3                     | Custom styling      |
 
 ### Backend
 
-| Technology               | Purpose                   |
-| ------------------------ | ------------------------- |
-| Node.js + Express.js     | Server & REST API         |
-| MongoDB Atlas + Mongoose | Database & ODM            |
-| JWT (jsonwebtoken)       | Auth token signing        |
-| bcrypt.js                | Password hashing          |
-| google-auth-library      | Google token verification |
-| Multer + Cloudinary      | Image/file uploads        |
-| Brevo API                | Email automation          |
-| Groq API (LLaMA 3.3 70B) | AI chat backend           |
-| json2csv                 | CSV export                |
+| Technology                  | Purpose                   |
+| --------------------------- | ------------------------- |
+| Node.js + Express.js        | Server & REST API         |
+| MongoDB Atlas + Mongoose    | Database & ODM            |
+| JWT (jsonwebtoken)          | Auth token signing        |
+| bcrypt.js                   | Password hashing          |
+| google-auth-library         | Google token verification |
+| Multer + Cloudinary         | Image/file uploads        |
+| Helmet + express-rate-limit | Security hardening        |
+| Redis                       | Caching                   |
+| Brevo API                   | Email & OTP delivery      |
+| Groq API (LLaMA 3.3 70B)    | AI chat backend           |
+| Socket.IO                   | Realtime communication    |
+| json2csv                    | CSV export                |
 
-### Deployment
+### Infra
 
-| Service         | Platform      |
-| --------------- | ------------- |
-| Frontend        | Vercel        |
-| Backend         | Render        |
-| Database        | MongoDB Atlas |
-| Media Storage   | Cloudinary    |
-| Version Control | GitHub        |
+| Service               | Purpose             |
+| --------------------- | ------------------- |
+| Vercel                | Frontend hosting    |
+| Render / NITRR Server | Backend hosting     |
+| MongoDB Atlas         | Primary database    |
+| Cloudinary            | Media storage & CDN |
+| Redis                 | Caching layer       |
+
+---
+
+## Architecture
+
+SAHYOG follows a feature-based architecture rather than a layered monolith — each module (auth, events, blood, support, notifications, rooms, admin) owns its own route, controller, model, and validators. This keeps every feature independent, so adding or changing one doesn't ripple through the rest of the app.
+
+```
+Student / Admin
+      │
+React + Vite Frontend
+(Pages, Components, Context API, Socket Client, Protected Routes)
+      │
+   Axios (API Layer)
+      │
+Express Backend
+(Auth, Academics, Events, Announcements, Notifications,
+ Blood Requests, Support, AI Buddy, Rooms, Profile, Admin)
+      │
+Middleware (Auth / RBAC / Validation / Rate Limiting)
+      │
+Controllers
+      │
+Mongoose → MongoDB Atlas
+      │
+Cloudinary · Redis · Groq AI · Brevo · Socket.IO
+```
+
+### Authentication Flow
+
+```
+Login Page → Axios Request → Auth Route → Validation
+→ Password Verification → JWT Generation → Cookie
+→ Auth Context → Protected Routes → Dashboard
+```
+
+Google Login follows the same flow, except Google verifies identity before the backend creates a session.
+
+### Notification Flow
+
+```
+System Event (announcement / blood request / support ticket / event)
+→ Notification Service → Database → Notification API
+→ Student Notification Center → Mark Read → Delete
+```
+
+### Blood Request Flow
+
+```
+Student → Blood Request Form → Validation → Cloudinary Upload
+→ MongoDB → Admin Dashboard → Notification → Student Update
+```
+
+Emergency requests follow the same flow with higher priority.
+
+### AI Buddy Flow
+
+```
+Student Message → Backend → Groq API → Response
+→ Chat Window → Conversation History
+```
+
+### Live Rooms Flow
+
+```
+Admin Creates Room → Room Code Generated → Student Joins
+→ Socket.IO Room → Vote Cast → Realtime Result Broadcast
+```
+
+---
+
+## Database Design
+
+| Collection      | Stores                                               |
+| --------------- | ---------------------------------------------------- |
+| Users           | Auth, role, profile, avatar                          |
+| Links           | Academic resources, branch, semester, URLs           |
+| Events          | Title, description, image, likes                     |
+| Notifications   | User, type, title, message, read status              |
+| BloodRequests   | Patient, blood group, hospital, contact, proof image |
+| SupportRequests | Category, contact, anonymous name, description       |
+| Feedback        | Feedback text, rating, timestamp                     |
+| Rooms           | Room code, poll, options, votes                      |
 
 ---
 
 ## Project Structure
 
 ```
-sahyog-portal/
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │
-│   ├── assets/
-│   │
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── Footer.jsx
-│   │   ├── AdminUpload.jsx
-│   │   ├── AdminEventUpload.jsx
-│   │   ├── AdminAnnouncementUpload.jsx
-│   │   ├── AdminAnnouncementList.jsx
-│   │   ├── NotificationBell.jsx
-│   │   ├── FeedbackForm.jsx
-│   │   ├── LinkList.jsx
-│   │   └── UserCount.jsx
-│   │
-│   ├── context/
-│   │   └── AuthContext.jsx
-│   │
-│   ├── pages/
-│   │   ├── LoginPage.jsx
-│   │   ├── SignupPage.jsx
-│   │   ├── Home.jsx
-│   │   ├── AIHelpPage.jsx
-│   │   ├── HelpPage.jsx
-│   │   ├── SahyogSupportPage.jsx
-│   │   ├── EventsPage.jsx
-│   │   ├── NotificationsPage.jsx
-│   │   ├── BloodRequestPage.jsx
-│   │   ├── EmergencyBloodRequestPage.jsx
-│   │   ├── ProfilePage.jsx
-│   │   ├── AboutPage.jsx
-│   │   ├── AdminPage.jsx
-│   │   ├── BranchPage.jsx
-│   │   ├── SemesterPage.jsx
-│   │   ├── Viewer.jsx
-│   │   ├── ComingSoon.jsx
-│   │   ├── ProtectedRoute.jsx
-│   │   └── PublicOnlyRoute.jsx
-│   │
-│   ├── styles2/
-│   │   ├── AuthPages.css
-│   │   ├── BloodRequestPage.css
-│   │   ├── HelpPages.css
-│   │   ├── ViewerPage.css
-│   │   ├── NotificationPage.css
-│   │   ├── NavbarNotification.css
-│   │   └── AdminAnnouncement.css
-│   │
-│   ├── api.js
-│   ├── constant.js
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── styles.css
-│
+SAHYOG/
 ├── backend/
+│   ├── config/            # cloudinary, db, redis, passport
+│   ├── controllers/
+│   ├── middleware/        # auth, RBAC, rate limiting, error handling
 │   ├── models/
-│   │   ├── User.js
-│   │   ├── Event.js
-│   │   ├── Link.js
-│   │   ├── Feedback.js
-│   │   ├── SupportRequest.js
-│   │   ├── Announcement.js
-│   │   └── Notification.js
-│   │
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── aiRoutes.js
-│   │   ├── events.js
-│   │   ├── links.js
-│   │   ├── announcements.js
-│   │   ├── notifications.js
-│   │   ├── bloodRequest.js
-│   │   ├── feedback.js
-│   │   ├── supportRoutes.js
-│   │   ├── profile.js
-│   │   └── users.js
-│   │
-│   ├── middleware/
-│   │   └── auth.js
-│   │
-│   ├── server.js
-│   └── package.json
+│   ├── routes/             # auth, admin, ai, events, blood, support, rooms, etc.
+│   ├── services/
+│   ├── validators/
+│   ├── utils/
+│   ├── app.js
+│   └── server.js
 │
-└── README.md
+└── frontend/
+    └── src/
+        ├── api/            # per-feature API layer
+        ├── assets/          # screenshots & static images
+        ├── components/
+        │   ├── admin/
+        │   └── ui/
+        ├── context/         # AuthContext
+        ├── pages/
+        │   ├── Home.jsx
+        │   ├── LoginPage.jsx
+        │   ├── SignupPage.jsx
+        │   ├── AcademicResourcesPage.jsx
+        │   ├── BloodRequestPage.jsx
+        │   ├── EmergencyBloodRequestPage.jsx
+        │   ├── SahyogSupportPage.jsx
+        │   ├── EventsPage.jsx
+        │   ├── NotificationsPage.jsx
+        │   ├── RoomsPage.jsx
+        │   ├── AIHelpPage.jsx
+        │   ├── ProfilePage.jsx
+        │   ├── AdminPage.jsx
+        │   └── AboutPage.jsx
+        ├── routes/
+        ├── socket/
+        └── styles/
 ```
-
----
-
-## Announcement & Notification Workflow
-
-Admin publishes announcement
-↓
-Announcement stored in MongoDB
-↓
-Notifications generated
-↓
-Unread count updated
-↓
-Navbar bell updated
-↓
-User opens notification center
-↓
-Notification marked as read
-
-## Blood Request Workflow
-
-```
-Student submits emergency request
-           ↓
-Frontend validates & sends form data + document
-           ↓
-Backend receives, validates fields
-           ↓
-Document uploaded (Multer memory storage)
-           ↓
-Brevo API dispatches email to all SAHYOG receivers
-           ↓
-Confirmation response sent to student
-```
-
----
-
-## AI Chat Workflow
-
-```
-Student types message in SAHYOG AI Buddy
-           ↓
-Frontend POSTs to /api/ai/chat
-           ↓
-Backend forwards to Groq API (LLaMA 3.3 70B)
-           ↓
-Response rendered via React Markdown
-           ↓
-Chat persists across navigation (localStorage)
-```
-
----
-
-## Environment Variables
-
-### Backend (Render)
-
-```env
-JWT_SECRET=
-ADMIN_PASSWORD=
-GOOGLE_CLIENT_ID=
-GROQ_API_KEY=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-BREVO_API_KEY=
-EMAIL_FROM=
-BLOOD_REQUEST_RECEIVER=
-SUPPORT_RECEIVER=
-MONGO_URI=
-```
-
-### Frontend (Vercel)
-
-```env
-VITE_API_URL=https://sahyog-backend-topb.onrender.com
-VITE_GOOGLE_CLIENT_ID=
-```
-
----
-
-## Security Architecture
-
-- Google OAuth 2.0 token verified server-side via `google-auth-library`
-- JWT tokens expire in 3 hours, checked on every app load
-- Passwords hashed with bcrypt (salt rounds: 10)
-- Admin routes protected by separate password middleware
-- All sensitive keys stored in environment variables, never committed
-- File uploads validated by type and size (5MB limit)
-- CORS configured for trusted origins only
 
 ---
 
 ## Screenshots
-
-### Login Page
-
-![Login Page](./frontend/src/assets/loginpage.png)
 
 ### Home Page
 
@@ -359,83 +304,121 @@ VITE_GOOGLE_CLIENT_ID=
 
 ### Blood Request Portal
 
-![Blood Request](./frontend/src/assets/bloodportal.png)
+![Blood Request](./frontend/src/assets/blood-request.png)
+![Blood Request](./frontend/src/assets/blood-request1.png)
 
-### Emergency Blood Request Form
+### Blood Request — Admin Response
 
-![Emergency Form](./frontend/src/assets/bloodform.png)
+![Blood Response](./frontend/src/assets/blood-response.png)
 
-### Student Help Page
+### Student Support Form
 
-![Student Help](./frontend/src/assets/helppage.png)
-
-### SAHYOG AI Chat
-
-![AI Chat](./frontend/src/assets/aichat.png)
-
-### User Profile Dashboard
-
-![Profile Dashboard](./frontend/src/assets/profilepage.png)
+![Student Support Form](./frontend/src/assets/support-form.png)
 
 ### Notification Center
 
 ![Notification Center](./frontend/src/assets/notification-center.png)
 
-### Admin Announcement Dashboard
+### Profile Dashboard
 
-![Admin Dashboard](./frontend/src/assets/admin-announcement-dashboard.png)
+![Profile Dashboard](./frontend/src/assets/profile.png)
 
-### About Us
+### Admin Dashboard
 
-![About Us](./frontend/src/assets/aboutus.png)
+![Admin Dashboard](./frontend/src/assets/admin-dashboard.png)
+![Admin Dashboard](./frontend/src/assets/admin-dashboard1.png)
+
+### Admin — Resource Upload
+
+![Admin Upload](./frontend/src/assets/admin-upload.png)
+
+### Academic Resources (Links Section)
+
+![Academic Resources](./frontend/src/assets/academic-resources.png)
+
+### Live Rooms (Voting/Elections)
+
+![Live Rooms](./frontend/src/assets/rooms.png)
 
 ---
 
-## Developed By
+## Security
 
-<div align="center">
+- JWT authentication with session restoration + Google OAuth (server-side token verification)
+- Role-Based Access Control on all admin routes
+- Passwords hashed with bcrypt
+- Helmet + express-rate-limit against common attacks
+- Request and file validation (type + size limits on uploads)
+- Centralized error handling with an async error wrapper
+- All secrets stored in environment variables — nothing committed to the repo
 
-### Piyush Kumar Verma
+---
 
-**Information Technology Department**
-National Institute of Technology, Raipur
+## Performance
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/piyush-verma-25550728a/)
+- Redis caching on frequently-read data
+- API pagination across resources, events, and notifications
+- Cloudinary CDN for media delivery
+- Modular API structure to avoid duplicate/overlapping requests
+- Indexed MongoDB collections and optimized queries
 
-_Designed & Developed for_
-**SAHYOG — The Student Wellbeing Club, NIT Raipur**
+---
 
-</div>
+## Deployment
+
+The architecture was kept environment-agnostic by design — moving from local/staging to a production domain is a matter of environment configuration (API base URL, CORS origins, database URI, Redis URL), not application code changes. Designed with production deployment and institutional scalability in mind.
 
 ---
 
 ## Roadmap
 
-- [x] JWT Authentication
-- [x] Google OAuth 2.0 Login
-- [x] Academic Resource Portal (PYQs)
-- [x] Emergency Blood Request System
-- [x] AI Student Assistant (Groq LLaMA)
-- [x] Events Module with Like System
-- [x] Anonymous Support Form
-- [x] Admin Panel with CSV Export
-- [x] Notification Center
-- [x] Announcement Management System
-- [x] Admin Announcement Dashboard
-- [x] Notification Bell with Unread Count
-- [x] Read / Unread Notification Tracking
-- [ ] Chat History Persistence
-- [ ] CR Contact System
-- [ ] Team Sahyog Directory
-- [ ] Campus View
-- [ ] Emergency Contacts Page
-- [ ] Volunteer Management System
-- [ ] Admin Analytics Dashboard
-- [ ] Mobile App (React Native)
+**Completed**
+
+- Modular frontend & backend architecture
+- JWT + Google OAuth authentication with session restoration
+- RBAC and protected admin routes
+- Notification center + announcement system
+- AI Buddy (Groq integration)
+- Blood request & student support portals
+- Event management with likes
+- Live rooms (Socket.IO)
+- Redis caching, Cloudinary media management
+- Responsive, mobile-first UI
+
+**Upcoming**
+
+- Institutional domain deployment
+- Push notifications
+- Analytics dashboard for admin
+- Multi-college support
+- Faculty dashboard
+- ERP integration
+- Mobile app (React Native)
+
+---
+
+## Developer
+
+**Piyush Kumar Verma**
+Information Technology, National Institute of Technology Raipur
+
+[LinkedIn](https://www.linkedin.com/in/piyush-verma-25550728a/)
+
+Built with the goal of creating a centralized digital ecosystem for student life at NIT Raipur — and to practice full-stack engineering the way it's done in the industry.
 
 ---
 
 ## License
 
-Developed for educational and institutional purposes under **SAHYOG Club, NIT Raipur**.
-All rights reserved © 2025 Piyush Kumar Verma.
+Copyright © 2026 Piyush Verma.
+All Rights Reserved.
+
+This repository is provided for portfolio and educational viewing only. No part of this project may be copied, redistributed, modified, or used in another project without explicit written permission from the author.
+
+---
+
+<div align="center">
+
+**SAHYOG 2.0 — Learn Together • Support Together • Grow Together**
+
+</div>
