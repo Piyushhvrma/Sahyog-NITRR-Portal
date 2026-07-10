@@ -2,18 +2,27 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
+
 import sahyogLogo from "../assets/sahyog-logo.png";
 import authPreview from "../assets/auth-portal-preview.png";
 
-import { registerUser, googleLogin } from "../api";
+import {
+  registerUser,
+  googleLogin,
+} from "../api";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState({ type: null, message: "" });
+  const [isLoading, setIsLoading] =
+    useState(false);
+
+  const [status, setStatus] = useState({
+    type: null,
+    message: "",
+  });
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -23,7 +32,11 @@ const SignupPage = () => {
 
     try {
       setIsLoading(true);
-      setStatus({ type: null, message: "" });
+
+      setStatus({
+        type: null,
+        message: "",
+      });
 
       const data = await registerUser({
         name,
@@ -35,43 +48,60 @@ const SignupPage = () => {
 
       setStatus({
         type: "success",
-        message: "Account created successfully. Redirecting...",
+        message:
+          "Account created successfully. Redirecting...",
       });
 
       setTimeout(() => {
-        navigate("/", { replace: true });
+        navigate("/", {
+          replace: true,
+        });
       }, 500);
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Signup failed.",
+        message:
+          error.message || "Signup failed.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignup = async (credentialResponse) => {
+  const handleGoogleSignup = async (
+    credentialResponse
+  ) => {
     try {
       setIsLoading(true);
-      setStatus({ type: null, message: "" });
 
-      const data = await googleLogin(credentialResponse.credential);
+      setStatus({
+        type: null,
+        message: "",
+      });
+
+      const data = await googleLogin(
+        credentialResponse.credential
+      );
 
       login(data.user);
 
       setStatus({
         type: "success",
-        message: "Google signup successful. Redirecting...",
+        message:
+          "Google signup successful. Redirecting...",
       });
 
       setTimeout(() => {
-        navigate("/", { replace: true });
+        navigate("/", {
+          replace: true,
+        });
       }, 800);
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Google Signup Failed.",
+        message:
+          error.message ||
+          "Google Signup Failed.",
       });
     } finally {
       setIsLoading(false);
@@ -82,30 +112,33 @@ const SignupPage = () => {
     <div className="auth-page-v2">
       <section className="auth-card-v2">
         <div className="auth-brand-row">
-          <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
+          <img
+            src={sahyogLogo}
+            alt="SAHYOG"
+            className="auth-logo-img"
+          />
+
           <div>
-            <span>Join SAHYOG</span>
+            <span>SAHYOG Student Portal</span>
             <strong>NIT Raipur</strong>
           </div>
         </div>
 
         <div className="auth-preview-box">
-          <img src={authPreview} alt="SAHYOG portal preview" />
+          <img
+            src={authPreview}
+            alt="SAHYOG student portal preview"
+          />
         </div>
 
         <h1>Create Account</h1>
 
         <p className="auth-intro-text">
-          Register once to use academic resources, support services,
-          notifications, club events, blood help, AI Buddy and live rooms.
+          Create your student account to access
+          academic resources, previous-year
+          questions, campus updates, blood
+          assistance and SAHYOG support services.
         </p>
-
-        <div className="auth-mini-features">
-          <span>Notes</span>
-          <span>Blood Help</span>
-          <span>Updates</span>
-          <span>Rooms</span>
-        </div>
 
         {isLoading && (
           <div className="auth-loading-v2">
@@ -125,7 +158,8 @@ const SignupPage = () => {
               onError={() =>
                 setStatus({
                   type: "error",
-                  message: "Google Signup Failed.",
+                  message:
+                    "Google Signup Failed.",
                 })
               }
               theme="outline"
@@ -140,12 +174,17 @@ const SignupPage = () => {
           <span>OR</span>
         </div>
 
-        <form className="auth-form-v2" onSubmit={handleSubmit}>
+        <form
+          className="auth-form-v2"
+          onSubmit={handleSubmit}
+        >
           <input
             type="text"
             placeholder="Full Name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
             required
           />
 
@@ -153,7 +192,9 @@ const SignupPage = () => {
             type="email"
             placeholder="Email Address"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
             required
           />
 
@@ -161,7 +202,9 @@ const SignupPage = () => {
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
             required
           />
 
@@ -170,19 +213,26 @@ const SignupPage = () => {
             className="auth-submit-v2"
             disabled={isLoading}
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading
+              ? "Creating Account..."
+              : "Create Account"}
           </button>
         </form>
 
         {status.message && (
-          <div className={`auth-status-v2 ${status.type}`}>
+          <div
+            className={`auth-status-v2 ${status.type}`}
+          >
             {status.message}
           </div>
         )}
 
         <p className="auth-switch-v2">
           Already have an account?
-          <Link to="/login"> Sign In</Link>
+          <Link to="/login">
+            {" "}
+            Sign In
+          </Link>
         </p>
       </section>
     </div>

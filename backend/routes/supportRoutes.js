@@ -1,16 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const SupportRequest = require("../models/SupportRequest");
-const { Parser } = require("json2csv");
+const {
+  Parser,
+} = require("json2csv");
 
+const SupportRequest = require("../models/SupportRequest");
+
+const jwtAuth = require("../middleware/jwtAuth");
+const optionalJwtAuth = require("../middleware/optionalJwtAuth");
+const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
-const jwtAuth = require("../middleware/jwtAuth");
-const requireRole = require("../middleware/roleAuth");
-const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
-const { sendSuccess, sendPaginated } = require("../utils/response");
-const { sendSupportRequestEmail } = require("../services/mail.service");
-const { deleteCacheByPattern } = require("../utils/cache");
+
+const {
+  formLimiter,
+  adminLimiter,
+} = require("../middleware/rateLimiters");
+
+const {
+  sendSuccess,
+  sendPaginated,
+} = require("../utils/response");
+
+const {
+  sendSupportRequestEmail,
+} = require("../services/mail.service");
+
+const {
+  createFormSubmissionNotification,
+} = require("../services/notification.service");
+
+const {
+  emitToUser,
+} = require("../socket/socket");
+
+const {
+  deleteCacheByPattern,
+} = require("../utils/cache");
 
 const {
   supportRequestValidator,
@@ -24,42 +50,101 @@ const {
 
 router.post(
   "/",
+  optionalJwtAuth,
   formLimiter,
   supportRequestValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const { name, contact, category, message } = req.body;
-
-    const supportRequest = await SupportRequest.create({
-      name: name || "Anonymous Student",
-      contact: contact || "Not Provided",
+    const {
+      name,
+      contact,
       category,
       message,
-    });
+    } = req.body;
 
-    await deleteCacheByPattern("admin:stats*");
-
-    try {
-      await sendSupportRequestEmail({
-        name,
-        contact,
+    const supportRequest =
+      await SupportRequest.create({
+        name:
+          name?.trim() ||
+          "Anonymous Student",
+        contact:
+          contact?.trim() ||
+          "Not Provided",
         category,
         message,
       });
 
-      supportRequest.emailStatus = "sent";
-      await supportRequest.save();
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-      return sendSuccess(res, 200, "Support request submitted successfully.");
-    } catch {
-      supportRequest.emailStatus = "failed";
-      await supportRequest.save();
-
-      return res.status(502).json({
-        success: false,
-        message: "Request saved, but email alert failed. Please contact admin.",
+    try {
+      await sendSupportRequestEmail({
+        name:
+          name ||
+          "Anonymous Student",
+        contact:
+          contact ||
+          "Not Provided",
+        category,
+        message,
       });
+
+      supportRequest.emailStatus =
+        "sent";
+
+      await supportRequest.save();
+    } catch (error) {
+      supportRequest.emailStatus =
+        "failed";
+
+      await supportRequest.save();
+
+      console.error(
+        "Support email failed:",
+        error.message
+      );
     }
+
+    const notification =
+      await createFormSubmissionNotification({
+        authenticatedUserId:
+          req.user?.id,
+
+        email:
+          contact &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            contact.trim()
+          )
+            ? contact
+            : "",
+
+        title:
+          "Support Request Submitted",
+
+        message:
+          "Your concern has been privately shared with the SAHYOG team. The team will review it as soon as possible.",
+
+        type: "SUPPORT",
+      });
+
+    if (notification) {
+      emitToUser(
+        notification.userId,
+        "notification-created",
+        notification
+      );
+    }
+
+    return sendSuccess(
+      res,
+      201,
+      "Your request has been sent privately to the SAHYOG team.",
+      {
+        requestId:
+          supportRequest._id,
+      }
+    );
   })
 );
 
@@ -71,32 +156,81 @@ router.get(
   paginationValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
-    const skip = (page - 1) * limit;
+    const page = Math.max(
+      Number(req.query.page) || 1,
+      1
+    );
 
-    const { search, status } = req.query;
+    const limit = Math.min(
+      Math.max(
+        Number(req.query.limit) || 10,
+        1
+      ),
+      100
+    );
+
+    const skip =
+      (page - 1) * limit;
+
+    const {
+      search,
+      status,
+    } = req.query;
 
     const filter = {};
 
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = status;
+    }
 
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { contact: { $regex: search, $options: "i" } },
-        { category: { $regex: search, $options: "i" } },
-        { message: { $regex: search, $options: "i" } },
+        {
+          name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          contact: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          category: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          message: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
-    const [requests, total] = await Promise.all([
-      SupportRequest.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      SupportRequest.countDocuments(filter),
+    const [
+      requests,
+      total,
+    ] = await Promise.all([
+      SupportRequest.find(filter)
+        .sort({
+          createdAt: -1,
+        })
+        .skip(skip)
+        .limit(limit),
+
+      SupportRequest.countDocuments(
+        filter
+      ),
     ]);
 
     return sendPaginated(res, {
-      message: "Support requests fetched successfully.",
+      message:
+        "Support requests fetched successfully.",
       dataKey: "requests",
       data: requests,
       page,
@@ -114,23 +248,44 @@ router.patch(
   supportStatusValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const request = await SupportRequest.findById(req.params.id);
+    const request =
+      await SupportRequest.findById(
+        req.params.id
+      );
 
     if (!request) {
-      return res.status(404).json({ message: "Support request not found." });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Support request not found.",
+      });
     }
 
-    request.status = req.body.status;
-    request.priority = req.body.priority || request.priority;
-    request.adminNote = req.body.adminNote ?? request.adminNote;
+    request.status =
+      req.body.status;
+
+    request.priority =
+      req.body.priority ||
+      request.priority;
+
+    request.adminNote =
+      req.body.adminNote ??
+      request.adminNote;
 
     await request.save();
 
-    await deleteCacheByPattern("admin:stats*");
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-    return sendSuccess(res, 200, "Support request updated successfully.", {
-      request,
-    });
+    return sendSuccess(
+      res,
+      200,
+      "Support request updated successfully.",
+      {
+        request,
+      }
+    );
   })
 );
 
@@ -142,17 +297,32 @@ router.delete(
   mongoIdValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const request = await SupportRequest.findById(req.params.id);
+    const request =
+      await SupportRequest.findById(
+        req.params.id
+      );
 
     if (!request) {
-      return res.status(404).json({ message: "Support request not found." });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Support request not found.",
+      });
     }
 
-    await SupportRequest.findByIdAndDelete(req.params.id);
+    await SupportRequest.findByIdAndDelete(
+      req.params.id
+    );
 
-    await deleteCacheByPattern("admin:stats*");
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-    return sendSuccess(res, 200, "Support request deleted successfully.");
+    return sendSuccess(
+      res,
+      200,
+      "Support request deleted successfully."
+    );
   })
 );
 
@@ -162,12 +332,19 @@ router.get(
   requireRole("admin", "superadmin"),
   adminLimiter,
   asyncHandler(async (req, res) => {
-    const requests = await SupportRequest.find()
-      .sort({ createdAt: -1 })
-      .lean();
+    const requests =
+      await SupportRequest.find()
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
 
     if (!requests.length) {
-      return res.status(404).send("No submissions found.");
+      return res
+        .status(404)
+        .send(
+          "No support requests found."
+        );
     }
 
     const fields = [
@@ -183,16 +360,27 @@ router.get(
       "createdAt",
     ];
 
-    const parser = new Parser({ fields });
-    const csvData = parser.parse(requests);
+    const parser =
+      new Parser({
+        fields,
+      });
 
-    res.setHeader("Content-Type", "text/csv");
+    const csvData =
+      parser.parse(requests);
+
     res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=Sahyog_Support_Submissions.csv"
+      "Content-Type",
+      "text/csv"
     );
 
-    return res.status(200).send(csvData);
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=Sahyog_Support_Requests.csv"
+    );
+
+    return res
+      .status(200)
+      .send(csvData);
   })
 );
 

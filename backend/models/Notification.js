@@ -1,45 +1,79 @@
 const mongoose = require("mongoose");
 
-const NotificationSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+const NotificationSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
 
-  announcementId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Announcement",
-    default: null,
-  },
+    announcementId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Announcement",
+      default: null,
+      index: true,
+    },
 
-  title: {
-    type: String,
-    required: true,
-  },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  message: {
-    type: String,
-    required: true,
-  },
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  type: {
-    type: String,
-    enum: ["ADMIN", "SYSTEM"],
-    default: "ADMIN",
-  },
+    type: {
+      type: String,
+      enum: [
+        "ADMIN",
+        "SYSTEM",
+        "FEEDBACK",
+        "SUPPORT",
+        "BLOOD",
+      ],
+      default: "SYSTEM",
+    },
 
-  isRead: {
-    type: Boolean,
-    default: false,
+    isRead: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
+  {
+    timestamps: true,
+  }
+);
 
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+NotificationSchema.index({
+  userId: 1,
+  createdAt: -1,
 });
+
+NotificationSchema.index(
+  {
+    userId: 1,
+    announcementId: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: {
+      announcementId: {
+        $type: "objectId",
+      },
+    },
+  }
+);
 
 module.exports =
   mongoose.models.Notification ||
-  mongoose.model("Notification", NotificationSchema);
+  mongoose.model(
+    "Notification",
+    NotificationSchema
+  );

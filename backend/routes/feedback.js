@@ -1,16 +1,38 @@
 const express = require("express");
 const router = express.Router();
-const { Parser } = require("json2csv");
+const {
+  Parser,
+} = require("json2csv");
 
 const Feedback = require("../models/Feedback");
 
 const jwtAuth = require("../middleware/jwtAuth");
+const optionalJwtAuth = require("../middleware/optionalJwtAuth");
 const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
-const { formLimiter, adminLimiter } = require("../middleware/rateLimiters");
-const { sendSuccess, sendPaginated } = require("../utils/response");
-const { deleteCacheByPattern } = require("../utils/cache");
+
+const {
+  formLimiter,
+  adminLimiter,
+} = require("../middleware/rateLimiters");
+
+const {
+  sendSuccess,
+  sendPaginated,
+} = require("../utils/response");
+
+const {
+  deleteCacheByPattern,
+} = require("../utils/cache");
+
+const {
+  createFormSubmissionNotification,
+} = require("../services/notification.service");
+
+const {
+  emitToUser,
+} = require("../socket/socket");
 
 const {
   feedbackValidator,
@@ -24,17 +46,45 @@ const {
 
 router.post(
   "/",
+  optionalJwtAuth,
   formLimiter,
   feedbackValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const feedback = await Feedback.create(req.body);
+    const feedback =
+      await Feedback.create(req.body);
 
-    await deleteCacheByPattern("admin:stats*");
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-    return sendSuccess(res, 201, "Feedback received, thank you.", {
-      feedback,
-    });
+    const notification =
+      await createFormSubmissionNotification({
+        authenticatedUserId:
+          req.user?.id,
+        email: req.body.email,
+        title: "Feedback Submitted",
+        message:
+          "Your feedback has been received by the SAHYOG team. Thank you for helping us improve.",
+        type: "FEEDBACK",
+      });
+
+    if (notification) {
+      emitToUser(
+        notification.userId,
+        "notification-created",
+        notification
+      );
+    }
+
+    return sendSuccess(
+      res,
+      201,
+      "Feedback received, thank you.",
+      {
+        feedback,
+      }
+    );
   })
 );
 
@@ -46,31 +96,75 @@ router.get(
   paginationValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
-    const skip = (page - 1) * limit;
+    const page = Math.max(
+      Number(req.query.page) || 1,
+      1
+    );
 
-    const { search, status } = req.query;
+    const limit = Math.min(
+      Math.max(
+        Number(req.query.limit) || 10,
+        1
+      ),
+      100
+    );
+
+    const skip =
+      (page - 1) * limit;
+
+    const {
+      search,
+      status,
+    } = req.query;
 
     const filter = {};
 
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = status;
+    }
 
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { message: { $regex: search, $options: "i" } },
+        {
+          name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          message: {
+            $regex: search,
+            $options: "i",
+          },
+        },
       ];
     }
 
-    const [feedbacks, total] = await Promise.all([
-      Feedback.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Feedback.countDocuments(filter),
+    const [
+      feedbacks,
+      total,
+    ] = await Promise.all([
+      Feedback.find(filter)
+        .sort({
+          createdAt: -1,
+        })
+        .skip(skip)
+        .limit(limit),
+
+      Feedback.countDocuments(
+        filter
+      ),
     ]);
 
     return sendPaginated(res, {
-      message: "Feedback fetched successfully.",
+      message:
+        "Feedback fetched successfully.",
       dataKey: "feedbacks",
       data: feedbacks,
       page,
@@ -88,20 +182,36 @@ router.patch(
   feedbackStatusValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const feedback = await Feedback.findById(req.params.id);
+    const feedback =
+      await Feedback.findById(
+        req.params.id
+      );
 
     if (!feedback) {
-      return res.status(404).json({ message: "Feedback not found." });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Feedback not found.",
+      });
     }
 
-    feedback.status = req.body.status;
+    feedback.status =
+      req.body.status;
+
     await feedback.save();
 
-    await deleteCacheByPattern("admin:stats*");
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-    return sendSuccess(res, 200, "Feedback status updated successfully.", {
-      feedback,
-    });
+    return sendSuccess(
+      res,
+      200,
+      "Feedback status updated successfully.",
+      {
+        feedback,
+      }
+    );
   })
 );
 
@@ -113,17 +223,32 @@ router.delete(
   mongoIdValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const feedback = await Feedback.findById(req.params.id);
+    const feedback =
+      await Feedback.findById(
+        req.params.id
+      );
 
     if (!feedback) {
-      return res.status(404).json({ message: "Feedback not found." });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Feedback not found.",
+      });
     }
 
-    await Feedback.findByIdAndDelete(req.params.id);
+    await Feedback.findByIdAndDelete(
+      req.params.id
+    );
 
-    await deleteCacheByPattern("admin:stats*");
+    await deleteCacheByPattern(
+      "admin:stats*"
+    );
 
-    return sendSuccess(res, 200, "Feedback deleted successfully.");
+    return sendSuccess(
+      res,
+      200,
+      "Feedback deleted successfully."
+    );
   })
 );
 
@@ -133,23 +258,51 @@ router.get(
   requireRole("admin", "superadmin"),
   adminLimiter,
   asyncHandler(async (req, res) => {
-    const feedbacks = await Feedback.find().sort({ createdAt: -1 }).lean();
+    const feedbacks =
+      await Feedback.find()
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
 
     if (!feedbacks.length) {
-      return res.status(404).send("No feedback found.");
+      return res
+        .status(404)
+        .send(
+          "No feedback found."
+        );
     }
 
-    const fields = ["_id", "name", "email", "message", "status", "createdAt"];
-    const parser = new Parser({ fields });
-    const csvData = parser.parse(feedbacks);
+    const fields = [
+      "_id",
+      "name",
+      "email",
+      "message",
+      "status",
+      "createdAt",
+    ];
 
-    res.setHeader("Content-Type", "text/csv");
+    const parser =
+      new Parser({
+        fields,
+      });
+
+    const csvData =
+      parser.parse(feedbacks);
+
+    res.setHeader(
+      "Content-Type",
+      "text/csv"
+    );
+
     res.setHeader(
       "Content-Disposition",
       "attachment; filename=Sahyog_Feedback.csv"
     );
 
-    return res.status(200).send(csvData);
+    return res
+      .status(200)
+      .send(csvData);
   })
 );
 

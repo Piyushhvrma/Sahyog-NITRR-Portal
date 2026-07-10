@@ -13,3 +13,9 @@ export const markNotificationAsRead = (id) => {
     method: "PUT",
   });
 };
+
+export const deleteNotification = (id) => {
+  return apiRequest(`/api/notifications/${id}`, {
+    method: "DELETE",
+  });
+};

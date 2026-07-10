@@ -7,9 +7,18 @@ const jwtAuth = require("../middleware/jwtAuth");
 const requireRole = require("../middleware/roleAuth");
 const validateRequest = require("../middleware/validateRequest");
 const asyncHandler = require("../middleware/asyncHandler");
-const { adminLimiter } = require("../middleware/rateLimiters");
-const { sendSuccess } = require("../utils/response");
-const { emitToAllUsers } = require("../socket/socket");
+
+const {
+  adminLimiter,
+} = require("../middleware/rateLimiters");
+
+const {
+  sendSuccess,
+} = require("../utils/response");
+
+const {
+  emitToAllUsers,
+} = require("../socket/socket");
 
 const {
   getCache,
@@ -38,13 +47,15 @@ router.post(
   asyncHandler(async (req, res) => {
     const { title, description, category } = req.body;
 
-    const cleanTitle = title?.trim();
-    const cleanDescription = description?.trim();
+    const cleanTitle = title.trim();
+    const cleanDescription = description.trim();
+    const cleanCategory = category?.trim() || "General";
 
     const announcement = await Announcement.create({
       title: cleanTitle,
       description: cleanDescription,
-      category,
+      message: cleanDescription,
+      category: cleanCategory,
     });
 
     await createAnnouncementNotifications(announcement);
@@ -53,18 +64,32 @@ router.post(
     await deleteCache("announcements:latest");
     await deleteCacheByPattern("admin:stats*");
 
+    const notificationPayload = {
+      title: cleanTitle,
+      message: cleanDescription,
+      type: "ADMIN",
+      announcementId: announcement._id,
+      createdAt: announcement.createdAt,
+    };
+
     emitToAllUsers("new-announcement", {
       announcement,
-      notification: {
-        title: cleanTitle,
-        message: cleanDescription,
-        type: "ADMIN",
-      },
+      notification: notificationPayload,
     });
 
-    return sendSuccess(res, 201, "Announcement published successfully.", {
-      announcement,
-    });
+    emitToAllUsers(
+      "notification-created",
+      notificationPayload
+    );
+
+    return sendSuccess(
+      res,
+      201,
+      "Announcement published successfully.",
+      {
+        announcement,
+      }
+    );
   })
 );
 
@@ -78,11 +103,13 @@ router.get(
       return res.status(200).json(cachedData);
     }
 
-    const announcements = await Announcement.find().sort({ createdAt: -1 });
+    const announcements = await Announcement.find().sort({
+      createdAt: -1,
+    });
 
     await setCache(cacheKey, announcements, 180);
 
-    return res.json(announcements);
+    return res.status(200).json(announcements);
   })
 );
 
@@ -96,11 +123,13 @@ router.get(
       return res.status(200).json(cachedData);
     }
 
-    const latest = await Announcement.find().sort({ createdAt: -1 }).limit(3);
+    const latest = await Announcement.find()
+      .sort({ createdAt: -1 })
+      .limit(3);
 
     await setCache(cacheKey, latest, 180);
 
-    return res.json(latest);
+    return res.status(200).json(latest);
   })
 );
 
@@ -112,20 +141,32 @@ router.delete(
   announcementIdValidator,
   validateRequest,
   asyncHandler(async (req, res) => {
-    const announcement = await Announcement.findById(req.params.id);
+    const announcement = await Announcement.findById(
+      req.params.id
+    );
 
     if (!announcement) {
-      return res.status(404).json({ message: "Announcement not found." });
+      return res.status(404).json({
+        success: false,
+        message: "Announcement not found.",
+      });
     }
 
     await Announcement.findByIdAndDelete(req.params.id);
-    await deleteNotificationsByAnnouncement(announcement._id);
+
+    await deleteNotificationsByAnnouncement(
+      announcement._id
+    );
 
     await deleteCache("announcements:all");
     await deleteCache("announcements:latest");
     await deleteCacheByPattern("admin:stats*");
 
-    return sendSuccess(res, 200, "Announcement deleted successfully.");
+    return sendSuccess(
+      res,
+      200,
+      "Announcement deleted successfully."
+    );
   })
 );
 

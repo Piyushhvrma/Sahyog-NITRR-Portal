@@ -1,43 +1,34 @@
 const mongoose = require("mongoose");
 
-const NotificationSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+const AnnouncementSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  announcementId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Announcement",
-    default: null,
-  },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  title: {
-    type: String,
-    required: true,
-  },
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-  message: {
-    type: String,
-    required: true,
+    category: {
+      type: String,
+      default: "General",
+      trim: true,
+    },
   },
+  { timestamps: true }
+);
 
-  type: {
-    type: String,
-    enum: ["ADMIN", "SYSTEM"],
-    default: "ADMIN",
-  },
-
-  isRead: {
-    type: Boolean,
-    default: false,
-  },
-
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-module.exports = mongoose.model("Notification", NotificationSchema);
+module.exports =
+  mongoose.models.Announcement ||
+  mongoose.model("Announcement", AnnouncementSchema);

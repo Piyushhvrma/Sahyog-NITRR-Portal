@@ -4,87 +4,125 @@ const router = express.Router();
 const Notification = require("../models/Notification");
 
 const jwtAuth = require("../middleware/jwtAuth");
+const asyncHandler = require("../middleware/asyncHandler");
 
+const { sendSuccess } = require("../utils/response");
 
-// ===============================
-// GET USER NOTIFICATIONS
-// ===============================
+// ========================================
+// GET CURRENT USER NOTIFICATIONS
+// ========================================
 
-router.get("/", jwtAuth, async (req, res) => {
-  try {
-
+router.get(
+  "/",
+  jwtAuth,
+  asyncHandler(async (req, res) => {
     const notifications = await Notification.find({
       userId: req.user.id,
     })
-      .sort({ createdAt: -1 });
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
 
-    res.json(notifications);
+    return sendSuccess(
+      res,
+      200,
+      "Notifications fetched successfully.",
+      {
+        notifications,
+      }
+    );
+  })
+);
 
-  } catch (error) {
-    console.error(error);
+// ========================================
+// GET CURRENT USER UNREAD COUNT
+// ========================================
 
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
-});
-
-
-// ===============================
-// UNREAD COUNT
-// ===============================
-
-router.get("/count", jwtAuth, async (req, res) => {
-  try {
-
-    console.log("JWT USER ID:", req.user.id);
-
+router.get(
+  "/count",
+  jwtAuth,
+  asyncHandler(async (req, res) => {
     const count = await Notification.countDocuments({
       userId: req.user.id,
       isRead: false,
     });
 
-    console.log("COUNT FOUND:", count);
-
-    res.json({ count });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "Server Error",
+    return res.status(200).json({
+      success: true,
+      count,
     });
-  }
-});
+  })
+);
 
+// ========================================
+// MARK CURRENT USER NOTIFICATION AS READ
+// ========================================
 
-// ===============================
-// MARK AS READ
-// ===============================
-
-router.put("/:id/read", jwtAuth, async (req, res) => {
-  try {
-
-    const notification = await Notification.findById(req.params.id);
+router.put(
+  "/:id/read",
+  jwtAuth,
+  asyncHandler(async (req, res) => {
+    const notification = await Notification.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.id,
+      },
+      {
+        $set: {
+          isRead: true,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!notification) {
       return res.status(404).json({
-        message: "Notification not found",
+        success: false,
+        message: "Notification not found.",
       });
     }
 
-    notification.isRead = true;
+    return sendSuccess(
+      res,
+      200,
+      "Notification marked as read.",
+      {
+        notification,
+      }
+    );
+  })
+);
 
-    await notification.save();
+// ========================================
+// DELETE CURRENT USER NOTIFICATION
+// ========================================
 
-    res.json({
-      success: true,
+router.delete(
+  "/:id",
+  jwtAuth,
+  asyncHandler(async (req, res) => {
+    const notification = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id,
     });
 
-  } catch (error) {
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
-});
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found.",
+      });
+    }
+
+    return sendSuccess(
+      res,
+      200,
+      "Notification deleted successfully."
+    );
+  })
+);
 
 module.exports = router;

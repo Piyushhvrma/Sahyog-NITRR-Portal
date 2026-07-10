@@ -1,7 +1,10 @@
 // frontend/src/api/index.js
 // Central API exports for SAHYOG 2.0.
 
-export { API_BASE_URL, apiRequest } from "./client.js";
+export {
+  API_BASE_URL,
+  apiRequest,
+} from "./client.js";
 
 export {
   loginUser,
@@ -30,6 +33,7 @@ export {
   fetchNotifications,
   fetchNotificationCount,
   markNotificationAsRead,
+  deleteNotification,
 } from "./notifications.api.js";
 
 export {
@@ -60,12 +64,6 @@ export {
 } from "./announcements.api.js";
 
 export {
-  fetchAdminStats,
-  fetchAdminUsers,
-  updateUserRole,
-} from "./admin.api.js";
-
-export {
   uploadProfilePicture,
 } from "./profile.api.js";
 
@@ -73,27 +71,21 @@ export {
   fetchAdminStats,
   fetchAdminUsers,
   updateUserRole,
+
   fetchAdminFeedbacks,
   updateFeedbackStatus,
   deleteFeedback,
   downloadFeedbackCSVUrl,
+
   fetchAdminSupportRequests,
   updateSupportRequestStatus,
   deleteSupportRequest,
+
   fetchAdminBloodRequests,
   updateBloodRequestStatus,
   deleteBloodRequest,
   downloadBloodRequestCSVUrl,
 } from "./admin.api.js";
-
-
-export {
-  createRoom,
-  fetchRooms,
-  fetchRoomByCode,
-  voteInRoom,
-  toggleRoomStatus,
-} from "./rooms.api.js";
 
 export {
   createRoom,

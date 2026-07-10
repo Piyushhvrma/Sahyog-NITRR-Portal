@@ -1,108 +1,280 @@
 const express = require("express");
-const https = require("https"); 
+const https = require("https");
+
+const jwtAuth = require("../middleware/jwtAuth");
+
+const {
+  aiLimiter,
+} = require("../middleware/rateLimiters");
 
 const router = express.Router();
 
-router.post("/chat", async (req, res) => {
-  try {
-    const { message } = req.body;
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_RESPONSE_SIZE = 1024 * 1024;
+const GROQ_TIMEOUT_MS = 25 * 1000;
 
-    if (!message) {
-      return res.status(400).json({
-        success: false,
-        message: "Message is required",
-      });
-    }
+const requestGroq = (postData) => {
+  return new Promise((resolve, reject) => {
+    const request = https.request(
+      {
+        hostname: "api.groq.com",
+        path: "/openai/v1/chat/completions",
+        method: "POST",
 
-    // Structure the raw payload exactly how Groq's engine needs it
-    const postData = JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are SAHYOG AI Assistant for NIT Raipur students.
-Behave: supportive, empathetic, helpful, student friendly, emotionally calm, motivational.
-Help students with: stress, academics, emotional support, loneliness, career confusion, coding guidance, productivity, hostel issues.
-Keep responses practical and supportive.
-`,
+        headers: {
+          "Content-Type": "application/json",
+
+          Authorization:
+            `Bearer ${process.env.GROQ_API_KEY}`,
+
+          "User-Agent":
+            "SAHYOG-NIT-Raipur-Portal",
+
+          "Content-Length":
+            Buffer.byteLength(postData),
         },
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 800,
-    });
-
-    // Configure secure network parameters 
-    const options = {
-      hostname: "api.groq.com",
-      path: "/openai/v1/chat/completions", // ✅ FIXED: Added required /openai prefix segment
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Content-Length": Buffer.byteLength(postData),
       },
-    };
 
-    // Execute direct streaming handshake with Groq Cloud Core
-    const apiRequest = () => {
-      return new Promise((resolve, reject) => {
-        const request = https.request(options, (response) => {
-          let chunkData = "";
-          response.on("data", (chunk) => { chunkData += chunk; });
-          response.on("end", () => { 
-            try {
-              const parsedData = JSON.parse(chunkData);
-              resolve(parsedData);
-            } catch (parseError) {
-              reject(new Error(`JSON Parse Failure: ${chunkData.substring(0, 100)}`));
-            }
-          });
+      (response) => {
+        let responseBody = "";
+        let responseSize = 0;
+
+        response.on("data", (chunk) => {
+          responseSize += chunk.length;
+
+          if (
+            responseSize >
+            MAX_RESPONSE_SIZE
+          ) {
+            request.destroy(
+              new Error(
+                "Groq response exceeded allowed size."
+              )
+            );
+
+            return;
+          }
+
+          responseBody += chunk;
         });
 
-        request.on("error", (error) => { reject(error); });
-        request.write(postData);
-        request.end();
-      });
-    };
+        response.on("end", () => {
+          let parsedData;
 
-    const groqResponse = await apiRequest();
-    
-    // CHECK FOR API ERROR OBJECT
-    if (groqResponse?.error) {
+          try {
+            parsedData = JSON.parse(
+              responseBody
+            );
+          } catch {
+            return reject(
+              new Error(
+                "Invalid response received from AI provider."
+              )
+            );
+          }
+
+          if (
+            response.statusCode < 200 ||
+            response.statusCode >= 300
+          ) {
+            const providerError =
+              new Error(
+                "AI provider rejected the request."
+              );
+
+            providerError.statusCode =
+              response.statusCode;
+
+            providerError.providerCode =
+              parsedData?.error?.code;
+
+            return reject(providerError);
+          }
+
+          return resolve(parsedData);
+        });
+      }
+    );
+
+    request.setTimeout(
+      GROQ_TIMEOUT_MS,
+      () => {
+        request.destroy(
+          new Error(
+            "AI provider request timed out."
+          )
+        );
+      }
+    );
+
+    request.on("error", reject);
+
+    request.write(postData);
+    request.end();
+  });
+};
+
+router.post(
+  "/chat",
+  jwtAuth,
+  aiLimiter,
+
+  async (req, res) => {
+    try {
+      if (!process.env.GROQ_API_KEY) {
+        console.error(
+          "AI configuration error: GROQ_API_KEY is missing."
+        );
+
+        return res.status(503).json({
+          success: false,
+
+          reply:
+            "The AI assistant is temporarily unavailable. Please try again later.",
+        });
+      }
+
+      const message =
+        typeof req.body?.message ===
+        "string"
+          ? req.body.message.trim()
+          : "";
+
+      if (!message) {
+        return res.status(400).json({
+          success: false,
+
+          message:
+            "Message is required.",
+
+          reply:
+            "Please enter a message before sending.",
+        });
+      }
+
+      if (
+        message.length >
+        MAX_MESSAGE_LENGTH
+      ) {
+        return res.status(400).json({
+          success: false,
+
+          message:
+            `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`,
+
+          reply:
+            "Your message is too long. Please shorten it and try again.",
+        });
+      }
+
+      const postData = JSON.stringify({
+        model:
+          "llama-3.3-70b-versatile",
+
+        messages: [
+          {
+            role: "system",
+
+            content: `
+You are SAHYOG AI Assistant for students of NIT Raipur.
+
+Your role:
+- Be supportive, calm, respectful and student-friendly.
+- Help with academic planning, coding guidance, productivity, career confusion, hostel adjustment, loneliness and everyday college concerns.
+- Give practical, clear and concise suggestions.
+- Never claim to be a doctor, counsellor, emergency service or replacement for professional support.
+- Do not diagnose medical or mental-health conditions.
+- If a student appears to be in immediate danger or describes self-harm, suicide, violence, abuse or a medical emergency, encourage them to contact local emergency services, trusted faculty, family, campus authorities or qualified professionals immediately.
+- Do not ask for passwords, banking information, OTPs or unnecessary sensitive personal data.
+`,
+          },
+
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+
+        temperature: 0.7,
+        max_tokens: 800,
+      });
+
+      const groqResponse =
+        await requestGroq(postData);
+
+      const reply =
+        groqResponse?.choices?.[0]
+          ?.message?.content;
+
+      if (
+        typeof reply !== "string" ||
+        !reply.trim()
+      ) {
+        console.error(
+          "Groq returned an unexpected response structure."
+        );
+
+        return res.status(502).json({
+          success: false,
+
+          reply:
+            "I could not generate a response right now. Please try again.",
+        });
+      }
+
       return res.status(200).json({
         success: true,
-        reply: `❌ Groq API Rejection: [${groqResponse.error.code || "NO_CODE"}] -> ${groqResponse.error.message}`,
+        reply: reply.trim(),
+      });
+    } catch (error) {
+      console.error(
+        "SAHYOG AI request failed:",
+        {
+          message: error.message,
+
+          statusCode:
+            error.statusCode || null,
+
+          providerCode:
+            error.providerCode || null,
+
+          userId:
+            req.user?.id || null,
+        }
+      );
+
+      if (
+        error.message.includes(
+          "timed out"
+        )
+      ) {
+        return res.status(504).json({
+          success: false,
+
+          reply:
+            "The AI assistant is taking longer than expected. Please try again.",
+        });
+      }
+
+      if (
+        error.statusCode === 429
+      ) {
+        return res.status(503).json({
+          success: false,
+
+          reply:
+            "The AI assistant is currently busy. Please try again shortly.",
+        });
+      }
+
+      return res.status(502).json({
+        success: false,
+
+        reply:
+          "I could not connect right now. Please try again later.",
       });
     }
-
-    // Process and return the message content payload cleanly
-    const reply = groqResponse?.choices?.[0]?.message?.content;
-
-    if (reply) {
-      return res.status(200).json({
-        success: true,
-        reply,
-      });
-    } else {
-      return res.status(200).json({
-        success: true,
-        reply: `⚠️ Unexpected Payload Structure: ${JSON.stringify(groqResponse)}`,
-      });
-    }
-
-  } catch (error) {
-    console.error("Groq Native Engine Error:", error.message);
-    return res.status(500).json({
-      success: false,
-      reply: `🚨 Server Crash Trace: ${error.message}`,
-    });
   }
-});
+);
 
 module.exports = router;

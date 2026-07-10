@@ -2,7 +2,10 @@
 // SAHYOG 2.0 compatibility file
 // Explicit exports prevent conflicting star export errors.
 
-export { API_BASE_URL, apiRequest } from "./api/client.js";
+export {
+  API_BASE_URL,
+  apiRequest,
+} from "./api/client.js";
 
 export {
   loginUser,
@@ -31,6 +34,7 @@ export {
   fetchNotifications,
   fetchNotificationCount,
   markNotificationAsRead,
+  deleteNotification,
 } from "./api/notifications.api.js";
 
 export {
@@ -60,8 +64,6 @@ export {
   deleteAnnouncement,
 } from "./api/announcements.api.js";
 
-
-
 export {
   uploadProfilePicture,
 } from "./api/profile.api.js";
@@ -83,8 +85,6 @@ export {
   downloadBloodRequestCSVUrl,
 } from "./api/admin.api.js";
 
-
-
 export {
   createRoom,
   fetchRooms,
@@ -93,4 +93,3 @@ export {
   toggleRoomStatus,
   deleteRoom,
 } from "./api/rooms.api.js";
-

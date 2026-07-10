@@ -2,14 +2,24 @@ const jwt = require("jsonwebtoken");
 
 let ioInstance = null;
 
-const getTokenFromCookie = (cookieHeader = "") => {
-  const cookies = cookieHeader.split(";").map((cookie) => cookie.trim());
+const getTokenFromCookie = (
+  cookieHeader = ""
+) => {
+  const cookies = cookieHeader
+    .split(";")
+    .map((cookie) => cookie.trim());
 
-  const tokenCookie = cookies.find((cookie) => cookie.startsWith("token="));
+  const tokenCookie = cookies.find((cookie) =>
+    cookie.startsWith("token=")
+  );
 
-  if (!tokenCookie) return null;
+  if (!tokenCookie) {
+    return null;
+  }
 
-  return decodeURIComponent(tokenCookie.split("=")[1]);
+  return decodeURIComponent(
+    tokenCookie.split("=")[1]
+  );
 };
 
 const initializeSocket = (io) => {
@@ -19,15 +29,22 @@ const initializeSocket = (io) => {
     try {
       const token =
         socket.handshake.auth?.token ||
-        getTokenFromCookie(socket.handshake.headers.cookie || "");
+        getTokenFromCookie(
+          socket.handshake.headers.cookie || ""
+        );
 
       if (!token) {
         socket.user = null;
         return next();
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      );
+
       socket.user = decoded.user;
+
       return next();
     } catch {
       socket.user = null;
@@ -50,12 +67,22 @@ const initializeSocket = (io) => {
 
     socket.on("join-room", (roomCode) => {
       if (!roomCode) return;
-      socket.join(`room:${String(roomCode).toUpperCase()}`);
+
+      socket.join(
+        `room:${String(
+          roomCode
+        ).toUpperCase()}`
+      );
     });
 
     socket.on("leave-room", (roomCode) => {
       if (!roomCode) return;
-      socket.leave(`room:${String(roomCode).toUpperCase()}`);
+
+      socket.leave(
+        `room:${String(
+          roomCode
+        ).toUpperCase()}`
+      );
     });
 
     socket.on("disconnect", () => {});
@@ -64,19 +91,49 @@ const initializeSocket = (io) => {
 
 const getIO = () => ioInstance;
 
-const emitToAllUsers = (eventName, payload) => {
+const emitToAllUsers = (
+  eventName,
+  payload
+) => {
   if (!ioInstance) return;
-  ioInstance.to("authenticated-users").emit(eventName, payload);
+
+  ioInstance
+    .to("authenticated-users")
+    .emit(eventName, payload);
 };
 
-const emitToRoom = (roomCode, eventName, payload) => {
+const emitToUser = (
+  userId,
+  eventName,
+  payload
+) => {
+  if (!ioInstance || !userId) return;
+
+  ioInstance
+    .to(`user:${String(userId)}`)
+    .emit(eventName, payload);
+};
+
+const emitToRoom = (
+  roomCode,
+  eventName,
+  payload
+) => {
   if (!ioInstance || !roomCode) return;
-  ioInstance.to(`room:${String(roomCode).toUpperCase()}`).emit(eventName, payload);
+
+  ioInstance
+    .to(
+      `room:${String(
+        roomCode
+      ).toUpperCase()}`
+    )
+    .emit(eventName, payload);
 };
 
 module.exports = {
   initializeSocket,
   getIO,
   emitToAllUsers,
+  emitToUser,
   emitToRoom,
 };

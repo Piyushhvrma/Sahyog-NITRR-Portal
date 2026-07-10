@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext.jsx";
 import { GoogleLogin } from "@react-oauth/google";
+
 import sahyogLogo from "../assets/sahyog-logo.png";
 import authPreview from "../assets/auth-portal-preview.png";
 
@@ -22,12 +23,21 @@ const LoginPage = () => {
   const [newPassword, setNewPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState({ type: null, message: "" });
+
+  const [status, setStatus] = useState({
+    type: null,
+    message: "",
+  });
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const clearStatus = () => setStatus({ type: null, message: "" });
+  const clearStatus = () => {
+    setStatus({
+      type: null,
+      message: "",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,10 +46,17 @@ const LoginPage = () => {
       setIsLoading(true);
       clearStatus();
 
-      const data = await loginUser({ email, password });
+      const data = await loginUser({
+        email,
+        password,
+      });
+
       login(data.user);
 
-      setStatus({ type: "success", message: "Login successful. Redirecting..." });
+      setStatus({
+        type: "success",
+        message: "Login successful. Redirecting...",
+      });
 
       setTimeout(() => {
         navigate("/");
@@ -64,14 +81,18 @@ const LoginPage = () => {
       const data = await forgotPassword(email);
 
       setOtpSent(true);
+
       setStatus({
         type: "success",
-        message: data.message || "OTP sent to your email.",
+        message:
+          data.message ||
+          "OTP sent to your registered email.",
       });
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Failed to send OTP.",
+        message:
+          error.message || "Failed to send OTP.",
       });
     } finally {
       setIsLoading(false);
@@ -93,7 +114,9 @@ const LoginPage = () => {
 
       setStatus({
         type: "success",
-        message: data.message || "Password reset successful. Please login.",
+        message:
+          data.message ||
+          "Password reset successful. Please login.",
       });
 
       setForgotMode(false);
@@ -104,24 +127,32 @@ const LoginPage = () => {
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Failed to reset password.",
+        message:
+          error.message ||
+          "Failed to reset password.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async (credentialResponse) => {
+  const handleGoogleLogin = async (
+    credentialResponse
+  ) => {
     try {
       setIsLoading(true);
       clearStatus();
 
-      const data = await googleLogin(credentialResponse.credential);
+      const data = await googleLogin(
+        credentialResponse.credential
+      );
+
       login(data.user);
 
       setStatus({
         type: "success",
-        message: "Google login successful. Redirecting...",
+        message:
+          "Google login successful. Redirecting...",
       });
 
       setTimeout(() => {
@@ -130,7 +161,9 @@ const LoginPage = () => {
     } catch (error) {
       setStatus({
         type: "error",
-        message: error.message || "Google Login Failed.",
+        message:
+          error.message ||
+          "Google Login Failed.",
       });
     } finally {
       setIsLoading(false);
@@ -157,33 +190,42 @@ const LoginPage = () => {
     <div className="auth-page-v2">
       <section className="auth-card-v2">
         <div className="auth-brand-row">
-          <img src={sahyogLogo} alt="SAHYOG" className="auth-logo-img" />
+          <img
+            src={sahyogLogo}
+            alt="SAHYOG"
+            className="auth-logo-img"
+          />
+
           <div>
-            <span>SAHYOG Portal</span>
+            <span>SAHYOG Student Portal</span>
             <strong>NIT Raipur</strong>
           </div>
         </div>
 
         <div className="auth-preview-box">
-          <img src={authPreview} alt="SAHYOG portal preview" />
+          <img
+            src={authPreview}
+            alt="SAHYOG student portal preview"
+          />
         </div>
 
-        <h1>{forgotMode ? "Reset Password" : "Welcome Back"}</h1>
+        <h1>
+          {forgotMode
+            ? "Reset Password"
+            : "Welcome Back"}
+        </h1>
 
         <p className="auth-intro-text">
           {forgotMode
-            ? "Enter your registered email and verify OTP to reset your password safely."
-            : "Access PYQs, notes, events, announcements, blood support, AI Buddy, live rooms and student help services."}
+            ? "Enter your registered email and verify the OTP to securely reset your password."
+            : "Sign in to access academic resources, previous-year questions, student support, blood assistance and important campus updates."}
         </p>
 
-        <div className="auth-mini-features">
-          <span>PYQs</span>
-          <span>Support</span>
-          <span>Events</span>
-          <span>AI Buddy</span>
-        </div>
-
-        {isLoading && <div className="auth-loading-v2">Please wait...</div>}
+        {isLoading && (
+          <div className="auth-loading-v2">
+            Please wait...
+          </div>
+        )}
 
         {!forgotMode && (
           <>
@@ -199,7 +241,8 @@ const LoginPage = () => {
                   onError={() =>
                     setStatus({
                       type: "error",
-                      message: "Google Login Failed.",
+                      message:
+                        "Google Login Failed.",
                     })
                   }
                   theme="outline"
@@ -214,12 +257,17 @@ const LoginPage = () => {
               <span>OR</span>
             </div>
 
-            <form className="auth-form-v2" onSubmit={handleSubmit}>
+            <form
+              className="auth-form-v2"
+              onSubmit={handleSubmit}
+            >
               <input
                 type="email"
                 placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
                 required
               />
 
@@ -227,7 +275,9 @@ const LoginPage = () => {
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) =>
+                  setPassword(e.target.value)
+                }
                 required
               />
 
@@ -236,7 +286,9 @@ const LoginPage = () => {
                 className="auth-submit-v2"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading
+                  ? "Signing In..."
+                  : "Sign In"}
               </button>
             </form>
 
@@ -253,12 +305,17 @@ const LoginPage = () => {
         {forgotMode && (
           <>
             {!otpSent ? (
-              <form className="auth-form-v2" onSubmit={handleForgotPassword}>
+              <form
+                className="auth-form-v2"
+                onSubmit={handleForgotPassword}
+              >
                 <input
                   type="email"
                   placeholder="Registered Email Address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                   required
                 />
 
@@ -267,16 +324,23 @@ const LoginPage = () => {
                   className="auth-submit-v2"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Sending OTP..." : "Send OTP"}
+                  {isLoading
+                    ? "Sending OTP..."
+                    : "Send OTP"}
                 </button>
               </form>
             ) : (
-              <form className="auth-form-v2" onSubmit={handleResetPassword}>
+              <form
+                className="auth-form-v2"
+                onSubmit={handleResetPassword}
+              >
                 <input
                   type="email"
                   placeholder="Registered Email Address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                   required
                 />
 
@@ -284,7 +348,9 @@ const LoginPage = () => {
                   type="text"
                   placeholder="Enter OTP"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) =>
+                    setOtp(e.target.value)
+                  }
                   required
                 />
 
@@ -292,7 +358,9 @@ const LoginPage = () => {
                   type="password"
                   placeholder="New Password"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e) =>
+                    setNewPassword(e.target.value)
+                  }
                   required
                 />
 
@@ -301,7 +369,9 @@ const LoginPage = () => {
                   className="auth-submit-v2"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Resetting..." : "Reset Password"}
+                  {isLoading
+                    ? "Resetting..."
+                    : "Reset Password"}
                 </button>
               </form>
             )}
@@ -317,7 +387,9 @@ const LoginPage = () => {
         )}
 
         {status.message && (
-          <div className={`auth-status-v2 ${status.type}`}>
+          <div
+            className={`auth-status-v2 ${status.type}`}
+          >
             {status.message}
           </div>
         )}
@@ -325,7 +397,10 @@ const LoginPage = () => {
         {!forgotMode && (
           <p className="auth-switch-v2">
             New to SAHYOG?
-            <Link to="/signup"> Create Account</Link>
+            <Link to="/signup">
+              {" "}
+              Create Account
+            </Link>
           </p>
         )}
       </section>

@@ -27,7 +27,7 @@ const AboutPage = () => {
           <h2>Forged in Friendship, Founded on Vision</h2>
           <p>
             Established around <strong>2017</strong> at NIT Raipur,{" "}
-            <strong>SAHYOG – The Mentorship Club</strong> was born from a simple
+            <strong>SAHYOG – The Student Wellbeing Club</strong> was born from a simple
             yet profound vision: to create a supportive ecosystem where every
             student feels guided, supported, and uplifted. We are the bridge
             between juniors and seniors, a guiding light that helps freshers
