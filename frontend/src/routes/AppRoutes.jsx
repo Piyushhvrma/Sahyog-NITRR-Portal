@@ -28,6 +28,7 @@ import AIHelpPage from "../pages/AIHelpPage.jsx";
 import SahyogSupportPage from "../pages/SahyogSupportPage.jsx";
 import EventsPage from "../pages/EventsPage.jsx";
 import AboutPage from "../pages/AboutPage.jsx";
+import TeamPage from "../pages/TeamPage.jsx"; // <-- 1. Import TeamPage
 
 import AdminPage from "../pages/AdminPage.jsx";
 import AdminSectionPage from "../pages/AdminSectionPage.jsx";
@@ -54,6 +55,7 @@ export default function AppRoutes() {
 
       <Route path="/events" element={<EventsPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/team" element={<TeamPage />} /> {/* <-- 2. Add Team Route */}
 
       <Route path="/admin" element={<AdminPage />} />
 
