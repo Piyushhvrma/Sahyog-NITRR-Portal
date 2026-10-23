@@ -144,41 +144,65 @@ const AboutPage = () => {
             move forward.
           </p>
         </section>
-<section className="about-section portal-dev-section">
-  <div className="portal-dev-card">
-    <h2>Portal Information</h2>
+        
+        {/* --- Portal Information & Contributors Section --- */}
+        <section className="about-section portal-dev-section">
+          <div className="portal-dev-card">
+            <h2>Portal Information</h2>
 
-    <p className="portal-dev-description">
-      The SAHYOG Portal was developed to support student welfare,
-      academic resource accessibility, blood assistance initiatives,
-      and community engagement within NIT Raipur.
-    </p>
+            <p className="portal-dev-description">
+              The SAHYOG Portal was developed to support student welfare,
+              academic resource accessibility, blood assistance initiatives,
+              and community engagement within NIT Raipur.
+            </p>
 
-    <div className="developer-profile official-developer-card">
-  <span className="developer-small-label">Designed & Developed By</span>
+            {/* Lead Developer */}
+            <div className="developer-profile official-developer-card">
+              <span className="developer-small-label">Designed & Developed By</span>
 
-  <a
-    href="https://www.linkedin.com/in/piyush-verma-25550728a/"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="developer-name-link"
-  >
-    Piyush Verma
-  </a>
+              <a
+                href="https://www.linkedin.com/in/piyush-verma-25550728a/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="developer-name-link"
+              >
+                Piyush Verma
+              </a>
 
-  <span className="developer-role-inline">
-    Lead Developer
-  </span>
+              <span className="developer-role-inline">
+                Lead Developer
+              </span>
 
-  <a
-    href="mailto:piyushvermanitrr@gmail.com"
-    className="developer-email-link"
-  >
-    piyushvermanitrr@gmail.com
-  </a>
-</div>
-  </div>
-</section>
+              <a
+                href="mailto:piyushvermanitrr@gmail.com"
+                className="developer-email-link"
+              >
+                piyushvermanitrr@gmail.com
+              </a>
+            </div>
+
+            {/* Contributor: Pratyush Raj */}
+            <div className="developer-profile official-developer-card" style={{ marginTop: "1rem" }}>
+              <span className="developer-small-label">Contributor</span>
+
+              <span className="developer-name-link" style={{ cursor: "default" }}>
+                Pratyush Raj
+              </span>
+
+              <span className="developer-role-inline">
+                Web Development & Documentation
+              </span>
+
+              <a
+                href="mailto:pratyushraz05@gmail.com"
+                className="developer-email-link"
+              >
+                pratyushraz05@gmail.com
+              </a>
+            </div>
+
+          </div>
+        </section>
       </main>
     </div>
   );
