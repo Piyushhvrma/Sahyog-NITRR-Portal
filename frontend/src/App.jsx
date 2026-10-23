@@ -14,7 +14,7 @@ import React from "react";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import AppRoutes from "./routes/AppRoutes.jsx";
-import TeamPage from "./pages/TeamPage.jsx";
+
 
 export default function App() {
   return (
