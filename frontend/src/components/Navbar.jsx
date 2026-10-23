@@ -303,7 +303,7 @@ const Navbar = () => {
                   </Link>
 
                   <Link
-                    to="/coming-soon/team-sahyog"
+                    to="/team"
                     onClick={closeProfileMenu}
                   >
                     Team Sahyog
