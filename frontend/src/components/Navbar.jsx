@@ -310,7 +310,7 @@ const Navbar = () => {
                   </Link>
 
                   <Link
-                    to="/coming-soon/campus-view"
+                    to="/campus-map"
                     onClick={closeProfileMenu}
                   >
                     Campus View
