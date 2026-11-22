@@ -2,6 +2,7 @@ const express = require("express");
 const https = require("https");
 
 const jwtAuth = require("../middleware/jwtAuth");
+const rag = require("../services/ragClient.service");
 
 const {
   aiLimiter,
@@ -139,6 +140,25 @@ router.post(
         "string"
           ? req.body.message.trim()
           : "";
+      const mode =
+        req.body?.mode === "college"
+          ? "college"
+          : "general";
+      const history = Array.isArray(req.body?.history)
+        ? req.body.history
+            .filter(
+              (item) =>
+                item &&
+                (item.role === "user" ||
+                  item.role === "assistant") &&
+                typeof item.content === "string"
+            )
+            .slice(-6)
+            .map((item) => ({
+              role: item.role,
+              content: item.content.slice(0, 1500),
+            }))
+        : [];
 
       if (!message) {
         return res.status(400).json({
@@ -164,6 +184,113 @@ router.post(
 
           reply:
             "Your message is too long. Please shorten it and try again.",
+        });
+      }
+
+      if (mode === "college") {
+        if (!rag.isConfigured()) {
+          return res.status(503).json({
+            success: false,
+            mode,
+            message:
+              "College Knowledge mode is not enabled right now.",
+            reply:
+              "College Knowledge mode is not enabled right now.",
+          });
+        }
+
+        let retrieved;
+        try {
+          retrieved = await rag.searchKnowledge({
+            query: message,
+            history,
+            topK: 5,
+          });
+        } catch (error) {
+          console.error(
+            "[RAG] retrieval failed:",
+            error.message
+          );
+          return res.status(502).json({
+            success: false,
+            mode,
+            message:
+              "College knowledge is temporarily unavailable. Please try General mode or retry shortly.",
+            reply:
+              "College knowledge is temporarily unavailable. Please try General mode or retry shortly.",
+          });
+        }
+
+        const results =
+          Array.isArray(retrieved?.results)
+            ? retrieved.results
+            : [];
+
+        if (results.length === 0) {
+          return res.status(200).json({
+            success: true,
+            reply:
+              "I couldn't find this in the uploaded college documents. Please try rephrasing or mentioning the branch, semester, or subject.",
+            sources: [],
+            mode,
+            grounded: false,
+          });
+        }
+
+        const contextResults =
+          rag.selectContextResults(results);
+        if (contextResults.length === 0) {
+          return res.status(200).json({
+            success: true,
+            reply:
+              "I couldn't find this in the uploaded college documents. Please try rephrasing or mentioning the branch, semester, or subject.",
+            sources: [],
+            mode,
+            grounded: false,
+          });
+        }
+
+        const messages =
+          rag.buildGroundedMessages({
+            question: message,
+            history,
+            results: contextResults,
+          });
+
+        const postData = JSON.stringify({
+          model:
+            "llama-3.3-70b-versatile",
+          messages,
+          temperature: 0.2,
+          max_tokens: 800,
+        });
+
+        const groqResponse =
+          await requestGroq(postData);
+
+        const reply =
+          groqResponse?.choices?.[0]
+            ?.message?.content;
+
+        if (
+          typeof reply !== "string" ||
+          !reply.trim()
+        ) {
+          return res.status(502).json({
+            success: false,
+            mode,
+            reply:
+              "I could not generate a grounded college response right now.",
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          reply: reply.trim(),
+          sources:
+            rag.toClientSources(contextResults),
+          mode,
+          grounded: true,
         });
       }
 

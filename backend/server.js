@@ -29,6 +29,7 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const ragAdminRoutes = require("./routes/ragAdminRoutes");
 
 const errorHandler = require("./middleware/errorHandler");
 const { initializeSocket } = require("./socket/socket");
@@ -104,6 +105,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin/rag", ragAdminRoutes);
 app.use("/api/rooms", roomRoutes);
 
 app.use((req, res) => {

@@ -738,6 +738,68 @@
   font-weight: 950;
 }
 
+.ai-mode-selector {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.ai-mode-selector button {
+  margin: 0;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(15, 23, 42, 0.48);
+  color: #cbd5e1;
+  font-weight: 800;
+}
+
+.ai-mode-selector button.active {
+  border-color: rgba(125, 211, 252, 0.75);
+  background: linear-gradient(135deg, #6366f1, #2563eb);
+  color: #ffffff;
+}
+
+.ai-mode-hint {
+  margin: 0 0 12px;
+  color: #bfdbfe;
+  font-size: 0.82rem;
+}
+
+.rag-sources {
+  margin-top: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  padding-top: 8px;
+}
+
+.rag-sources-toggle {
+  margin: 0;
+  min-width: 0;
+  padding: 6px 9px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  color: #bae6fd;
+  font-size: 0.78rem;
+}
+
+.rag-sources-list {
+  margin: 8px 0 0;
+  padding-left: 22px;
+  font-size: 0.78rem;
+}
+
+.rag-sources-item {
+  margin-bottom: 8px;
+}
+
+.rag-sources-item a {
+  color: #7dd3fc;
+}
+
+.rag-source-snippet {
+  margin-top: 4px;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
 /* =========================================================
    TABLET
 ========================================================= */

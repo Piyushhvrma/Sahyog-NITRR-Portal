@@ -13,6 +13,7 @@ import {
   BookOpen,
   CalendarDays,
   Download,
+  Database,
   Droplets,
   HeartHandshake,
   MessageSquareText,
@@ -100,6 +101,14 @@ const AdminPage = () => {
   }
 
   const modules = [
+    {
+      key: "knowledge",
+      title: "College Knowledge",
+      description:
+        "Review indexed documents and enable or disable college knowledge.",
+      icon: Database,
+      accent: "cyan",
+    },
     {
       key: "resources",
       title: "Academic Resources",
