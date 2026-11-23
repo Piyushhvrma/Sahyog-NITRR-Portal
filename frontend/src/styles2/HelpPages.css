@@ -910,36 +910,49 @@
   }
 }
 
-/* Smaller AI Clear Chat button */
+/* Compact, subdued Clear Chat control */
 
-.ai-clear-btn {
+.ai-buddy-header > .ai-clear-btn {
+  align-self: flex-start;
+
   width: auto;
   min-width: 0;
 
   margin: 0;
-  padding: 9px 14px;
+  padding: 6px 10px;
 
-  border-radius: 11px;
+  border: 1px solid rgba(251, 113, 133, 0.32);
+  border-radius: 9px;
 
-  font-size: 0.78rem;
-  font-weight: 850;
+  background: rgba(190, 18, 60, 0.14);
+  color: rgba(255, 228, 230, 0.92);
 
-  line-height: 1;
+  font-size: 0.72rem;
+  font-weight: 650;
 
-  box-shadow:
-    0 10px 22px rgba(225, 29, 72, 0.22);
+  line-height: 1.15;
+
+  box-shadow: none;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
-.ai-clear-btn:hover {
+.ai-buddy-header > .ai-clear-btn:hover {
+  background: rgba(190, 18, 60, 0.22);
+  border-color: rgba(251, 113, 133, 0.5);
   transform: translateY(-1px);
+  box-shadow: none;
 }
 
 @media (max-width: 560px) {
-  .ai-clear-btn {
+  .ai-buddy-header > .ai-clear-btn {
     align-self: flex-end;
 
-    padding: 8px 12px;
+    padding: 5px 9px;
 
-    font-size: 0.74rem;
+    font-size: 0.7rem;
   }
 }
