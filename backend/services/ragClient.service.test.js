@@ -40,6 +40,26 @@ test("classifies college and academic questions without routing general question
   );
 });
 
+test("classifies common academic subject names for the existing RAG route", () => {
+  for (const query of [
+    "Data Structures",
+    "Maths II",
+    "Applied Chemistry",
+    "DBMS",
+    "Operating Systems",
+    "Computer Networks",
+  ]) {
+    assert.equal(rag.isCollegeRelated(query), true, query);
+    assert.equal(rag.isCollegeRelatedWithHistory(query, []), true, query);
+  }
+
+  assert.equal(rag.isCollegeRelated("How do I make pancakes?"), false);
+  assert.equal(
+    rag.isCollegeRelatedWithHistory("How do I make pancakes?", []),
+    false
+  );
+});
+
 test("does not render hidden or non-HTTP source URLs as links", () => {
   const reply = rag.appendCitations("Answer [1] [2]", [
     {

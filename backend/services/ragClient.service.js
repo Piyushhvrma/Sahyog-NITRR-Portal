@@ -12,6 +12,7 @@ const COLLEGE_QUERY_PATTERNS = [
   /\b(?:nit|nitrr|college|campus|university|institute)\b/i,
   /\b(?:academics?|semester|branch|department|course|subject|syllabus|exams?|examinations?|midterms?|finals?|attendance|hostels?|faculty|professors?|placements?|internships?|fees?|scholarships?|admissions?|timetable|classes|lectures?|labs?|laborator(?:y|ies)|librar(?:y|ies)|pyq|previous[\s-]?year|assignments?|homework|quizzes?|textbooks?|coursework|credits?|grades?|marks|results?|notices?|cgpa|sgpa|transcript|curriculum|stud(?:y|ies|ying)|mathematics|physics|chemistry|biology|engineering|integrals?|calculus|convocations?|enrollment|registration|tuition)\b/i,
   /\b(?:end[\s-]?sem|mid[\s-]?sem|cse|ece|eee|mme|mechanical|civil|mining|biomedical|biotech|metallurgical|electrical|electronics|computer\s+science|information\s+technology|newton(?:'s)?(?:\s+second\s+law)?)\b/i,
+  /\b(?:maths?|data\s+structures?|dbms|database\s+management\s+systems?|operating\s+systems?|computer\s+networks?)\b/i,
 ];
 const FOLLOW_UP_PATTERN =
   /^(?:(?:and|but)\s+)?(?:what about|how about|what if|and for|tell me more|can you explain (?:that|it|this)|explain (?:that|it|this)|what are (?:its|their)|what does (?:that|it|this)|how does (?:that|it|this)|(?:it|that|this|those|them|there|same)\b)/i;
