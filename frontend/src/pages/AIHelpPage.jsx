@@ -34,7 +34,11 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      const data = await sendAIMessage(userMessage);
+      const history = chat
+        .filter((item) => item.sender === "user" && typeof item.text === "string")
+        .slice(-6)
+        .map((item) => item.text.slice(0, 1000));
+      const data = await sendAIMessage(userMessage, history);
 
       setChat((prev) => [
         ...prev,

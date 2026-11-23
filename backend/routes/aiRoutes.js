@@ -2,6 +2,7 @@ const express = require("express");
 const https = require("https");
 
 const jwtAuth = require("../middleware/jwtAuth");
+const rag = require("../services/ragClient.service");
 
 const {
   aiLimiter,
@@ -12,6 +13,19 @@ const router = express.Router();
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_RESPONSE_SIZE = 1024 * 1024;
 const GROQ_TIMEOUT_MS = 25 * 1000;
+
+const SYSTEM_PROMPT = `
+You are SAHYOG AI Assistant for students of NIT Raipur.
+
+Your role:
+- Be supportive, calm, respectful and student-friendly.
+- Help with academic planning, coding guidance, productivity, career confusion, hostel adjustment, loneliness and everyday college concerns.
+- Give practical, clear and concise suggestions.
+- Never claim to be a doctor, counsellor, emergency service or replacement for professional support.
+- Do not diagnose medical or mental-health conditions.
+- If a student appears to be in immediate danger or describes self-harm, suicide, violence, abuse or a medical emergency, encourage them to contact local emergency services, trusted faculty, family, campus authorities or qualified professionals immediately.
+- Do not ask for passwords, banking information, OTPs or unnecessary sensitive personal data.
+`;
 
 const requestGroq = (postData) => {
   return new Promise((resolve, reject) => {
@@ -139,6 +153,12 @@ router.post(
         "string"
           ? req.body.message.trim()
           : "";
+      const history = Array.isArray(req.body?.history)
+        ? req.body.history
+            .filter((item) => typeof item === "string" && item.trim())
+            .slice(-6)
+            .map((item) => item.trim().slice(0, 1000))
+        : [];
 
       if (!message) {
         return res.status(400).json({
@@ -167,6 +187,43 @@ router.post(
         });
       }
 
+      const collegeRelated =
+        rag.isCollegeRelatedWithHistory(message, history);
+      let ragOutcome = {
+        status: "not_attempted",
+        results: [],
+      };
+      if (collegeRelated && message.length > rag.MAX_QUERY_LENGTH) {
+        ragOutcome = { status: "oversized", results: [] };
+        if (rag.isEnabled()) {
+          console.info(
+            "[RAG] Skipping oversized college query; using safe Groq fallback.",
+            { userId: req.user?.id || null }
+          );
+        }
+      } else if (rag.isEnabled() && collegeRelated) {
+        ragOutcome = await rag.retrieveKnowledge(message, history);
+
+        if (ragOutcome.status === "unavailable") {
+          console.error(
+            "[RAG] Search failed; falling back to the existing Groq response.",
+            {
+              message: ragOutcome.error?.message || "Unknown RAG failure.",
+              statusCode: ragOutcome.error?.statusCode || null,
+              userId: req.user?.id || null,
+            }
+          );
+        }
+      }
+
+      const contextResults =
+        ragOutcome.status === "matched" ? ragOutcome.results : [];
+      const systemContent = rag.buildSystemPrompt(
+        SYSTEM_PROMPT,
+        ragOutcome.status,
+        contextResults
+      );
+
       const postData = JSON.stringify({
         model:
           "openai/gpt-oss-120b",
@@ -174,19 +231,7 @@ router.post(
         messages: [
           {
             role: "system",
-
-            content: `
-You are SAHYOG AI Assistant for students of NIT Raipur.
-
-Your role:
-- Be supportive, calm, respectful and student-friendly.
-- Help with academic planning, coding guidance, productivity, career confusion, hostel adjustment, loneliness and everyday college concerns.
-- Give practical, clear and concise suggestions.
-- Never claim to be a doctor, counsellor, emergency service or replacement for professional support.
-- Do not diagnose medical or mental-health conditions.
-- If a student appears to be in immediate danger or describes self-harm, suicide, violence, abuse or a medical emergency, encourage them to contact local emergency services, trusted faculty, family, campus authorities or qualified professionals immediately.
-- Do not ask for passwords, banking information, OTPs or unnecessary sensitive personal data.
-`,
+            content: systemContent,
           },
 
           {
@@ -224,7 +269,9 @@ Your role:
 
       return res.status(200).json({
         success: true,
-        reply: reply.trim(),
+        reply: contextResults.length
+          ? rag.appendCitations(reply.trim(), contextResults)
+          : reply.trim(),
       });
     } catch (error) {
       console.error(

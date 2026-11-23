@@ -100,7 +100,7 @@ Most college portals only handle one thing — notes, or announcements, or event
 
 ### AI Buddy
 
-- Chat assistant powered by Groq (LLaMA 3.3 70B)
+- Chat assistant powered by Groq (`openai/gpt-oss-120b`); college and academic questions can retrieve approved RAG documents through the backend.
 - Conversation history persists across navigation
 - Responses rendered via React Markdown
 
@@ -151,7 +151,7 @@ Most college portals only handle one thing — notes, or announcements, or event
 | Helmet + express-rate-limit | Security hardening        |
 | Redis                       | Caching                   |
 | Brevo API                   | Email & OTP delivery      |
-| Groq API (LLaMA 3.3 70B)    | AI chat backend           |
+| Groq API (`openai/gpt-oss-120b`) | AI chat backend; college queries may use approved RAG context |
 | Socket.IO                   | Realtime communication    |
 | json2csv                    | CSV export                |
 
@@ -222,9 +222,15 @@ Emergency requests follow the same flow with higher priority.
 ### AI Buddy Flow
 
 ```
-Student Message → Backend → Groq API → Response
+Student Message → Backend topic check
+→ General question → Existing Groq request
+→ College/academic question → RAG /search for approved passages → Groq with context
+→ RAG unavailable or no results → Existing Groq request
 → Chat Window → Conversation History
 ```
+
+RAG is opt-in through backend-only `RAG_ENABLED`, `RAG_SERVICE_URL`, and `RAG_SERVICE_SECRET` settings; `RAG_TIMEOUT_MS` is optional. The shared secret is never sent to the browser.
+Sources are listed only for citation numbers used in the response. Numbering maps to retrieved passages but does not independently verify that a passage entails each claim.
 
 ### Live Rooms Flow
 
