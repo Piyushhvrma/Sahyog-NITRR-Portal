@@ -1,19 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import { sendAIMessage } from "../api";
-import { AuthContext } from "../context/AuthContext.jsx";
-import SourceCitations from "../components/SourceCitations.jsx";
 
 const AIHelpPage = () => {
-  const { user } = useContext(AuthContext);
-  const userId = user?._id || user?.id || "anon";
-  const [mode, setMode] = useState("general");
-  const storageKey = `sahyog_ai_chat:${userId}:${mode}`;
-
   const [chat, setChat] = useState(() => {
     try {
-      const saved = localStorage.getItem(storageKey);
+      const saved = localStorage.getItem("sahyog_ai_chat");
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -22,7 +14,6 @@ const AIHelpPage = () => {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadedStorageKey, setLoadedStorageKey] = useState(null);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -30,22 +21,8 @@ const AIHelpPage = () => {
   }, [chat, loading]);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      setChat(saved ? JSON.parse(saved) : []);
-    } catch {
-      setChat([]);
-    }
-    setLoadedStorageKey(storageKey);
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (loadedStorageKey !== storageKey) return;
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify(chat.slice(-40))
-    );
-  }, [chat, loadedStorageKey, storageKey]);
+    localStorage.setItem("sahyog_ai_chat", JSON.stringify(chat));
+  }, [chat]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
@@ -57,34 +34,18 @@ const AIHelpPage = () => {
     setLoading(true);
 
     try {
-      const history = chat
-        .slice(-6)
-        .map((item) => ({
-          role: item.sender === "user" ? "user" : "assistant",
-          content: item.text,
-        }));
-      const data = await sendAIMessage(
-        userMessage,
-        history,
-        mode
-      );
+      const data = await sendAIMessage(userMessage);
 
       setChat((prev) => [
         ...prev,
-        {
-          sender: "ai",
-          text: data.reply || "I could not generate a reply.",
-          sources: Array.isArray(data.sources) ? data.sources : [],
-          grounded: data.grounded,
-          mode: data.mode,
-        },
+        { sender: "ai", text: data.reply || "I could not generate a reply." },
       ]);
-    } catch (error) {
+    } catch {
       setChat((prev) => [
         ...prev,
         {
           sender: "ai",
-          text: `⚠️ ${error.message || "I could not connect right now. Please try again later."}`,
+          text: "⚠️ I could not connect right now. Please try again later.",
         },
       ]);
     } finally {
@@ -101,7 +62,7 @@ const AIHelpPage = () => {
 
   const handleClearChat = () => {
     setChat([]);
-    localStorage.removeItem(storageKey);
+    localStorage.removeItem("sahyog_ai_chat");
   };
 
   return (
@@ -128,31 +89,6 @@ const AIHelpPage = () => {
           )}
         </div>
 
-        <div className="ai-mode-selector" role="group" aria-label="Chat mode">
-          <button
-            type="button"
-            className={mode === "general" ? "active" : ""}
-            aria-pressed={mode === "general"}
-            onClick={() => setMode("general")}
-          >
-            General Chat
-          </button>
-          <button
-            type="button"
-            className={mode === "college" ? "active" : ""}
-            aria-pressed={mode === "college"}
-            onClick={() => setMode("college")}
-          >
-            College Knowledge
-          </button>
-        </div>
-
-        {mode === "college" && (
-          <p className="ai-mode-hint">
-            Answers are grounded in approved NIT Raipur documents and include sources.
-          </p>
-        )}
-
         <div className="ai-chat-window">
           {chat.length === 0 ? (
             <div className="ai-empty">
@@ -168,9 +104,6 @@ const AIHelpPage = () => {
 
                 <div className="ai-msg-bubble">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
-                  {msg.sender === "ai" && (
-                    <SourceCitations sources={msg.sources} />
-                  )}
                 </div>
               </div>
             ))

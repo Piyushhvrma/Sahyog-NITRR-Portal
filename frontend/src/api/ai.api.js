@@ -1,13 +1,9 @@
 import { apiRequest } from "./client";
 
-export const sendAIMessage = (message, history = [], mode = "general") => {
+export const sendAIMessage = (message) => {
   return apiRequest("/api/ai/chat", {
     method: "POST",
-    body: {
-      message,
-      history: history.slice(-6),
-      mode,
-    },
+    body: { message },
   });
 };
 

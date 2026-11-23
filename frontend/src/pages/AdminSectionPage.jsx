@@ -34,7 +34,6 @@ import AdminAnnouncementList from "../components/AdminAnnouncementList.jsx";
 import AdminFeedbackDashboard from "../components/AdminFeedbackDashboard.jsx";
 import AdminSupportDashboard from "../components/AdminSupportDashboard.jsx";
 import AdminBloodRequestDashboard from "../components/AdminBloodRequestDashboard.jsx";
-import AdminKnowledgePanel from "../components/AdminKnowledgePanel.jsx";
 
 import StatusMessage from "../components/ui/StatusMessage.jsx";
 
@@ -81,12 +80,6 @@ const sectionInformation = {
     title: "User Role Management",
     subtitle:
       "Manage student, admin and superadmin permissions.",
-  },
-
-  knowledge: {
-    title: "College Knowledge",
-    subtitle:
-      "Monitor indexed documents and control student knowledge access.",
   },
 };
 
@@ -193,10 +186,6 @@ const AdminSectionPage = () => {
   }
 
   const renderSection = () => {
-    if (section === "knowledge") {
-      return <AdminKnowledgePanel />;
-    }
-
     if (section === "resources") {
       return (
         <>
