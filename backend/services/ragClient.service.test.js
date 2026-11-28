@@ -133,14 +133,108 @@ test("distinguishes empty and unusable results from RAG failures", async () => {
   assert.equal(unavailable.error.statusCode, 503);
 });
 
-test("uses a safe college prompt for empty results but preserves the base prompt on errors", () => {
+test("uses a safe college prompt for empty results and RAG failures", () => {
   const safePrompt = rag.buildSystemPrompt("Base prompt", "empty");
   assert.ok(safePrompt.includes("available college documents did not verify it"));
   assert.ok(safePrompt.includes("general educational concepts usefully"));
-  assert.equal(
-    rag.buildSystemPrompt("Base prompt", "unavailable"),
-    "Base prompt"
-  );
+  assert.equal(rag.buildSystemPrompt("Base prompt", "unavailable"), safePrompt);
+  assert.equal(rag.buildSystemPrompt("Base prompt", "not_attempted"), "Base prompt");
+});
+
+test("routes Hinglish subject queries to RAG but not small talk", () => {
+  for (const query of [
+    "Data Structures ke important topics batao",
+    "Maths II ke first year PYQ batao",
+    "DBMS",
+  ]) {
+    assert.equal(rag.isCollegeRelatedWithHistory(query, []), true, query);
+  }
+  for (const query of ["Tell me a joke", "Hello, how are you?"]) {
+    assert.equal(rag.isCollegeRelatedWithHistory(query, []), false, query);
+  }
+});
+
+test("grounded prompt carries passages and requires citations", () => {
+  const prompt = rag.buildSystemPrompt("Base prompt", "matched", [
+    { document_name: "DS U4.pdf", page_number: 8, text: "Graph Traversal" },
+  ]);
+  assert.ok(prompt.includes("[1] Source: DS U4.pdf, page 8\nGraph Traversal"));
+  assert.ok(prompt.includes("Put the passage number in square brackets right after every statement"));
+  assert.ok(prompt.includes("Build the main answer only from the passages"));
+  assert.ok(prompt.includes("If a common topic of the subject is missing from the passages, do not list it."));
+  assert.ok(prompt.includes("### General explanation (not verified from college notes)"));
+  assert.ok(prompt.includes("### Quick Revision"));
+  assert.ok(prompt.includes("Never write document names, page numbers or a Sources/References list yourself"));
+  assert.ok(prompt.includes("Do not use tables"));
+  assert.ok(!prompt.includes("For general educational questions, give a useful general explanation"));
+});
+
+test("requests more passages only for overview questions", () => {
+  assert.equal(rag.getTopK("Data Structures ke important topics batao"), 10);
+  assert.equal(rag.getTopK("Maths II ke first year PYQ batao"), 10);
+  assert.equal(rag.getTopK("DS U4 syllabus"), 10);
+  assert.equal(rag.getTopK("Data Structures"), 5);
+  assert.equal(rag.getTopK("What is the attendance rule?"), 5);
+});
+
+test("normalizes ranged and labelled citation markers and drops invalid ones", () => {
+  assert.equal(rag.normalizeCitationMarkers("A [1-3] B [2–4]"), "A [1][2][3] B [2][3][4]");
+  assert.equal(rag.normalizeCitationMarkers("A [1, 3-4]"), "A [1][3][4]");
+  assert.equal(rag.normalizeCitationMarkers("A [Passage 2] B [source 1]"), "A [2] B [1]");
+  assert.equal(rag.normalizeCitationMarkers("A [5-2] B [1-40]"), "A  B ");
+
+  const reply = rag.appendCitations("Trees [1-2], Hashing [9], Graphs [0].", [
+    { document_name: "DS U4.pdf", page_number: 1 },
+    { document_name: "DS U4.pdf", page_number: 2 },
+  ]);
+  assert.ok(reply.startsWith("Trees [1][2], Hashing , Graphs ."));
+  assert.ok(reply.includes("- [1] DS U4\\.pdf, p. 1\n- [2] DS U4\\.pdf, p. 2"));
+  assert.ok(!reply.includes("[9]"));
+});
+
+test("drops a Sources list written by the model and keeps the validated one", () => {
+  const modelReply = [
+    "### Data Structures — Notes mein covered topics",
+    "**1. Trees**",
+    "- Binary Tree [1]",
+    "",
+    "### Sources",
+    "- DS U4.pdf, p. 99",
+    "- Invented Notes.pdf",
+    "",
+    "### Quick Revision",
+    "- Trees [1]",
+  ].join("\n");
+
+  assert.ok(!rag.stripModelSources(modelReply).includes("Invented Notes"));
+  assert.ok(rag.stripModelSources(modelReply).includes("### Quick Revision"));
+
+  const reply = rag.appendCitations(modelReply, [{ document_name: "DS U4.pdf", page_number: 1 }]);
+  assert.ok(!reply.includes("p. 99"));
+  assert.ok(!reply.includes("Invented Notes"));
+  assert.ok(reply.includes("- Trees [1]"));
+  assert.ok(reply.endsWith("**Sources**\n\n- [1] DS U4\\.pdf, p. 1"));
+  assert.equal(rag.stripModelSources("No list here [1]."), "No list here [1].");
+});
+
+test("normalizes grouped and full-width citation markers", () => {
+  assert.equal(rag.normalizeCitationMarkers("A [1, 3] B [2;4]"), "A [1][3] B [2][4]");
+  assert.equal(rag.normalizeCitationMarkers("A 【2】 B 【1†L3-L5】"), "A [2] B [1]");
+  assert.equal(rag.normalizeCitationMarkers("array[0] [x, y]"), "array[0] [x, y]");
+
+  const reply = rag.appendCitations("Trees [1, 2].", [
+    { document_name: "DS U4.pdf", page_number: 11 },
+    { document_name: "DS U4.pdf", page_number: 8 },
+  ]);
+  assert.ok(reply.includes("- [1] DS U4\\.pdf, p. 11"));
+  assert.ok(reply.includes("- [2] DS U4\\.pdf, p. 8"));
+});
+
+test("labels unverified college answers by RAG status", () => {
+  assert.match(rag.getUnverifiedNotice("empty"), /could not find this/);
+  assert.match(rag.getUnverifiedNotice("unavailable"), /could not be reached/);
+  assert.equal(rag.getUnverifiedNotice("matched"), null);
+  assert.equal(rag.getUnverifiedNotice("not_attempted"), null);
 });
 
 test("skips oversized queries without invoking RAG", async () => {

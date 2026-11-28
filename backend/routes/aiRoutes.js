@@ -221,7 +221,8 @@ router.post(
       const systemContent = rag.buildSystemPrompt(
         SYSTEM_PROMPT,
         ragOutcome.status,
-        contextResults
+        contextResults,
+        message
       );
 
       const postData = JSON.stringify({
@@ -236,12 +237,19 @@ router.post(
 
           {
             role: "user",
-            content: message,
+            // gpt-oss follows the user turn more reliably than the system prompt for
+            // answer language, so restate it for grounded Hinglish questions.
+            content:
+              contextResults.length && rag.isHinglish(message)
+                ? `${message}\n\n(Hinglish mein jawab do.)`
+                : message,
           },
         ],
 
-        temperature: 0.7,
-        max_tokens: 800,
+        // Lower temperature keeps answers close to the retrieved passages.
+        temperature: contextResults.length ? 0.2 : 0.7,
+        // Structured notes answers need more room than general chat replies.
+        max_tokens: contextResults.length ? 1600 : 800,
       });
 
       const groqResponse =
@@ -267,11 +275,28 @@ router.post(
         });
       }
 
+      const unverifiedNotice = rag.isEnabled()
+        ? rag.getUnverifiedNotice(ragOutcome.status)
+        : null;
+      let finalReply = contextResults.length
+        ? rag.appendCitations(reply.trim(), contextResults)
+        : reply.trim();
+      if (unverifiedNotice) {
+        finalReply = `${unverifiedNotice}\n\n${finalReply}`;
+      }
+
+      if (ragOutcome.status !== "not_attempted") {
+        console.info("[RAG] College chat outcome.", {
+          status: ragOutcome.status,
+          passages: contextResults.length,
+          cited: /\*\*Sources\*\*/.test(finalReply),
+          userId: req.user?.id || null,
+        });
+      }
+
       return res.status(200).json({
         success: true,
-        reply: contextResults.length
-          ? rag.appendCitations(reply.trim(), contextResults)
-          : reply.trim(),
+        reply: finalReply,
       });
     } catch (error) {
       console.error(
